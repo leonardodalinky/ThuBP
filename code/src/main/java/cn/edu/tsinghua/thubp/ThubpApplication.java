@@ -30,7 +30,10 @@ public class ThubpApplication implements CommandLineRunner {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         if (!userRepository.existsByUsername("root")) {
             User user = User.builder().enabled(true).username("root")
-                    .password(bCryptPasswordEncoder.encode("root")).role(RoleType.USER).build();
+                    .password(bCryptPasswordEncoder.encode("root")).role(RoleType.USER)
+                    .mobile("10000000000")
+                    .email("thubp@tsinghua.edu.cn")
+                    .build();
             userRepository.save(user);
         }
     }

@@ -1,0 +1,17 @@
+type Query {
+    findUserByFuzzy(username: String!, page: Int = 0, pageSize: Int = 10): [User!]!
+    findUserById(userIds: [String!]!): [User!]!
+#    findMatches(matchIds: [String!]!): [Match]
+}
+
+type User {
+    userId: String!,
+    username: String!,
+    gender: String!,
+    mobile: String,
+    email: String
+}
+
+type Match {
+
+}

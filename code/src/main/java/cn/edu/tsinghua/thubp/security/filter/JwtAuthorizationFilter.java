@@ -59,12 +59,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         log.info("get authentication");
         String token = authorization.replace(SecurityConstant.TOKEN_PREFIX, "");
         try {
-            String username = JwtTokenUtils.getUsernameByToken(token);
-            logger.info("checking username:" + username);
-            if (!StringUtils.isEmpty(username)) {
+            String userId = JwtTokenUtils.getUserIdByToken(token);
+            logger.info("checking thuId: " + userId);
+            if (!StringUtils.isEmpty(userId)) {
                 // 从数据库重新拿了一遍,避免用户的角色信息有变
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(username, null, userDetails.getAuthorities());
+                UserDetails userDetails = userDetailsService.loadUserByUserId(userId);
+                // 密码不需要获取
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 return userDetails.isEnabled() ? usernamePasswordAuthenticationToken : null;
             }
         } catch (UsernameNotFoundException | SignatureException | ExpiredJwtException | MalformedJwtException | IllegalArgumentException exception) {

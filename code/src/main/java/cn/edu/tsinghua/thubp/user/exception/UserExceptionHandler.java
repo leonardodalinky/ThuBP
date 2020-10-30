@@ -19,18 +19,18 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @Order(value = 0)
 public class UserExceptionHandler {
-
-    @ExceptionHandler(value = UsernameAlreadyExistException.class)
-    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistException(UsernameAlreadyExistException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(ex, request.getRequestURI());
-        log.error("occur UsernameAlreadyExistException:" + errorResponse.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-
-    @ExceptionHandler(value = {UsernameNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(BaseException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(ex, request.getRequestURI());
-        log.error("occur ResourceNotFoundException:" + errorResponse.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
+    // 若要自定义异常处理，在此接住
+//    @ExceptionHandler(value = UsernameAlreadyExistException.class)
+//    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistException(UsernameAlreadyExistException ex, HttpServletRequest request) {
+//        ErrorResponse errorResponse = new ErrorResponse(ex, request.getRequestURI());
+//        log.error("occur UsernameAlreadyExistException:" + errorResponse.toString());
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+//    }
+//
+//    @ExceptionHandler(value = {UsernameNotFoundException.class})
+//    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserBaseException ex, HttpServletRequest request) {
+//        ErrorResponse errorResponse = new ErrorResponse(ex, request.getRequestURI());
+//        log.error("occur ResourceNotFoundException:" + errorResponse.toString());
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+//    }
 }

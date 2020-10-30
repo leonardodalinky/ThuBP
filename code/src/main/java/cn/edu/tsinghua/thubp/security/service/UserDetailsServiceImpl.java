@@ -6,6 +6,7 @@ import cn.edu.tsinghua.thubp.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -22,10 +23,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userService = userService;
     }
 
+    /**
+     * 此处 UserName 是 thuId
+     * @param thuId thuId
+     */
     @Override
-    public UserDetails loadUserByUsername(String name) {
-        User user = userService.find(name);
+    public UserDetails loadUserByUsername(String thuId){
+        User user = userService.findByThuId(thuId);
         return new JwtUser(user);
     }
 
+    public UserDetails loadUserByUserId(String userId) {
+        User user = userService.findByUserId(userId);
+        return new JwtUser(user);
+    }
 }

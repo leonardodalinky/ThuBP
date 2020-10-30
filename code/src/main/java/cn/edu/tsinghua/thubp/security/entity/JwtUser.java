@@ -1,8 +1,7 @@
 package cn.edu.tsinghua.thubp.security.entity;
 
 import cn.edu.tsinghua.thubp.user.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,7 +15,12 @@ import java.util.Collection;
 @AllArgsConstructor
 public class JwtUser implements UserDetails {
 
-    private String id;
+    @Getter
+    @Setter
+    private String thuId;
+    @Getter
+    @Setter
+    private String userId;
     private String username;
     private String password;
     private Boolean enabled;
@@ -26,7 +30,8 @@ public class JwtUser implements UserDetails {
      * 通过 user 对象创建jwtUser
      */
     public JwtUser(User user) {
-        id = user.getId();
+        thuId = user.getThuId();
+        userId = user.getUserId();
         username = user.getUsername();
         password = user.getPassword();
         enabled = user.getEnabled() == null || user.getEnabled();
@@ -45,7 +50,7 @@ public class JwtUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return thuId;
     }
 
     @Override
@@ -71,7 +76,7 @@ public class JwtUser implements UserDetails {
     @Override
     public String toString() {
         return "JwtUser{" +
-                "id=" + id +
+                "userId=" + thuId +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", authorities=" + authorities +

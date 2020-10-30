@@ -5,8 +5,8 @@ import java.util.Map;
 /**
  * @author Link
  */
-public class UsernameNotFoundException extends BaseException {
+public class UsernameNotFoundException extends UserBaseException {
     public UsernameNotFoundException(Map<String, Object> data) {
-        super(UserErrorCode.USER_NAME_NOT_FOUND, data);
+        super(UserErrorCode.USER_NOT_FOUND, data);
     }
 }

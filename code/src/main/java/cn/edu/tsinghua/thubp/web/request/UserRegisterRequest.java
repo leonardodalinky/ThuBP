@@ -24,4 +24,9 @@ public class UserRegisterRequest {
     private String mobile;
     @Email
     private String email;
+    /**
+     * 清华服务授权码
+     */
+    @NotBlank
+    private String code;
 }

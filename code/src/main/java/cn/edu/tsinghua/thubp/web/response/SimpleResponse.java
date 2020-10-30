@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class BaseResponse {
-    private String msg;
+public class SimpleResponse {
+    private String message;
 }

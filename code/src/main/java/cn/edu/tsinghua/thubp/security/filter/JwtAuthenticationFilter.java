@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             // 这部分和attemptAuthentication方法中的源码是一样的，
             // 只不过由于这个方法源码的是把用户名和密码这些参数的名字是死的，所以我们重写了一下
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(), loginRequest.getPassword());
+                    loginRequest.getThuId(), loginRequest.getPassword());
             return authenticationManager.authenticate(authentication);
         } catch (IOException | AuthenticationException e) {
             if (e instanceof AuthenticationException) {
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         // 创建 Token
-        String token = JwtTokenUtils.createToken(jwtUser.getUsername(), authorities, rememberMe.get());
+        String token = JwtTokenUtils.createToken(jwtUser.getUserId(), authorities, rememberMe.get());
         rememberMe.remove();
         // Http Response Header 中返回 Token
         response.setHeader(SecurityConstant.TOKEN_HEADER, token);

@@ -10,7 +10,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuthenticationFacade implements IAuthenticationFacade {
-
+    /**
+     *
+     * @return 返回的 Authentication 中，Principal 为 JWTUser
+     */
     @Override
     public Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();

@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-
 class ThuqhApplicationTests {
 
     @Autowired
@@ -22,16 +21,16 @@ class ThuqhApplicationTests {
     void contextLoads() {
     }
 
-    @Test
-    void hello() {
-        assertThat("hello word").isNotEqualTo("hello world");
-    }
-
-    @Test
-    void login() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("zhy", "123456", true);
-        assertThat(this.restTemplate.postForObject("/api/v1/auth/login", loginRequest, String.class)
-                .contains("ok")).isTrue();
-    }
+//    @Test
+//    void hello() {
+//        assertThat("hello word").isNotEqualTo("hello world");
+//    }
+//
+//    @Test
+//    void login() throws Exception {
+//        LoginRequest loginRequest = new LoginRequest("zhy", "123456", true);
+//        assertThat(this.restTemplate.postForObject("/api/v1/auth/login", loginRequest, String.class)
+//                .contains("ok")).isTrue();
+//    }
 
 }

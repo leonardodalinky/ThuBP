@@ -5,9 +5,9 @@ import java.util.Map;
 /**
  * @author Link
  */
-public class UsernameAlreadyExistException extends BaseException {
+public class UserThuIdAlreadyExistException extends UserBaseException {
 
-    public UsernameAlreadyExistException(Map<String, Object> data) {
+    public UserThuIdAlreadyExistException(Map<String, Object> data) {
         super(UserErrorCode.USER_NAME_ALREADY_EXIST, data);
     }
 }

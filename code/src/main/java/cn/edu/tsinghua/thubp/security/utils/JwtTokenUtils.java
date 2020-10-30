@@ -22,7 +22,7 @@ public class JwtTokenUtils {
     private static final byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(SecurityConstant.JWT_SECRET_KEY);
     private static final SecretKey secretKey = Keys.hmacShaKeyFor(apiKeySecretBytes);
 
-    public static String createToken(String username, List<String> roles, boolean isRememberMe) {
+    public static String createToken(String userId, List<String> roles, boolean isRememberMe) {
         long expiration = isRememberMe ? SecurityConstant.EXPIRATION_REMEMBER : SecurityConstant.EXPIRATION;
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expiration * 1000);
@@ -32,7 +32,7 @@ public class JwtTokenUtils {
                 .claim(SecurityConstant.ROLE_CLAIMS, String.join(",", roles))
                 .setIssuer(SecurityConstant.JWT_ISSUER)
                 .setIssuedAt(createdDate)
-                .setSubject(username)
+                .setSubject(userId)
                 .setExpiration(expirationDate)
                 .compact();
         return SecurityConstant.TOKEN_PREFIX + tokenPrefix;
@@ -43,7 +43,7 @@ public class JwtTokenUtils {
         return expiredDate.before(new Date());
     }
 
-    public static String getUsernameByToken(String token) {
+    public static String getUserIdByToken(String token) {
         return getTokenBody(token).getSubject();
     }
 

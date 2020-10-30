@@ -19,7 +19,6 @@ import java.time.Instant;
 public abstract class AuditBase {
 
     @CreatedDate
-//    @Column(updatable = false)
     @JsonIgnore
     private Instant createdAt;
 
@@ -28,7 +27,6 @@ public abstract class AuditBase {
     private Instant updatedAt;
 
 //    @CreatedBy
-////    @Column(updatable = false)
 //    @JsonIgnore
 //    private String createdBy;
 //

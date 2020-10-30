@@ -1,20 +1,19 @@
 package cn.edu.tsinghua.thubp.user.enums;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Optional;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum RoleType {
     USER("USER", "用户"),
     ADMIN("ADMIN", "Admin");
+
     String name;
     String description;
-
-    RoleType(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 
     public static Optional<RoleType> fromName(String name) {
         for (RoleType s: RoleType.values()) {

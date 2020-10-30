@@ -8,11 +8,11 @@ import java.util.Map;
 /**
  * @author Link
  */
-public abstract class BaseException extends RuntimeException {
+public abstract class UserBaseException extends RuntimeException {
     private final UserErrorCode userErrorCode;
     private final transient HashMap<String, Object> data = new HashMap<>();
 
-    public BaseException(UserErrorCode userErrorCode, Map<String, Object> data) {
+    public UserBaseException(UserErrorCode userErrorCode, Map<String, Object> data) {
         super(userErrorCode.getMessage());
         this.userErrorCode = userErrorCode;
         if (!ObjectUtils.isEmpty(data)) {
@@ -20,7 +20,7 @@ public abstract class BaseException extends RuntimeException {
         }
     }
 
-    BaseException(UserErrorCode userErrorCode, Map<String, Object> data, Throwable cause) {
+    UserBaseException(UserErrorCode userErrorCode, Map<String, Object> data, Throwable cause) {
         super(userErrorCode.getMessage(), cause);
         this.userErrorCode = userErrorCode;
         if (!ObjectUtils.isEmpty(data)) {

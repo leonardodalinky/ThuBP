@@ -20,7 +20,7 @@ public class ErrorResponse {
     private Instant timestamp;
     private final HashMap<String, Object> errorDetail = new HashMap<>();
 
-    public ErrorResponse(BaseException ex, String path) {
+    public ErrorResponse(UserBaseException ex, String path) {
         this(ex.getErrorCode().getCode(), ex.getErrorCode().getStatus().value(), ex.getErrorCode().getMessage(), path, ex.getData());
     }
 

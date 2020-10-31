@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.user.exception;
 
+import cn.edu.tsinghua.thubp.common.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +8,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum UserErrorCode {
+public enum UserErrorCode implements ErrorCode {
     USER_NAME_ALREADY_EXIST(1001, HttpStatus.BAD_REQUEST, "用户名已经存在"),
     USER_NOT_FOUND(1002, HttpStatus.NOT_FOUND, "未找到指定用户"),
     METHOD_ARGUMENT_NOT_VALID(1003, HttpStatus.BAD_REQUEST, "方法参数验证失败"),

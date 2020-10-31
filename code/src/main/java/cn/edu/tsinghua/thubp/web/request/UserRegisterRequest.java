@@ -5,10 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-
 /**
  * @author Link
  */
@@ -16,17 +12,17 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRegisterRequest {
-    @NotBlank
+    @javax.validation.constraints.NotBlank
     private String username;
-    @NotBlank
+    @javax.validation.constraints.NotBlank
     private String password;
-    @Pattern(regexp = "^\\d{11}$")
+    @javax.validation.constraints.Pattern(regexp = "^\\d{11}$")
     private String mobile;
-    @Email
+    @javax.validation.constraints.Email
     private String email;
     /**
      * 清华服务授权码
      */
-    @NotBlank
+    @javax.validation.constraints.NotBlank
     private String code;
 }

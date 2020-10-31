@@ -6,7 +6,7 @@ import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
 import cn.edu.tsinghua.thubp.web.request.UserRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
-import cn.edu.tsinghua.thubp.web.response.InfoResponse;
+import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,21 +33,21 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
     public SimpleResponse login() {
-        return new SimpleResponse("ok");
+        return new SimpleResponse(SimpleResponse.OK);
     }
 
     @ResponseBody
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
     public SimpleResponse register(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
         userService.save(userRegisterRequest);
-        return new SimpleResponse("ok");
+        return new SimpleResponse(SimpleResponse.OK);
     }
 
     @ResponseBody
     @RequestMapping(value = "/user/info", method = RequestMethod.GET)
-    public InfoResponse info() {
+    public UserInfoResponse info() {
         User user = currentUserService.getUser();
-        return new InfoResponse(user);
+        return new UserInfoResponse(user);
     }
 
     @RequestMapping(value = "/admin/update", method = RequestMethod.PATCH)

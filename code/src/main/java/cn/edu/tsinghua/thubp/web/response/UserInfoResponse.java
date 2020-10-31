@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InfoResponse {
+public class UserInfoResponse {
     private String thuId;
     private String userId;
     private String username;
@@ -23,7 +23,7 @@ public class InfoResponse {
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String email;
 
-    public InfoResponse(User user) {
+    public UserInfoResponse(User user) {
         this.thuId = user.getThuId();
         this.userId = user.getUserId();
         this.username = user.getUsername();

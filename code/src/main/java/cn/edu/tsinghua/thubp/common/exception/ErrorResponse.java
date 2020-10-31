@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.user.exception;
+package cn.edu.tsinghua.thubp.common.exception;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,16 +20,16 @@ public class ErrorResponse {
     private Instant timestamp;
     private final HashMap<String, Object> errorDetail = new HashMap<>();
 
-    public ErrorResponse(UserBaseException ex, String path) {
+    public ErrorResponse(CommonException ex, String path) {
         this(ex.getErrorCode().getCode(), ex.getErrorCode().getStatus().value(), ex.getErrorCode().getMessage(), path, ex.getData());
     }
 
-    public ErrorResponse(UserErrorCode userErrorCode, String path) {
-        this(userErrorCode.getCode(), userErrorCode.getStatus().value(), userErrorCode.getMessage(), path, null);
+    public ErrorResponse(ErrorCode errorCode, String path) {
+        this(errorCode.getCode(), errorCode.getStatus().value(), errorCode.getMessage(), path, null);
     }
 
-    public ErrorResponse(UserErrorCode userErrorCode, String path, Map<String, Object> errorDetail) {
-        this(userErrorCode.getCode(), userErrorCode.getStatus().value(), userErrorCode.getMessage(), path, errorDetail);
+    public ErrorResponse(ErrorCode errorCode, String path, Map<String, Object> errorDetail) {
+        this(errorCode.getCode(), errorCode.getStatus().value(), errorCode.getMessage(), path, errorDetail);
     }
 
     private ErrorResponse(int code, int status, String message, String path, Map<String, Object> errorDetail) {

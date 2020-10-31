@@ -1,8 +1,10 @@
 package cn.edu.tsinghua.thubp.user.entity;
 
+import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -20,13 +22,13 @@ import java.util.List;
 @Document(collection = "user")
 public class User extends AuditBase {
     /**
-     * 用于给每个 user 赋值 userid 的静态常量
+     * 用于给每个 user 赋值 userId 的静态常量
      */
     @Transient
     public static final String SEQUENCE_NAME = "user_sequence";
 
     @Id
-    private String id;
+    private ObjectId id;
     /**
      * 清华证件号
      */
@@ -59,10 +61,20 @@ public class User extends AuditBase {
      */
     @NonNull
     private Gender gender;
+
     @Indexed(unique = true)
+    @org.jetbrains.annotations.Nullable
     private String mobile;
+
     @Indexed(unique = true)
+    @org.jetbrains.annotations.Nullable
     private String email;
+
+    @org.jetbrains.annotations.Nullable
+    private List<String> organizedMatches;
+
+    @org.jetbrains.annotations.Nullable
+    private List<String> participatedMatches;
 
     public List<SimpleGrantedAuthority> getRoles() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

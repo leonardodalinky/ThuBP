@@ -1,17 +1,25 @@
 type Query {
+    # 用户相关
     findUserByFuzzy(username: String!, page: Int = 0, pageSize: Int = 10): [User!]!
     findUserById(userIds: [String!]!): [User!]!
-#    findMatches(matchIds: [String!]!): [Match]
+
+    # 赛事相关
+    findMatchById(matchId: String!): Match
+    findMatches(matchIds: [String!]!): [Match]
 }
 
 type User {
-    userId: String!,
-    username: String!,
-    gender: String!,
-    mobile: String,
+    userId: String
+    username: String!
+    gender: String!
+    mobile: String
     email: String
 }
 
 type Match {
-
+    matchId: String!
+    organizerUserId: String!
+    name: String!
+    description: String!
+    participants: [String!]
 }

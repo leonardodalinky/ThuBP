@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @ControllerAdvice
 @Slf4j
-@Order(value = 10000)
+@Order(/* value = Integer.MAX_VALUE */)
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex, HttpServletRequest request) {

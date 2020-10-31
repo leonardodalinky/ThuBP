@@ -15,17 +15,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
-    public static final String THUID = "thuId: ";
+    public static final String THUID = "thuId";
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
@@ -54,11 +57,21 @@ public class UserService {
 
     // TODO 改变抛出错误
     public User findByThuId(String thuId) {
-        return userRepository.findByThuId(thuId).orElseThrow(() -> new UserThuIdNotFoundException(ImmutableMap.of(THUID, thuId)));
+        return userRepository.findByThuId(thuId)
+                .orElseThrow(() -> new UserThuIdNotFoundException(ImmutableMap.of(THUID, thuId)));
     }
 
     public User findByUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new UserIdNotFoundException(ImmutableMap.of(THUID, userId)));
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserIdNotFoundException(ImmutableMap.of(THUID, userId)));
+    }
+
+    public Page<User> findAllByUsernameRegex(String regex, Pageable pageable) {
+        return userRepository.findAllByUsernameRegex(regex, pageable);
+    }
+
+    public List<User> findByUserIdIn(List<String> userIds) {
+        return userRepository.findByUserIdIn(userIds);
     }
 
     public void update(UserUpdateRequest userUpdateRequest) {
@@ -68,10 +81,12 @@ public class UserService {
         }
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {
             if (!Objects.nonNull(userUpdateRequest.getOldPassword())) {
-                throw new UserOldPwdNotProvidedException(ImmutableMap.of("OldPwd: ", ""));
+                throw new UserOldPwdNotProvidedException(ImmutableMap.of("OldPwd", ""));
             }
             if (!bCryptPasswordEncoder.matches(userUpdateRequest.getOldPassword(), user.getPassword())) {
-                throw new UserOldPwdNotValidException(ImmutableMap.of("OldPwd: ", userUpdateRequest.getOldPassword()));
+                throw new UserOldPwdNotValidException(
+                        ImmutableMap.of("OldPwd", userUpdateRequest.getOldPassword())
+                );
             }
             user.setPassword(bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
         }
@@ -89,7 +104,6 @@ public class UserService {
         }
         userRepository.save(user);
     }
-
 
     public void delete(String userId) {
         if (!userRepository.existsByUserId(userId)) {

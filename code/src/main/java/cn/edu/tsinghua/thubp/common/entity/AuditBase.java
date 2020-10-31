@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.user.entity;
+package cn.edu.tsinghua.thubp.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

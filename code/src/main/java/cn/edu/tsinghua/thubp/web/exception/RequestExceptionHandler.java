@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.thubp.web.exception;
 
-import cn.edu.tsinghua.thubp.user.exception.ErrorResponse;
+import cn.edu.tsinghua.thubp.common.exception.ErrorResponse;
 import cn.edu.tsinghua.thubp.user.exception.UserErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -23,7 +23,7 @@ import java.util.Map;
 @ResponseBody
 @Slf4j
 @Order(value = 1000)
-public class CommonExceptionHandler {
+public class RequestExceptionHandler {
     /**
      * 请求参数异常处理
      */

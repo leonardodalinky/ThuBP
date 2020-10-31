@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.thubp.web.graphql;
 
 import cn.edu.tsinghua.thubp.user.entity.User;
-import cn.edu.tsinghua.thubp.user.repository.UserRepository;
+import cn.edu.tsinghua.thubp.user.service.UserService;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +14,21 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class QueryResolver implements GraphQLQueryResolver {
+public class UserQueryResolver implements GraphQLQueryResolver {
 
-    private final UserRepository userRepository;
-    private final MongoTemplate mongoTemplate;
+    private final UserService userService;
 
     public List<User> findUserByFuzzy(String username, Integer page, Integer pageSize) {
-        Page<User> userPage = userRepository.findAllByUsernameRegex(
-                ".*" + username + ".*",
-                PageRequest.of(page, pageSize)
-        );
-        return userPage.getContent();
+//        Page<User> userPage = userService.findAllByUsernameRegex(
+//                ".*" + username + ".*",
+//                PageRequest.of(page, pageSize)
+//        );
+//        return userPage.getContent();
+        return null;
     }
 
     public List<User> findUserById(List<String> userIds) {
-        return userRepository.findByUserIdIn(userIds);
+        return null;
+        //return userService.findByUserIdIn(userIds);
     }
 }

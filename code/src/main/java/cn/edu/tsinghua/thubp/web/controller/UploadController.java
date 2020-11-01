@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
+import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
@@ -20,6 +21,7 @@ import java.util.Objects;
 @RequestMapping(WebConstant.URL_PREFIX_API_V1)
 public class UploadController {
     private final CurrentUserService currentUserService;
+    private final GlobalConfig globalConfig;
 
     /**
      * 客户端向服务端索要一个上传凭证
@@ -36,8 +38,8 @@ public class UploadController {
                 nowUser.getUserId() +
                 "_" + new Date().getTime() +
                 ((Objects.isNull(uploadRequest.getSuffix()))? "" : uploadRequest.getSuffix());
-        Auth auth = Auth.create(WebConstant.QINIUYUN_ACCESS_KEY, WebConstant.QINIUYUN_SECRET_KEY);
-        String uploadToken = auth.uploadToken(WebConstant.QINIUYUN_BUCKET_NAME, key);
+        Auth auth = Auth.create(globalConfig.getQiNiuAccessKey(), globalConfig.getQiNiuPrivateKey());
+        String uploadToken = auth.uploadToken(globalConfig.getQiNiuBucketName(), key);
         return new UploadResponse(uploadToken, key);
     }
 }

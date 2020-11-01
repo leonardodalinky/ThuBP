@@ -1,10 +1,12 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
 import cn.edu.tsinghua.thubp.match.MatchService;
+import cn.edu.tsinghua.thubp.match.entity.RefereeToken;
 import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
 import cn.edu.tsinghua.thubp.web.request.MatchCreateRequest;
+import cn.edu.tsinghua.thubp.web.response.AssignRefereeTokenResponse;
 import cn.edu.tsinghua.thubp.web.response.MatchCreateResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,27 @@ public class MatchController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/match/participate/{id}", method = RequestMethod.POST)
-    public SimpleResponse participate(@PathVariable String id) {
+    @RequestMapping(value = "/match/participate/{matchId}", method = RequestMethod.POST)
+    public SimpleResponse participate(@PathVariable String matchId) {
         User user = currentUserService.getUser();
-        matchService.participateIn(user, id);
+        matchService.participateIn(user, matchId);
         return new SimpleResponse(SimpleResponse.OK);
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/match/assign-referee-token/{matchId}", method = RequestMethod.POST)
+    public AssignRefereeTokenResponse assignRefereeToken(@PathVariable String matchId) {
+        User user = currentUserService.getUser();
+        RefereeToken token = matchService.assignRefereeToken(user.getUserId(), matchId);
+        return new AssignRefereeTokenResponse(token.getTokenId(), token.getExpirationTime().toEpochMilli());
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/match/become-referee/{matchId}", method = RequestMethod.POST)
+    public SimpleResponse becomeRefereeByToken(@PathVariable String matchId) {
+        User user = currentUserService.getUser();
+        matchService.becomeRefereeByToken(user.getUserId(), matchId);
+        return new SimpleResponse(SimpleResponse.OK);
+    }
+
 }

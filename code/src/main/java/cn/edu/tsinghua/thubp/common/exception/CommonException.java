@@ -1,11 +1,16 @@
 package cn.edu.tsinghua.thubp.common.exception;
 
+import com.google.common.collect.ImmutableMap;
+import graphql.ErrorType;
+import graphql.GraphQLError;
+import graphql.language.SourceLocation;
 import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class CommonException extends RuntimeException {
+public class CommonException extends RuntimeException implements GraphQLError {
     private final ErrorCode errorCode;
     private final transient HashMap<String, Object> data = new HashMap<>();
 
@@ -38,4 +43,22 @@ public class CommonException extends RuntimeException {
         return data;
     }
 
+    @Override
+    public List<SourceLocation> getLocations() {
+        return null;
+    }
+
+    @Override
+    public ErrorType getErrorType() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getExtensions() {
+        return ImmutableMap.of(
+                "code", errorCode.getCode(),
+                "status", errorCode.getStatus().value(),
+                "message", errorCode.getMessage()
+        );
+    }
 }

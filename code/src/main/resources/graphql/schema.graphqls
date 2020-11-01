@@ -22,4 +22,5 @@ type Match {
     name: String!
     description: String!
     participants: [String!]
+    referees: [String!]
 }

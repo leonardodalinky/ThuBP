@@ -37,4 +37,9 @@ public class Match extends AuditBase {
     @org.jetbrains.annotations.Nullable
     private List<String> participants;
 
+    @org.jetbrains.annotations.Nullable
+    private List<String> referees;
+
+    @org.jetbrains.annotations.Nullable
+    private RefereeToken refereeToken;
 }

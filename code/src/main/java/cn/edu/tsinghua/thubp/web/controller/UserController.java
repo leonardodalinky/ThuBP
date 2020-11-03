@@ -45,14 +45,16 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/user/info", method = RequestMethod.GET)
-    public UserInfoResponse info() {
+    public UserInfoResponse infoGet() {
         User user = currentUserService.getUser();
         return new UserInfoResponse(user);
     }
 
-    @RequestMapping(value = "/admin/update", method = RequestMethod.PATCH)
-    @PreAuthorize("hasRole('ADMIN')")
-    public void update(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
-        userService.update(userUpdateRequest);
+    @ResponseBody
+    @RequestMapping(value = "/user/info", method = RequestMethod.POST)
+    public SimpleResponse infoPost(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+        User user = currentUserService.getUser();
+        userService.update(user, userUpdateRequest);
+        return new SimpleResponse(SimpleResponse.OK);
     }
 }

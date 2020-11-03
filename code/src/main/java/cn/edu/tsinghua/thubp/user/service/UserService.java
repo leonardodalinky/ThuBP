@@ -2,6 +2,9 @@ package cn.edu.tsinghua.thubp.user.service;
 
 //import cn.edu.tsinghua.thubp.user.entity.Role;
 
+import cn.edu.tsinghua.thubp.common.exception.CommonException;
+import cn.edu.tsinghua.thubp.match.entity.Match;
+import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -16,7 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +35,10 @@ import java.util.Objects;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
+    public static final String USERID = "userId";
     public static final String THUID = "thuId";
     private final UserRepository userRepository;
+    private final MongoTemplate mongoTemplate;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
 
@@ -55,7 +64,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // TODO 改变抛出错误
     public User findByThuId(String thuId) {
         return userRepository.findByThuId(thuId)
                 .orElseThrow(() -> new UserThuIdNotFoundException(ImmutableMap.of(THUID, thuId)));
@@ -74,10 +82,10 @@ public class UserService {
         return userRepository.findByUserIdIn(userIds);
     }
 
-    public void update(UserUpdateRequest userUpdateRequest) {
-        User user = findByThuId(userUpdateRequest.getUserId());
+    public void update(User user, UserUpdateRequest userUpdateRequest) {
+        Update update = new Update();
         if (Objects.nonNull(userUpdateRequest.getUsername())) {
-            user.setUsername(userUpdateRequest.getUsername());
+            update.set("username", userUpdateRequest.getUsername());
         }
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {
             if (!Objects.nonNull(userUpdateRequest.getOldPassword())) {
@@ -88,21 +96,32 @@ public class UserService {
                         ImmutableMap.of("OldPwd", userUpdateRequest.getOldPassword())
                 );
             }
-            user.setPassword(bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
+            // TODO: 沒有新密码的复杂度验证
+            update.set("password", bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
         }
         if (Objects.nonNull(userUpdateRequest.getGender())) {
             user.setGender(userUpdateRequest.getGender());
+            update.set("gender", userUpdateRequest.getGender());
         }
         if (Objects.nonNull(userUpdateRequest.getMobile())) {
             user.setMobile(userUpdateRequest.getMobile());
+            update.set("mobile", userUpdateRequest.getMobile());
         }
         if (Objects.nonNull(userUpdateRequest.getEmail())) {
             user.setEmail(userUpdateRequest.getEmail());
+            update.set("email", userUpdateRequest.getEmail());
         }
-        if (Objects.nonNull(userUpdateRequest.getEnabled())) {
-            user.setEnabled(userUpdateRequest.getEnabled());
+//        mongoTemplate.updateFirst(
+//                Query.query(Criteria.where("userId").is(user.getUserId())),
+//                update,
+//                User.class);
+        User u = mongoTemplate.findAndModify(
+                Query.query(Criteria.where("userId").is(user.getUserId())),
+                update,
+                User.class);
+        if (!Objects.nonNull(u)) {
+            throw new UserIdNotFoundException(ImmutableMap.of(USERID, user.getUserId()));
         }
-        userRepository.save(user);
     }
 
     public void delete(String userId) {
@@ -112,7 +131,21 @@ public class UserService {
         userRepository.deleteByUserId(userId);
     }
 
-    public Page<User> getAll(int pageNum, int pageSize) {
+    /**
+     * 获得一个固定大小页的 User
+     * @param pageNum 页面序号，从 0 开始
+     * @param pageSize 页面大小
+     * @return User 页面
+     */
+    public Page<User> getPage(int pageNum, int pageSize) {
         return userRepository.findAll(PageRequest.of(pageNum, pageSize));
+    }
+
+    /**
+     * 获得数据库中所有 User
+     * @return User 列表
+     */
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 }

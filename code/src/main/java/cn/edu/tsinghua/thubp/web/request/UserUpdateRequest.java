@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 
@@ -18,8 +19,6 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdateRequest {
-    @NotBlank
-    private String userId;
     private String username;
     private String oldPassword;
     private String newPassword;
@@ -28,5 +27,4 @@ public class UserUpdateRequest {
     private String mobile;
     @Email
     private String email;
-    private Boolean enabled;
 }

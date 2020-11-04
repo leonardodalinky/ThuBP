@@ -50,7 +50,7 @@ public class ThubpApplication implements CommandLineRunner {
                     .enabled(true)
                     .username("root")
                     .password(bCryptPasswordEncoder.encode("root"))
-                    .role(RoleType.ADMIN)
+                    .role(RoleType.ROOT)
                     .mobile("10000000000")
                     .email("thubp@tsinghua.edu.cn")
                     .thuId("2018000000")

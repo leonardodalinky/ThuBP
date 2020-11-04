@@ -10,7 +10,8 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum RoleType {
     USER("USER", "用户"),
-    ADMIN("ADMIN", "Admin");
+    ADMIN("ADMIN", "管理员"),
+    ROOT("ROOT", "上帝"),;
 
     String name;
     String description;

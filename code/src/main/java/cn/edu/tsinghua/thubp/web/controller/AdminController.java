@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
+import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -10,6 +11,7 @@ import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import com.google.common.collect.ImmutableMap;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
 
+    @ApiOperation(value = "获得所有的用户（管理员）", tags = {SwaggerTagUtil.ADMIN, SwaggerTagUtil.ROOT})
     @ResponseBody
     @RequestMapping(value = "/admin/users", method = RequestMethod.GET)
     @PreAuthorize("hasAnyRole('ROOT', 'ADMIN')")
@@ -49,6 +52,7 @@ public class AdminController {
         return ret;
     }
 
+    @ApiOperation(value = "重置数据库", tags = {SwaggerTagUtil.ROOT})
     @ResponseBody
     @RequestMapping(value = "/admin/reset", method = RequestMethod.GET)
     @PreAuthorize("hasAnyRole('ROOT')")

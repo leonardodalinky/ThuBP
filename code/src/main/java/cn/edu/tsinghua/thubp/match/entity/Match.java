@@ -33,6 +33,8 @@ public class Match extends AuditBase {
     private String name;
     @NonNull
     private String description;
+    @NonNull
+    private String matchTypeId;
 
     @org.jetbrains.annotations.Nullable
     private List<String> participants;

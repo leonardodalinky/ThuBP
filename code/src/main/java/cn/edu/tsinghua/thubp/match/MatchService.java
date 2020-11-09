@@ -41,9 +41,11 @@ public class MatchService {
         String matchId = sequenceGeneratorService.generateSequence(Match.SEQUENCE_NAME);
         Match match = Match.builder()
                 .matchId(matchId)
+                .matchTypeId(request.getMatchTypeId())
                 .organizerUserId(user.getUserId())
                 .name(request.getName())
                 .description(request.getDescription())
+
                 .build();
         matchRepository.save(match);
         return matchId;

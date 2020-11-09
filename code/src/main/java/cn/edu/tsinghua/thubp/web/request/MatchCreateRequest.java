@@ -19,4 +19,6 @@ public class MatchCreateRequest {
     @ApiModelProperty(value = "赛事描述", required = true)
     @javax.validation.constraints.NotBlank
     String description;
+    @javax.validation.constraints.NotBlank
+    String matchTypeId;
 }

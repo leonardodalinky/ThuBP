@@ -6,6 +6,9 @@ type Query {
     # 赛事相关
     findMatchById(matchId: String!): Match
     findMatches(matchIds: [String!]!): [Match]
+
+    # 全局相关
+    listMatchTypes: [MatchType!]!
 }
 
 type User {
@@ -18,9 +21,30 @@ type User {
 
 type Match {
     matchId: String!
+    matchTypeId: String!
     organizerUserId: String!
     name: String!
     description: String!
     participants: [String!]
     referees: [String!]
+}
+
+type MatchType {
+    matchTypeId: String!
+    matchTypeName: String!
+    matchScoreboardTypes: [ScoreboardInfo!]
+}
+
+type ScoreboardInfo {
+    scoreboardTypeId: String
+    scoreboardTypeName: String
+    configParameters: [ScoreboardConfigParameter!]
+}
+
+type ScoreboardConfigParameter {
+    key: String
+    displayName: String
+    defaultValue: String
+    required: Boolean
+    fieldType: String
 }

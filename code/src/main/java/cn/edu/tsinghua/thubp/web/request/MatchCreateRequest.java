@@ -21,4 +21,7 @@ public class MatchCreateRequest {
     String description;
     @javax.validation.constraints.NotBlank
     String matchTypeId;
+    @ApiModelProperty(value = "公开报名", required = true)
+    @javax.validation.constraints.NotNull
+    Boolean publicSignUp;
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UploadResponse {
+public class UploadResponse extends SimpleResponse {
     /**
      * 上传凭证
      */

@@ -76,6 +76,9 @@ public class User extends AuditBase {
     @org.jetbrains.annotations.Nullable
     private List<String> participatedMatches;
 
+    @org.jetbrains.annotations.Nullable
+    private List<String> participatedUnits;
+
     public List<SimpleGrantedAuthority> getRoles() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));

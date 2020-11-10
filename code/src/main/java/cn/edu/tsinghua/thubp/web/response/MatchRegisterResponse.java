@@ -1,16 +1,17 @@
 package cn.edu.tsinghua.thubp.web.response;
 
-import cn.edu.tsinghua.thubp.common.response.TokenResponseBase;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class AssignRefereeTokenResponse extends TokenResponseBase {}
+public class MatchRegisterResponse extends SimpleResponse {
+    @ApiModelProperty(value = "参赛单位 Id", required = true)
+    private String unitId;
+}

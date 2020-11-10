@@ -12,7 +12,7 @@ import java.util.Random;
  */
 @Service
 public class TokenGeneratorService {
-    private static final char[] alphabet = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    private static final char[] alphabet = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     private final Random random = new Random();
 
     public static final int MIN_TOKEN_LENGTH = 6;

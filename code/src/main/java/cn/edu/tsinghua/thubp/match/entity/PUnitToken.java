@@ -7,16 +7,16 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 裁判报名时的邀请码
+ * 加入参赛单位时的邀请码
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class RefereeToken extends TokenBase {
+public class PUnitToken extends TokenBase {
     @Override
     public ErrorCode getErrorCode() {
-        return MatchErrorCode.MATCH_REFEREE_TOKEN_EXPIRED_OR_INVALID;
+        return MatchErrorCode.UNIT_TOKEN_EXPIRED_OR_INVALID;
     }
 }

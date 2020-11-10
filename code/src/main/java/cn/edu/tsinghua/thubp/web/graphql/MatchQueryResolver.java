@@ -1,6 +1,6 @@
 package cn.edu.tsinghua.thubp.web.graphql;
 
-import cn.edu.tsinghua.thubp.match.MatchService;
+import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import lombok.RequiredArgsConstructor;

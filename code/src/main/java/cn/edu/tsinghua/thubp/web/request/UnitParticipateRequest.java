@@ -1,16 +1,14 @@
-package cn.edu.tsinghua.thubp.web.response;
+package cn.edu.tsinghua.thubp.web.request;
 
-import cn.edu.tsinghua.thubp.common.response.TokenResponseBase;
+import cn.edu.tsinghua.thubp.common.request.TokenRequestBase;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class AssignRefereeTokenResponse extends TokenResponseBase {}
+public class UnitParticipateRequest extends TokenRequestBase {}

@@ -1,9 +1,12 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
-import cn.edu.tsinghua.thubp.match.entity.PUnitToken;
+import cn.edu.tsinghua.thubp.match.entity.UnitToken;
+import cn.edu.tsinghua.thubp.match.service.GameService;
 import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.match.entity.RefereeToken;
+import cn.edu.tsinghua.thubp.match.service.RoundService;
+import cn.edu.tsinghua.thubp.match.service.UnitService;
 import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
@@ -15,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -24,6 +26,9 @@ public class MatchController {
 
     private final CurrentUserService currentUserService;
     private final MatchService matchService;
+    private final RoundService roundService;
+    private final GameService gameService;
+    private final UnitService unitService;
 
     @ApiOperation(value = "创建比赛", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ResponseBody
@@ -43,7 +48,7 @@ public class MatchController {
     public MatchRegisterResponse register(@PathVariable String matchId,
                                           @RequestBody @Valid MatchRegisterRequest matchRegisterRequest) {
         User user = currentUserService.getUser();
-        String ret = matchService.registerIn(user, matchId, matchRegisterRequest);
+        String ret = unitService.registerIn(user, matchId, matchRegisterRequest);
         return new MatchRegisterResponse(ret);
     }
 
@@ -56,7 +61,7 @@ public class MatchController {
     public SimpleResponse participate(@PathVariable String unitId,
                                       @RequestBody @Valid UnitParticipateRequest unitParticipateRequest) {
         User user = currentUserService.getUser();
-        matchService.participateIn(user, unitId, unitParticipateRequest);
+        unitService.participateIn(user, unitId, unitParticipateRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -68,7 +73,7 @@ public class MatchController {
     @RequestMapping(value = "/match/assign-unit-token/{unitId}", method = RequestMethod.POST)
     public AssignUnitTokenResponse assignUnitToken(@PathVariable String unitId) {
         User user = currentUserService.getUser();
-        PUnitToken token = matchService.assignUnitToken(user.getUserId(), unitId);
+        UnitToken token = unitService.assignUnitToken(user.getUserId(), unitId);
         return AssignUnitTokenResponse.builder().
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime().toEpochMilli())
@@ -112,7 +117,7 @@ public class MatchController {
     public RoundCreateResponse createRound(@PathVariable String matchId,
                                            @RequestBody @Valid RoundCreateRequest roundCreateRequest) {
         User user = currentUserService.getUser();
-        String roundId = matchService.createRound(user, matchId, roundCreateRequest);
+        String roundId = roundService.createRound(user, matchId, roundCreateRequest);
         return new RoundCreateResponse(roundId);
     }
 
@@ -127,7 +132,7 @@ public class MatchController {
                                           @PathVariable String roundId,
                                           @RequestBody @Valid GameCreateRequest gameCreateRequest) {
         User user = currentUserService.getUser();
-        String gameId = matchService.createGame(user, matchId, roundId, gameCreateRequest);
+        String gameId = gameService.createGame(user, matchId, roundId, gameCreateRequest);
         return new GameCreateResponse(gameId);
     }
 
@@ -142,7 +147,7 @@ public class MatchController {
                                          @PathVariable String roundId,
                                          @RequestBody @Valid GameDeleteRequest gameDeleteRequest) {
         User user = currentUserService.getUser();
-        matchService.deleteGame(user, matchId, roundId, gameDeleteRequest);
+        gameService.deleteGame(user, matchId, roundId, gameDeleteRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 }

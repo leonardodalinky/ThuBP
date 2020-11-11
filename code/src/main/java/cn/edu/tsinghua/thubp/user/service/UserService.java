@@ -78,6 +78,11 @@ public class UserService {
         return userRepository.findAllByUsernameRegex(regex, pageable);
     }
 
+    /**
+     * 根据 userId 的列表，寻找对应的所有 User
+     * @param userIds userId 的列表
+     * @return User 的列表
+     */
     public List<User> findByUserIdIn(List<String> userIds) {
         return userRepository.findByUserIdIn(userIds);
     }

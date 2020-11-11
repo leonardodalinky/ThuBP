@@ -12,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
 public class MatchToken extends TokenBase {
     @Override

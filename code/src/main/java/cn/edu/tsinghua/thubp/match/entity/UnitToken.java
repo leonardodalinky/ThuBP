@@ -12,9 +12,8 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
-public class PUnitToken extends TokenBase {
+public class UnitToken extends TokenBase {
     @Override
     public ErrorCode getErrorCode() {
         return MatchErrorCode.UNIT_TOKEN_EXPIRED_OR_INVALID;

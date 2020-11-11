@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "match")
-public class PUnit extends AuditBase {
+public class Unit extends AuditBase {
     @Transient
     public static final String SEQUENCE_NAME = "punit_sequence";
 
@@ -32,7 +32,7 @@ public class PUnit extends AuditBase {
      * 参赛单位名字，通常用于小组
      */
     @org.jetbrains.annotations.Nullable
-    private String unitName;
+    private String name;
 
     /**
      * 创建者的 userId
@@ -53,5 +53,5 @@ public class PUnit extends AuditBase {
      * 加入参赛单位的邀请码
      */
     @org.jetbrains.annotations.Nullable
-    private PUnitToken unitToken;
+    private UnitToken unitToken;
 }

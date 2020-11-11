@@ -5,28 +5,86 @@ type Query {
 
     # 赛事相关
     findMatchById(matchId: String!): Match
-    findMatches(matchIds: [String!]!): [Match]
+    findMatches(matchIds: [String!]!): [Match!]!
+
+    # TODO: 正在加入查询
+    # 参赛单位相关
+    findUnitById(unitId: String!): Unit
+    findUnits(unitIds: [String!]!): [Unit!]!
+    # 比赛相关
+    findGameById(gameId: String!): Game
+    findGames(gameIds: [String!]!): [Game!]!
+    # 轮次相关
+    findRoundById(roundId: String!): Round
+    findRounds(roundIds: [String!]!): [Round!]!
+
 
     # 全局相关
     listMatchTypes: [MatchType!]!
 }
 
 type User {
-    userId: String
+    userId: String!
     username: String!
-    gender: String!
+    gender: Gender!
     mobile: String
     email: String
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+    UNKNOWN
 }
 
 type Match {
     matchId: String!
     matchTypeId: String!
-    organizerUserId: String!
+    organizerUser: User!
     name: String!
     description: String!
-    participants: [String!]
-    referees: [String!]
+    participants: [User!]!
+    referees: [User!]!
+}
+
+type Unit {
+    unitId: String!
+    name: String
+    creator: User!
+    members: [User!]!
+    match: Match!
+}
+
+type Game {
+    gameId: String!
+    status: GameStatus!
+    unit0: User!
+    unit1: User
+}
+
+enum GameStatus {
+    NOT_START
+    RUNNING
+    WIN_FIRST
+    WIN_SECOND
+    DRAW
+}
+
+type Round {
+    roundId: String!
+    name: String
+    description: String
+    status: RoundStatus!
+    units: [Unit!]!
+    games: [Game!]!
+}
+
+enum RoundStatus {
+    NOT_START
+    RUNNING
+    FINISHED
+    TERMINATED
 }
 
 type MatchType {

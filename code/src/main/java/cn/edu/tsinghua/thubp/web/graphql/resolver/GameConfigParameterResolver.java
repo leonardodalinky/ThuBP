@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.web.graphql;
+package cn.edu.tsinghua.thubp.web.graphql.resolver;
 
 import cn.edu.tsinghua.thubp.plugin.api.config.GameConfig;
 import com.coxautodev.graphql.tools.GraphQLResolver;

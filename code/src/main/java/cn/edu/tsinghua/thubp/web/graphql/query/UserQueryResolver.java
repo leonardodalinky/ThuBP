@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.web.graphql;
+package cn.edu.tsinghua.thubp.web.graphql.query;
 
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.service.UserService;
@@ -19,16 +19,14 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     private final UserService userService;
 
     public List<User> findUserByFuzzy(String username, Integer page, Integer pageSize) {
-//        Page<User> userPage = userService.findAllByUsernameRegex(
-//                ".*" + username + ".*",
-//                PageRequest.of(page, pageSize)
-//        );
-//        return userPage.getContent();
-        return null;
+        Page<User> userPage = userService.findAllByUsernameRegex(
+                ".*" + username + ".*",
+                PageRequest.of(page, pageSize)
+        );
+        return userPage.getContent();
     }
 
     public List<User> findUserById(List<String> userIds) {
-        return null;
-        //return userService.findByUserIdIn(userIds);
+        return userService.findByUserIdIn(userIds);
     }
 }

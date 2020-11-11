@@ -42,10 +42,9 @@ public class Match extends AuditBase {
      */
     @lombok.NonNull
     private String description;
-    @NonNull
+    @lombok.NonNull
     private String matchTypeId;
 
-    @org.jetbrains.annotations.Nullable
     /**
      * 参赛者的 userId 列表
      */

@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "match")
-public class PRound extends AuditBase {
+public class Round extends AuditBase {
     @Transient
     public static final String SEQUENCE_NAME = "round_sequence";
 

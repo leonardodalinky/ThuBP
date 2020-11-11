@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class BecomeRefereeRequest extends TokenRequestBase {}

@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.web.graphql;
+package cn.edu.tsinghua.thubp.web.graphql.query;
 
 import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.match.entity.Match;

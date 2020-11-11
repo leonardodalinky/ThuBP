@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class UnitParticipateRequest extends TokenRequestBase {}

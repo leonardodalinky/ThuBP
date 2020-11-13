@@ -20,6 +20,7 @@ public enum MatchErrorCode implements ErrorCode {
     ROUND_UNIT_INVALID(2201, HttpStatus.BAD_REQUEST, "指定参赛单位有误"),
     ROUND_AUTO_EXCESSIVE(2202, HttpStatus.BAD_REQUEST, "自动生成的比赛数量过多"),
     ROUND_NOT_FOUND(2203, HttpStatus.BAD_REQUEST, "轮次未找到或不允许"),
+    ROUND_STRATEGY_UNKNOWN(2204, HttpStatus.BAD_REQUEST, "未知的自动生成策略"),
     GAME_NOT_FOUND(2301, HttpStatus.BAD_REQUEST, "未找到指定比赛"),
     ;
 

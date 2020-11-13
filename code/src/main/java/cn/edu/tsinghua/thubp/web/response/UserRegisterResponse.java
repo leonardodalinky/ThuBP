@@ -4,12 +4,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
-public class MatchRegisterResponse extends SimpleResponse {
-    @ApiModelProperty(value = "参赛单位 Id", required = true)
-    private String unitId;
+public class UserRegisterResponse extends SimpleResponse {
+    @ApiModelProperty(value = "用户 ID", required = true)
+    private String userId;
 }

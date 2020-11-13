@@ -2,13 +2,12 @@ package cn.edu.tsinghua.thubp.user.service;
 
 //import cn.edu.tsinghua.thubp.user.entity.Role;
 
-import cn.edu.tsinghua.thubp.common.exception.CommonException;
-import cn.edu.tsinghua.thubp.match.entity.Match;
-import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
+import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import cn.edu.tsinghua.thubp.user.exception.*;
+import cn.edu.tsinghua.thubp.user.misc.ThuAuthResult;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import cn.edu.tsinghua.thubp.web.request.UserRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -39,19 +37,46 @@ public class UserService {
     public static final String THUID = "thuId";
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
+    private final ThuAuthService thuAuthService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void save(UserRegisterRequest userRegisterRequest) {
+    public String saveLegacy(UserRegisterRequest userRegisterRequest) {
         // TODO: 此处先认为 code 为学号，以供实验
-        String thuId = userRegisterRequest.getCode();
+        String thuId = userRegisterRequest.getTicket();
         userRepository.findByThuId(thuId).ifPresent(__ -> {
             throw new UserThuIdAlreadyExistException(ImmutableMap.of(THUID, thuId));
         });
         // TODO: 真正的学号应该从服务器获取
+        String userId = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
         User user = User.builder()
-                .thuId(userRegisterRequest.getCode())
+                .thuId(thuId)
+                .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                .username(userRegisterRequest.getUsername())
+                .realName(userRegisterRequest.getUsername())
+                .thuIdentityType(ThuIdentityType.STUDENT)
+                .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
+                .role(RoleType.USER)
+                .enabled(true)
+                .mobile(userRegisterRequest.getMobile())
+                .email(userRegisterRequest.getEmail())
+                .gender(Gender.UNKNOWN)
+                .build();
+        userRepository.save(user);
+        return userId;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public String save(String userIp, UserRegisterRequest userRegisterRequest) {
+        ThuAuthResult identity = thuAuthService.getThuIdentity(userIp, userRegisterRequest.getTicket());
+        String thuId = identity.getThuId();
+        userRepository.findByThuId(thuId).ifPresent(__ -> {
+            throw new UserThuIdAlreadyExistException(ImmutableMap.of(THUID, thuId));
+        });
+        String userId = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
+        User user = User.builder()
+                .thuId(thuId)
                 .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
                 .username(userRegisterRequest.getUsername())
                 .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
@@ -62,6 +87,7 @@ public class UserService {
                 .gender(Gender.UNKNOWN)
                 .build();
         userRepository.save(user);
+        return userId;
     }
 
     public User findByThuId(String thuId) {

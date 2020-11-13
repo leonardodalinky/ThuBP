@@ -3,8 +3,10 @@ package cn.edu.tsinghua.thubp.web.response;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @AllArgsConstructor
 public class SimpleResponse {
     public static final String OK = "ok";

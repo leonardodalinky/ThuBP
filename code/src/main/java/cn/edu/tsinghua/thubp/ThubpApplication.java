@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
+import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,8 @@ public class ThubpApplication implements CommandLineRunner {
                         .gender(Gender.UNKNOWN)
                         .enabled(true)
                         .username("root")
+                        .realName("根")
+                        .thuIdentityType(ThuIdentityType.EXTERNAL)
                         .password(bCryptPasswordEncoder.encode("root"))
                         .role(RoleType.ROOT)
                         .mobile("10000000000")

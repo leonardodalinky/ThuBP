@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp.user.entity;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
+import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -35,6 +36,16 @@ public class User extends AuditBase {
     @NonNull
     @Indexed(unique = true)
     private String thuId;
+    /**
+     * 真实姓名
+     */
+    @NonNull
+    private String realName;
+    /**
+     * 清华用户身份类别
+     */
+    @NonNull
+    private ThuIdentityType thuIdentityType;
     /**
      * 递增的 id， 用于区分各个用户，与证件号无关
      */

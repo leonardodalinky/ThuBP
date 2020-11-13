@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.plugin;
 
+import cn.edu.tsinghua.thubp.plugin.internal.example_strategy.OrderedKnockoutStrategy;
 import cn.edu.tsinghua.thubp.plugin.internal.tennis.Tennis;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,7 @@ public class PluginLoader {
      */
     private void loadInternalPlugins() {
         pluginManager.registerPluginFromInternal(Tennis.TennisPluginConfig);
+        pluginManager.registerPluginFromInternal(OrderedKnockoutStrategy.ExampleStrategyConfig);
     }
 
 }

@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.thubp.plugin.internal.tennis;
 
 import cn.edu.tsinghua.thubp.plugin.GameResult;
-import cn.edu.tsinghua.thubp.plugin.api.GameScoreboard;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboard;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

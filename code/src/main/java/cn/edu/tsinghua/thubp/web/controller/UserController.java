@@ -9,15 +9,16 @@ import cn.edu.tsinghua.thubp.web.request.UserRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
 import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
-import io.swagger.annotations.Api;
+import cn.edu.tsinghua.thubp.web.response.UserRegisterResponse;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -29,6 +30,8 @@ public class UserController {
      * 这个用于获得当前用户
      */
     private final CurrentUserService currentUserService;
+    @Value("${spring.profiles.active}")
+    private String profile;
 
     /*
     * Login 的方法在 Security 里面的 Filter 中被实现，地址为 /api/v1/auth/login，方法为 POST
@@ -44,9 +47,14 @@ public class UserController {
     @ApiOperation(value = "注册账户", tags = SwaggerTagUtil.ROLECHECK)
     @ResponseBody
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
-    public SimpleResponse register(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
-        userService.save(userRegisterRequest);
-        return new SimpleResponse(SimpleResponse.OK);
+    public UserRegisterResponse register(HttpServletRequest request, @RequestBody @Valid UserRegisterRequest userRegisterRequest) {
+        if (Objects.equals(profile, "dev")) {
+            String userId = userService.saveLegacy(userRegisterRequest);
+            return new UserRegisterResponse(userId);
+        } else {
+            String userId = userService.save(request.getRemoteAddr().replace(".", "_"), userRegisterRequest);
+            return new UserRegisterResponse(userId);
+        }
     }
 
     @ApiOperation(value = "个人信息", tags = SwaggerTagUtil.USERINFO)

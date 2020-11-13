@@ -30,5 +30,5 @@ public class RoundCreateRequest {
      */
     @ApiModelProperty(value = "参赛单位预生成策略", required = true)
     @NotNull
-    private RoundGameStrategy autoStrategy;
+    private String autoStrategy;
 }

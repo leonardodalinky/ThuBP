@@ -1,17 +1,16 @@
 package cn.edu.tsinghua.thubp.common.response;
 
+import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class TokenResponseBase {
+public abstract class TokenResponseBase extends SimpleResponse {
     @ApiModelProperty(value = "邀请码", required = true)
     @NonNull
     private String token;

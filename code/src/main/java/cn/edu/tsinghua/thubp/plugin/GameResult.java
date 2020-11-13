@@ -14,10 +14,10 @@ public class GameResult {
     @AllArgsConstructor
     @NoArgsConstructor
     public static final class GameRoundResult {
-        @JsonProperty("score_a")
-        private int scoreA;
-        @JsonProperty("score_b")
-        private int scoreB;
+        @JsonProperty("score0")
+        private int score0;
+        @JsonProperty("score1")
+        private int score1;
     }
 
     @Data
@@ -25,11 +25,11 @@ public class GameResult {
     @NoArgsConstructor
     public static final class GameFinalResult {
         @JsonProperty("winner")
-        private String winner;
-        @JsonProperty("output_a")
-        private int outputA;
-        @JsonProperty("output_b")
-        private int outputB;
+        private int winner;
+        @JsonProperty("output0")
+        private int output0;
+        @JsonProperty("output1")
+        private int output1;
     }
 
     @JsonProperty("rounds")

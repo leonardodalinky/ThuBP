@@ -30,5 +30,5 @@ public class UserRegisterRequest {
      */
     @ApiModelProperty(value = "清华服务授权码", required = true)
     @javax.validation.constraints.NotBlank
-    private String code;
+    private String ticket;
 }

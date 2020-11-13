@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.plugin.api;
+package cn.edu.tsinghua.thubp.plugin.api.scoreboard;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

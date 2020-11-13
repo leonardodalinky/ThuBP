@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thubp.plugin.api;
+package cn.edu.tsinghua.thubp.plugin.api.scoreboard;
 
 import cn.edu.tsinghua.thubp.plugin.api.config.GameConfig;
 

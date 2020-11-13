@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.thubp.plugin;
 
-import cn.edu.tsinghua.thubp.plugin.api.GameScoreboard;
-import cn.edu.tsinghua.thubp.plugin.api.GameScoreboardConfig;
+import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategy;
+import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategyType;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboard;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboardConfig;
 import cn.edu.tsinghua.thubp.plugin.api.config.GameConfig;
 import com.google.common.collect.ImmutableList;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
-@PropertySource("/config/plugin.properties")
+@PropertySource("classpath:config/plugin.properties")
 public class PluginRegistryService {
 
     @Data
@@ -33,6 +35,7 @@ public class PluginRegistryService {
     }
 
     private final ConcurrentHashMap<String, MatchType> matchTypeRegistry = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, CustomRoundGameStrategyType> roundGameStrategyRegistry = new ConcurrentHashMap<>();
     @Value("${plugin.naming.concat-plugin-id}")
     private boolean concatPluginId;
 
@@ -60,12 +63,22 @@ public class PluginRegistryService {
         return new ScoreboardInfo(info.scoreboardTypeId(), info.scoreboardTypeName(), configParameters, configType, inputType, gameScoreboard);
     }
 
+    /**
+     * 注册赛事类型.
+     * 赛事类型的完整 ID 是否带有插件 ID 前缀由 {@code /config/plugin.properties#plugin.naming.concat-plugin-id} 决定.
+     *
+     * @param pluginId      插件 ID
+     * @param matchTypeId   赛事类型 ID
+     * @param matchTypeName 赛事类型名称
+     * @param scoreboards   计分器类型
+     */
     public void registerMatchType(String pluginId, String matchTypeId, String matchTypeName, GameScoreboard<?, ?>... scoreboards) {
         String fullMatchTypeId = getFullName(pluginId, matchTypeId);
         List<ScoreboardInfo> scoreboardInfos = Arrays.stream(scoreboards).map((scoreboard) -> {
             ScoreboardInfo info = extractScoreboardInfo(scoreboard);
             if (info == null) {
-                throw new NullPointerException("Unregistered scoreboard type: " + info.getScoreboardTypeId());
+                throw new NullPointerException("Missing annotation @GameScoreboardInfo for scoreboard: "
+                        + scoreboard.getClass().getName());
             }
             return info;
         }).collect(Collectors.toList());
@@ -77,10 +90,35 @@ public class PluginRegistryService {
         return matchTypeRegistry.get(fullMatchTypeId);
     }
 
+    /**
+     * 获取所有赛事类型.
+     *
+     * @return 赛事类型的集合
+     */
     public Collection<MatchType> getAllMatchTypes() {
         return matchTypeRegistry.values();
     }
 
+    public void registerRoundGameStrategy(CustomRoundGameStrategy customRoundGameStrategy) {
+        CustomRoundGameStrategy.RoundGameStrategyInfo info = customRoundGameStrategy.getClass().getAnnotation(CustomRoundGameStrategy.RoundGameStrategyInfo.class);
+        if (info == null) {
+            throw new NullPointerException("RoundGameStrategy implementations must have a @RoundGameStrategyInfo annotation: " + customRoundGameStrategy.getClass().getName());
+        }
+        String strategyId = info.strategyId();
+        if (this.roundGameStrategyRegistry.containsKey(strategyId)) {
+            throw new IllegalStateException("Duplicated round game strategy: " + info.strategyId());
+        }
+        this.roundGameStrategyRegistry.put(strategyId, new CustomRoundGameStrategyType(strategyId, info.strategyName(), customRoundGameStrategy));
+    }
+
+    @org.jetbrains.annotations.Nullable
+    public CustomRoundGameStrategyType getRoundGameStrategyType(String strategyId) {
+        return this.roundGameStrategyRegistry.get(strategyId);
+    }
+
+    public Collection<CustomRoundGameStrategyType> getAllRoundGameStrategyTypes() {
+        return this.roundGameStrategyRegistry.values();
+    }
 
     private static List<GameConfig.ConfigParameter> dumpConfigParameters(Class<? extends GameScoreboardConfig> configClass) {
         List<GameConfig.ConfigParameter> parameters = new ArrayList<>();

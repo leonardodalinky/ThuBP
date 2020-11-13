@@ -8,6 +8,8 @@ import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.match.enums.RoundGameStrategy;
 import cn.edu.tsinghua.thubp.match.enums.RoundStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
+import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategyType;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.RoundCreateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
@@ -21,10 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -39,12 +38,14 @@ public class RoundService {
     public static final String UNITS = "units";
     public static final String UNIT0 = "unit0";
     public static final String UNIT1 = "unit1";
+    public static final String STRATEGY_TYPE = "strategyType";
     public static final int TOKEN_LENGTH = 6;
     public static final int EXPIRATION_DAYS = 7;
 
     private final SequenceGeneratorService sequenceGeneratorService;
     private final MongoTemplate mongoTemplate;
     private final TokenGeneratorService tokenGeneratorService;
+    private final PluginRegistryService pluginRegistryService;
     /**
      * 生成新的轮次
      * @param user 用户
@@ -75,7 +76,12 @@ public class RoundService {
                 .units(units)
                 .games(new ArrayList<>())
                 .build();
-        autoGenerateGame(round, roundCreateRequest.getAutoStrategy());
+        try {
+            RoundGameStrategy roundGameStrategy = RoundGameStrategy.valueOf(roundCreateRequest.getAutoStrategy());
+            autoGenerateGame(round, roundGameStrategy);
+        } catch (IllegalArgumentException exception) {
+            autoGenerateGameByPluginDefinedStrategy(round, roundCreateRequest.getAutoStrategy());
+        }
         mongoTemplate.save(round);
 
         return roundId;
@@ -198,6 +204,27 @@ public class RoundService {
             case CUSTOM:
             default:
                 break;
+        }
+    }
+
+    /**
+     * 给 round 根据由插件定义的 strategy 自动加入 Game
+     * 不检测 round 中已存在的 game
+     * @param round Round 对象
+     * @param strategy 策略 (字符串 ID)
+     */
+    private void autoGenerateGameByPluginDefinedStrategy(Round round, String strategy) {
+        List<String> units = round.getUnits();
+        CustomRoundGameStrategyType type = pluginRegistryService.getRoundGameStrategyType(strategy);
+        if (type == null) {
+            throw new CommonException(MatchErrorCode.ROUND_STRATEGY_UNKNOWN, ImmutableMap.of(STRATEGY_TYPE, strategy));
+        }
+        Collection<Game> games = type.getCustomRoundGameStrategy().generateGames(units);
+        for (Game game : games) {
+            game.setStatus(GameStatus.NOT_START);
+            game.setGameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME));
+            round.getGames().add(game.getGameId());
+            mongoTemplate.save(game);
         }
     }
 }

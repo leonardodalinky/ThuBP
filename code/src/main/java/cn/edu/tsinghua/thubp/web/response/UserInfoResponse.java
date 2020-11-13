@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInfoResponse {
+public class UserInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "清华证件 ID", required = true)
     private String thuId;
     @ApiModelProperty(value = "用户 ID", required = true)

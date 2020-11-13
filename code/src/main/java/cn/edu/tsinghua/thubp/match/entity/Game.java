@@ -21,6 +21,11 @@ public class Game extends AuditBase {
     @Transient
     public static final String SEQUENCE_NAME = "game_sequence";
 
+    public Game(String unit0, @org.jetbrains.annotations.Nullable String unit1) {
+        this.unit0 = unit0;
+        this.unit1 = unit1;
+    }
+
     @Id
     private ObjectId id;
     @Indexed(unique = true)

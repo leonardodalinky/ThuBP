@@ -21,6 +21,7 @@ type Query {
 
     # 全局相关
     listMatchTypes: [MatchType!]!
+    listRoundGameStrategyTypes: [RoundGameStrategyType!]!
 }
 
 type User {
@@ -91,6 +92,11 @@ type MatchType {
     matchTypeId: String!
     matchTypeName: String!
     matchScoreboardTypes: [ScoreboardInfo!]
+}
+
+type RoundGameStrategyType {
+    strategyId: String!
+    strategyName: String!
 }
 
 type ScoreboardInfo {

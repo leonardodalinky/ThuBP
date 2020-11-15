@@ -10,6 +10,7 @@ import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
 import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import cn.edu.tsinghua.thubp.web.response.UserRegisterResponse;
+import cn.edu.tsinghua.thubp.web.service.RequestService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+    private final RequestService requestService;
     /**
      * 这个用于获得当前用户
      */
@@ -53,7 +55,7 @@ public class UserController {
             String userId = userService.saveLegacy(userRegisterRequest);
             return new UserRegisterResponse(userId);
         } else {
-            String userId = userService.save(request.getRemoteAddr().replace(".", "_"), userRegisterRequest);
+            String userId = userService.save(requestService.getClientIP(request).replace(".", "_"), userRegisterRequest);
             return new UserRegisterResponse(userId);
         }
     }

@@ -20,6 +20,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @SuperBuilder
 public abstract class TokenBase {
+
     @NonNull
     private String token;
     @NonNull
@@ -31,9 +32,9 @@ public abstract class TokenBase {
         } else return token.equals(this.token);
     }
 
-    public abstract ErrorCode getErrorCode();
+    public abstract ErrorCode createException();
 
     public CommonException createException(String wrongToken) {
-        return new CommonException(this.getErrorCode(), ImmutableMap.of("token", wrongToken));
+        return new CommonException(this.createException(), ImmutableMap.of("token", wrongToken));
     }
 }

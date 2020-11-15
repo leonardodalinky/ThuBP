@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,8 @@ public class RoundService {
                 )
         ), Match.class);
         if (!ret) {
-            throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID, ImmutableMap.of(UNITS, units));
+            throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
+                    ImmutableMap.of(MATCH_ID, matchId, UNITS, units));
         }
         // 生成新轮次
         String roundId = sequenceGeneratorService.generateSequence(Round.SEQUENCE_NAME);
@@ -77,14 +79,51 @@ public class RoundService {
                 .games(new ArrayList<>())
                 .build();
         try {
-            RoundGameStrategy roundGameStrategy = RoundGameStrategy.valueOf(roundCreateRequest.getAutoStrategy());
+            RoundGameStrategy roundGameStrategy = RoundGameStrategy.valueOf(roundCreateRequest.getAutoStrategy().getName());
             autoGenerateGame(round, roundGameStrategy);
         } catch (IllegalArgumentException exception) {
-            autoGenerateGameByPluginDefinedStrategy(round, roundCreateRequest.getAutoStrategy());
+            autoGenerateGameByPluginDefinedStrategy(round, roundCreateRequest.getAutoStrategy().getName());
         }
         mongoTemplate.save(round);
-
+        // Match 中增添 round 信息
+        mongoTemplate.updateFirst(Query.query(
+                Criteria.where("matchId").is(matchId)
+        ), new Update().push("rounds", roundId), Match.class);
         return roundId;
+    }
+
+    /**
+     * 删除轮次
+     * @param user 用户
+     * @param matchId 赛事 ID
+     * @param roundId 轮次 ID
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteRound(User user, String matchId, String roundId) {
+        // 检验 round 是否同一赛事并且 user 是否 round 的创建者
+        boolean ret = mongoTemplate.exists(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("matchId"),
+                        Criteria.where("rounds").all(roundId),
+                        Criteria.where("organizerUserId").is(user.getUserId())
+                )
+        ), Match.class);
+        if (!ret) {
+            throw new CommonException(MatchErrorCode.ROUND_NOT_FOUND, ImmutableMap.of(ROUND_ID, roundId));
+        }
+        // 得到 round
+        Round round = mongoTemplate.findOne(Query.query(
+                Criteria.where("roundId").is(roundId)
+        ), Round.class);
+        if (round == null) {
+            throw new CommonException(MatchErrorCode.ROUND_NOT_FOUND, ImmutableMap.of(ROUND_ID, roundId));
+        }
+        // 删除 Match 中的 round
+        mongoTemplate.updateFirst(Query.query(
+                Criteria.where("matchId")
+        ), new Update().pull("rounds", roundId), Match.class);
+        // 删除 round 实体
+        mongoTemplate.remove(round);
     }
 
     /**

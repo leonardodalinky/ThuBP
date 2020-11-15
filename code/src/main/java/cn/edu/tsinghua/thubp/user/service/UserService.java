@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.user.service;
 
 //import cn.edu.tsinghua.thubp.user.entity.Role;
 
+import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -26,6 +27,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,10 +43,11 @@ public class UserService {
     private final ThuAuthService thuAuthService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final GlobalConfig globalConfig;
 
     @Transactional(rollbackFor = Exception.class)
     public String saveLegacy(UserRegisterRequest userRegisterRequest) {
-        // TODO: 此处先认为 code 为学号，以供实验
+        // TODO: 此处先认为 ticket 为学号，以供实验
         String thuId = userRegisterRequest.getTicket();
         userRepository.findByThuId(thuId).ifPresent(__ -> {
             throw new UserThuIdAlreadyExistException(ImmutableMap.of(THUID, thuId));
@@ -113,7 +117,7 @@ public class UserService {
         return userRepository.findByUserIdIn(userIds);
     }
 
-    public void update(User user, UserUpdateRequest userUpdateRequest) {
+    public void update(User user, UserUpdateRequest userUpdateRequest) throws MalformedURLException {
         Update update = new Update();
         if (Objects.nonNull(userUpdateRequest.getUsername())) {
             update.set("username", userUpdateRequest.getUsername());
@@ -129,6 +133,10 @@ public class UserService {
             }
             // TODO: 沒有新密码的复杂度验证
             update.set("password", bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
+        }
+        if (Objects.nonNull(userUpdateRequest.getAvatar())) {
+            user.setAvatar(new URL("http", globalConfig.getQiNiuHost(), userUpdateRequest.getAvatar()));
+            update.set("avatar", user.getAvatar());
         }
         if (Objects.nonNull(userUpdateRequest.getGender())) {
             user.setGender(userUpdateRequest.getGender());

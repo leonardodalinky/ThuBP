@@ -16,6 +16,14 @@ import java.util.List;
 public class MatchResolver implements GraphQLResolver<Match> {
     private final UserService userService;
 
+    public String preview(Match match) {
+        return (match.getPreview() == null)? null : match.getPreview().toString();
+    }
+
+    public String previewLarge(Match match) {
+        return (match.getPreviewLarge() == null)? null : match.getPreviewLarge().toString();
+    }
+
     public User organizerUser(Match match) {
         return userService.findByUserId(match.getOrganizerUserId());
     }

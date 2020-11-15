@@ -9,4 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserResolver implements GraphQLResolver<User> {}
+public class UserResolver implements GraphQLResolver<User> {
+    public String avatar(User user) {
+        return (user.getAvatar() == null)? null : user.getAvatar().toString();
+    }
+}

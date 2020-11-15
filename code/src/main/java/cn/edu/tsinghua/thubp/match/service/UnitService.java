@@ -8,6 +8,7 @@ import cn.edu.tsinghua.thubp.match.entity.UnitToken;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.MatchRegisterRequest;
+import cn.edu.tsinghua.thubp.web.request.UnitModifyRequest;
 import cn.edu.tsinghua.thubp.web.request.UnitParticipateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
@@ -77,8 +78,10 @@ public class UnitService {
             throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, matchId));
         }
         matchService.addParticipant(user.getUserId(), matchId);
-        // 创建新的 PUnit，并且添加到数据库
+        // 创建新的 Unit，并且添加到数据库
         Unit unit = createUnit(user, matchId, matchRegisterRequest);
+        // 分配一个新邀请码
+        assignUnitToken(user.getUserId(), unit.getUnitId());
         return unit.getUnitId();
     }
 
@@ -96,7 +99,8 @@ public class UnitService {
                 Criteria.where("unitId").is(unitId)
         ), Unit.class);
         if (unit == null) {
-            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(UNIT_ID, unitId));
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
+                    ImmutableMap.of(UNIT_ID, unitId, UNIT_ID, unitId));
         } else if (unit.getUnitToken() == null || !unit.getUnitToken().valid(unitParticipateRequest.getToken())) {
             throw new CommonException(MatchErrorCode.UNIT_TOKEN_EXPIRED_OR_INVALID,
                     ImmutableMap.of(TOKEN, unitParticipateRequest.getToken()));
@@ -104,7 +108,8 @@ public class UnitService {
         // 排除重复报名
         List<String> matches = user.getParticipatedMatches();
         if (matches != null && matches.contains(unit.getMatchId())) {
-            throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, unit.getMatchId()));
+            throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED,
+                    ImmutableMap.of(MATCH_ID, unit.getMatchId(), UNIT_ID, unitId));
         } else if (unit.getMembers().contains(user.getUserId())) {
             throw new CommonException(MatchErrorCode.UNIT_ALREADY_PARTICIPATED,
                     ImmutableMap.of(UNIT_ID, unitId, USER_ID, user.getUserId()));
@@ -113,12 +118,55 @@ public class UnitService {
         addMember(user.getUserId(), unitId);
     }
 
+    public Unit infoUnit(User user, String matchId, String unitId) {
+        // 校验
+        Unit unit = mongoTemplate.findOne(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("unitId").is(unitId),
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("creatorId").is(user.getUserId())
+                )
+        ), Unit.class);
+        if (unit == null) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
+        }
+        return unit;
+    }
+
+    /**
+     * 修改参赛单位信息
+     * @param user 用户
+     * @param matchId 赛事 ID
+     * @param unitId 参赛单位 ID
+     * @param unitModifyRequest 修改参赛单位信息的请求
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyUnit(User user, String matchId, String unitId, UnitModifyRequest unitModifyRequest) {
+        // 校验
+        Unit unit = mongoTemplate.findOne(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("unitId").is(unitId),
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("creatorId").is(user.getUserId())
+                )
+        ), Unit.class);
+        if (unit == null) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
+        }
+        // 修改
+        if (unitModifyRequest.getName() != null) {
+            unit.setName(unitModifyRequest.getName());
+        }
+        mongoTemplate.save(unit);
+    }
+
     /**
      * 签发一个参赛单位邀请码. 这会导致之前的邀请码失效.
      * @param userId 用户 ID
      * @param unitId 参赛单位 ID
      * @return 成功签发的邀请码
      */
+    @Transactional(rollbackFor = Exception.class)
     public UnitToken assignUnitToken(String userId, String unitId) {
         // 生成一个目前唯一未过期的邀请码
         String tokenStr =  generateDistinctUnitToken();
@@ -203,7 +251,7 @@ public class UnitService {
         long matchUpdateCount = mongoTemplate.updateFirst(
                 Query.query(new Criteria().andOperator(
                         Criteria.where("unitId").is(unitId),
-                        Criteria.where("members").all(userId)
+                        Criteria.where("members").not().all(userId)
                 )),
                 new Update().push("members", userId), Unit.class).getModifiedCount();
         if (matchUpdateCount == 0) {

@@ -4,6 +4,7 @@ import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
+import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
@@ -71,6 +72,8 @@ public class AdminController {
                     .gender(Gender.UNKNOWN)
                     .enabled(true)
                     .username("root")
+                    .realName("根")
+                    .thuIdentityType(ThuIdentityType.EXTERNAL)
                     .password(bCryptPasswordEncoder.encode("root"))
                     .role(RoleType.ROOT)
                     .mobile("10000000000")

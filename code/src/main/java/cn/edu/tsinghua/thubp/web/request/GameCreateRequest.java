@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 创建轮次的请求
+ * 创建比赛的请求
  */
 @Data
 @AllArgsConstructor

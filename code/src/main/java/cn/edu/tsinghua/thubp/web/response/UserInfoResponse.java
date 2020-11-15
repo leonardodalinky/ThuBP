@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.net.URL;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -21,11 +23,13 @@ public class UserInfoResponse extends SimpleResponse {
     private String userId;
     @ApiModelProperty(value = "用户名", required = true)
     private String username;
+    @ApiModelProperty(value = "用户头像", required = false)
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    private URL avatar;
     @ApiModelProperty(value = "用户权限", required = true)
     private RoleType role;
     @ApiModelProperty(value = "性别", required = true)
     private Gender gender;
-    // 非空的时候才会出现在回复中
     @ApiModelProperty(value = "手机")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String mobile;
@@ -37,6 +41,7 @@ public class UserInfoResponse extends SimpleResponse {
         this.thuId = user.getThuId();
         this.userId = user.getUserId();
         this.username = user.getUsername();
+        this.avatar = user.getAvatar();
         this.role = user.getRole();
         this.gender = user.getGender();
         this.mobile = user.getMobile();

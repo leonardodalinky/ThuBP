@@ -7,7 +7,6 @@ type Query {
     findMatchById(matchId: String!): Match
     findMatches(matchIds: [String!]!): [Match!]!
 
-    # TODO: 正在加入查询
     # 参赛单位相关
     findUnitById(unitId: String!): Unit
     findUnits(unitIds: [String!]!): [Unit!]!
@@ -18,7 +17,6 @@ type Query {
     findRoundById(roundId: String!): Round
     findRounds(roundIds: [String!]!): [Round!]!
 
-
     # 全局相关
     listMatchTypes: [MatchType!]!
     listRoundGameStrategyTypes: [RoundGameStrategyType!]!
@@ -27,6 +25,7 @@ type Query {
 type User {
     userId: String!
     username: String!
+    avatar: String
     gender: Gender!
     mobile: String
     email: String
@@ -45,6 +44,8 @@ type Match {
     organizerUser: User!
     name: String!
     description: String!
+    preview: String
+    previewLarge: String
     participants: [User!]!
     referees: [User!]!
 }

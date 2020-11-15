@@ -1,13 +1,10 @@
 package cn.edu.tsinghua.thubp.match.service;
 
+import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
-import cn.edu.tsinghua.thubp.match.enums.GameStatus;
-import cn.edu.tsinghua.thubp.match.enums.RoundGameStrategy;
-import cn.edu.tsinghua.thubp.match.enums.RoundStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
-import cn.edu.tsinghua.thubp.match.repository.MatchRepository;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.*;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
@@ -22,6 +19,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 
@@ -40,11 +39,36 @@ public class MatchService {
     public static final int TOKEN_LENGTH = 6;
     public static final int EXPIRATION_DAYS = 7;
 
-    private final MatchRepository matchRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
     private final MongoTemplate mongoTemplate;
     private final TokenGeneratorService tokenGeneratorService;
+    private final GlobalConfig globalConfig;
 
+    /**
+     * 组织者用户获取比赛，否则抛出 Exception
+     * @param user 用户
+     * @param matchId 赛事 ID
+     * @return 赛事
+     */
+    public Match infoMatch(User user, String matchId) {
+        Match match = mongoTemplate.findOne(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("organizerUserId").is(user.getUserId())
+                )
+        ), Match.class);
+        if (match == null) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        return match;
+    }
+
+    /**
+     * 创建赛事
+     * @param user 用户
+     * @param matchCreateRequest 赛事创建请求
+     * @return 新的赛事的 ID
+     */
     @Transactional(rollbackFor = Exception.class)
     public String createMatch(User user, MatchCreateRequest matchCreateRequest) {
         String matchId = sequenceGeneratorService.generateSequence(Match.SEQUENCE_NAME);
@@ -61,7 +85,7 @@ public class MatchService {
                 .matchTypeId(matchCreateRequest.getMatchTypeId())
                 .build();
         // 生成赛事邀请码
-        if (matchCreateRequest.getPublicSignUp()) {
+        if (!matchCreateRequest.getPublicSignUp()) {
             String tokenStr = generateDistinctMatchToken();
             match.setMatchToken(
                     MatchToken
@@ -71,8 +95,69 @@ public class MatchService {
                     .build()
             );
         }
-        matchRepository.save(match);
+        mongoTemplate.save(match);
+        if (user.getOrganizedMatches() == null) {
+            user.setOrganizedMatches(new ArrayList<>());
+        }
+        user.getOrganizedMatches().add(matchId);
+        mongoTemplate.save(user);
         return matchId;
+    }
+
+    /**
+     * 修改赛事信息
+     * @param user 用户
+     * @param matchId 赛事 ID
+     * @param matchModifyRequest 赛事信息修改的请求
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyMatch(User user, String matchId, MatchModifyRequest matchModifyRequest) throws MalformedURLException {
+        // 校验
+        Match match = mongoTemplate.findOne(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("organizerUserId").is(user.getUserId())
+                )
+        ), Match.class);
+        if (match == null) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // 修改属性
+        if (matchModifyRequest.getName() != null) {
+            match.setName(matchModifyRequest.getName());
+        }
+        if (matchModifyRequest.getDescription() != null) {
+            match.setDescription(matchModifyRequest.getDescription());
+        }
+        if (matchModifyRequest.getPreview() != null) {
+            match.setPreview(
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchModifyRequest.getPreview())
+            );
+        }
+        if (matchModifyRequest.getPreviewLarge() != null) {
+            match.setPreviewLarge(
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchModifyRequest.getPreviewLarge())
+            );
+        }
+        if (matchModifyRequest.getPublicSignUp() != null && matchModifyRequest.getPublicSignUp() != match.getPublicSignUp()) {
+            if (!matchModifyRequest.getPublicSignUp()) {
+                // 重新生成赛事邀请码
+                String tokenStr = generateDistinctMatchToken();
+                match.setMatchToken(
+                        MatchToken
+                                .builder()
+                                .token(tokenStr)
+                                .expirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)))
+                                .build()
+                );
+            } else {
+                match.setMatchToken(null);
+            }
+
+            match.setPublicSignUp(matchModifyRequest.getPublicSignUp());
+        }
+        // 存储
+        mongoTemplate.save(match);
     }
 
     /**
@@ -81,8 +166,13 @@ public class MatchService {
      * @return 对应的赛事
      */
     public Match findByMatchId(String matchId) {
-        return matchRepository.findByMatchId(matchId).orElseThrow(
-                () -> new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId)));
+        Match match = mongoTemplate.findOne(Query.query(
+                Criteria.where("matchId").is(matchId)
+        ), Match.class);
+        if (match == null) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        return match;
     }
 
     /**
@@ -91,7 +181,9 @@ public class MatchService {
      * @return 对应的赛事列表
      */
     public List<Match> findMatchesByMatchIds(List<String> matchIds) {
-        return matchRepository.findAllByMatchIdIn(matchIds);
+        return mongoTemplate.find(Query.query(
+                Criteria.where("matchId").in(matchIds)
+        ), Match.class);
     }
 
     /**
@@ -152,15 +244,53 @@ public class MatchService {
     }
 
     /**
+     * 签发一个裁判邀请码. 这会导致之前的邀请码失效.
+     * @param userId 用户 ID
+     * @param matchId 赛事 ID.
+     * @return 成功签发的邀请码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public MatchToken assignMatchToken(String userId, String matchId) {
+        // 检验比赛是否公开
+        boolean ret = mongoTemplate.exists(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("publicSignUp").is(true)
+                )
+        ), Match.class);
+        if (ret) {
+            throw new CommonException(MatchErrorCode.MATCH_PUBLIC, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // 生成一个目前唯一未过期的邀请码
+        String tokenStr =  generateDistinctMatchToken();
+        // 生成邀请码
+        MatchToken token = MatchToken.builder().token(tokenStr)
+                .expirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)))
+                .build();
+        long matchUpdateCount = mongoTemplate.updateFirst(
+                Query.query(new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("organizerUserId").is(userId)
+                )),
+                new Update().set("matchToken", token), Match.class)
+                .getModifiedCount();
+        if (matchUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        return token;
+    }
+
+    /**
      * 将 userId 加入到 match 中的 user 列表中
      * @param userId userId
      * @param matchId matchId
      */
+    @Transactional(rollbackFor = Exception.class)
     public void addParticipant(String userId, String matchId) {
         long matchUpdateCount = mongoTemplate.updateFirst(
                 Query.query(new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("participants").all(userId)
+                        Criteria.where("participants").not().all(userId)
                 )),
                 new Update().push("participants", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {
@@ -169,7 +299,7 @@ public class MatchService {
         long userUpdateCount = mongoTemplate.updateFirst(
                 Query.query(new Criteria().andOperator(
                         Criteria.where("userId").is(userId),
-                        Criteria.where("participatedMatches").all(matchId)
+                        Criteria.where("participatedMatches").not().all(matchId)
                 )),
                 new Update().push("participatedMatches", matchId), User.class).getModifiedCount();
         if (userUpdateCount == 0) {

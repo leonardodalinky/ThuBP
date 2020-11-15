@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.MalformedURLException;
 import java.util.Objects;
 
 @RestController
@@ -68,7 +69,7 @@ public class UserController {
     @ApiOperation(value = "修改个人信息", tags = SwaggerTagUtil.USERINFO)
     @ResponseBody
     @RequestMapping(value = "/user/info", method = RequestMethod.POST)
-    public SimpleResponse infoPost(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+    public SimpleResponse infoPost(@RequestBody @Valid UserUpdateRequest userUpdateRequest) throws MalformedURLException {
         User user = currentUserService.getUser();
         userService.update(user, userUpdateRequest);
         return new SimpleResponse(SimpleResponse.OK);

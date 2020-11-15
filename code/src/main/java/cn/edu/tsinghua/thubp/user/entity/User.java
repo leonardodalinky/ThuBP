@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +62,11 @@ public class User extends AuditBase {
     private String password;
     @NonNull
     private Boolean enabled;
+    /**
+     * 用户头像的文件名
+     */
+    @org.jetbrains.annotations.Nullable
+    private URL avatar;
     /**
      * 权限等级
      * 目前分为 User 和 Admin 两个等级

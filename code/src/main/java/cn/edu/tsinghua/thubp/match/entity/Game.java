@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "match")
+@Document(collection = "game")
 public class Game extends AuditBase {
     @Transient
     public static final String SEQUENCE_NAME = "game_sequence";

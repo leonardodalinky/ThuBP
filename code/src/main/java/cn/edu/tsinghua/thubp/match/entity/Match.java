@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.net.URL;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -42,6 +43,16 @@ public class Match extends AuditBase {
      */
     @lombok.NonNull
     private String description;
+    /**
+     * 赛事预览图
+     */
+    @org.jetbrains.annotations.Nullable
+    private URL preview;
+    /**
+     * 赛事预览大图
+     */
+    @org.jetbrains.annotations.Nullable
+    private URL previewLarge;
     @lombok.NonNull
     private String matchTypeId;
 
@@ -66,7 +77,7 @@ public class Match extends AuditBase {
     @lombok.NonNull
     private List<String> units;
     /**
-     * 是否开放报名
+     * 是否开放报名创建参赛单位
      */
     @lombok.NonNull
     private Boolean publicSignUp;

@@ -22,6 +22,10 @@ public class GlobalConfig {
     private String QiNiuPrivateKey;
     @Value("${qiniu.bucketname}")
     private String QiNiuBucketName;
+    @Value("${qiniu.host}")
+    private String QiNiuHost;
+    @Value("${qiniu.protocol}")
+    private String QiNiuProtocol;
 
     @Nullable
     public String getEnv(String k) {

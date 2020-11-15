@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.web.request;
 
 
 import cn.edu.tsinghua.thubp.user.enums.Gender;
+import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,9 @@ public class UserUpdateRequest {
     private String oldPassword;
     @ApiModelProperty(value = "新密码")
     private String newPassword;
+    @ApiModelProperty(value = "头像的文件名(key)")
+    @Pattern(regexp = "^"+ IUploadType.STR_AVATAR + "-[a-zA-Z0-9.-]+$")
+    private String avatar;
     @ApiModelProperty(value = "性别")
     private Gender gender;
     @ApiModelProperty(value = "手机")

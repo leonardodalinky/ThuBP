@@ -19,10 +19,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "match")
+@Document(collection = "unit")
 public class Unit extends AuditBase {
     @Transient
-    public static final String SEQUENCE_NAME = "punit_sequence";
+    public static final String SEQUENCE_NAME = "unit_sequence";
 
     @Id
     private ObjectId id;

@@ -14,6 +14,7 @@ public enum MatchErrorCode implements ErrorCode {
     MATCH_TOKEN_EXPIRED_OR_INVALID(2003, HttpStatus.BAD_REQUEST, "赛事邀请码已过期或失效"),
     MATCH_REFEREE_TOKEN_EXPIRED_OR_INVALID(2004, HttpStatus.BAD_REQUEST, "裁判邀请码已过期或失效"),
     MATCH_ALREADY_REFEREE(2005, HttpStatus.BAD_REQUEST, "已经成为了裁判"),
+    MATCH_PUBLIC(2006, HttpStatus.BAD_REQUEST, "比赛为公开报名"),
     UNIT_NOT_FOUND(2101, HttpStatus.BAD_REQUEST, "未找到指定参赛单位"),
     UNIT_TOKEN_EXPIRED_OR_INVALID(2102, HttpStatus.BAD_REQUEST, "参赛单位邀请码已过期或失效"),
     UNIT_ALREADY_PARTICIPATED(2103, HttpStatus.BAD_REQUEST, "已经是此参赛单位的成员"),

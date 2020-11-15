@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -16,5 +18,5 @@ public abstract class TokenResponseBase extends SimpleResponse {
     private String token;
     @ApiModelProperty(value = "邀请码过期时间", required = true)
     @NonNull
-    private long expirationTime;
+    private Instant expirationTime;
 }

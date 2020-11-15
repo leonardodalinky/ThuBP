@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class UnitToken extends TokenBase {
     @Override
-    public ErrorCode getErrorCode() {
+    public ErrorCode createException() {
         return MatchErrorCode.UNIT_TOKEN_EXPIRED_OR_INVALID;
     }
 }

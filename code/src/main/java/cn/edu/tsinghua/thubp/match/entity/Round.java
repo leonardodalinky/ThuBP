@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "match")
+@Document(collection = "round")
 public class Round extends AuditBase {
     @Transient
     public static final String SEQUENCE_NAME = "round_sequence";

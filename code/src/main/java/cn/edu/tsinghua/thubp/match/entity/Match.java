@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
+import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -91,4 +92,9 @@ public class Match extends AuditBase {
      */
     @lombok.NonNull
     private List<String> rounds;
+    /**
+     * 评论的 ID
+     */
+    @lombok.NonNull
+    private List<String> comments;
 }

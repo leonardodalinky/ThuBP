@@ -26,6 +26,14 @@ public class GlobalConfig {
     private String QiNiuHost;
     @Value("${qiniu.protocol}")
     private String QiNiuProtocol;
+    @Value("${huawei.accesskey}")
+    private String HuaweiAccessKey;
+    @Value("${huawei.privatekey}")
+    private String HuaweiPrivateKey;
+    @Value("${huawei.projectid}")
+    private String HuaweiProjectId;
+    @Value("${huawei.endpoint}")
+    private String HuaweiEndPoint;
 
     @Nullable
     public String getEnv(String k) {

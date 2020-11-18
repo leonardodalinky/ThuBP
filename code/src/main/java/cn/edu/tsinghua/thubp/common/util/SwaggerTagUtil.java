@@ -8,6 +8,8 @@ public class SwaggerTagUtil {
 
     public static final String UPLOAD = "图片上传";
 
+    public static final String COMMENT = "评论管理";
+
     public static final String ADMIN = "ADMIN";
     public static final String ROOT = "ROOT";
 }

@@ -22,6 +22,8 @@ type Query {
     listRoundGameStrategyTypes: [RoundGameStrategyType!]!
 }
 
+scalar Date
+
 type User {
     userId: String!
     username: String!
@@ -29,6 +31,7 @@ type User {
     gender: Gender!
     mobile: String
     email: String
+    createdAt: Date!
 }
 
 enum Gender {
@@ -48,6 +51,8 @@ type Match {
     previewLarge: String
     participants: [User!]!
     referees: [User!]!
+    comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
+    createdAt: Date!
 }
 
 type Unit {
@@ -56,6 +61,7 @@ type Unit {
     creator: User!
     members: [User!]!
     match: Match!
+    createdAt: Date!
 }
 
 type Game {
@@ -63,6 +69,7 @@ type Game {
     status: GameStatus!
     unit0: User!
     unit1: User
+    createdAt: Date!
 }
 
 enum GameStatus {
@@ -80,6 +87,7 @@ type Round {
     status: RoundStatus!
     units: [Unit!]!
     games: [Game!]!
+    createdAt: Date!
 }
 
 enum RoundStatus {
@@ -112,4 +120,12 @@ type ScoreboardConfigParameter {
     defaultValue: String
     required: Boolean
     fieldType: String
+}
+
+type Comment {
+    issuer: User!
+    content: String!
+    reply: Comment
+    createdAt: Date!
+    updatedAt: Date!
 }

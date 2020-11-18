@@ -83,6 +83,7 @@ public class MatchService {
                 .rounds(new ArrayList<>())
                 .units(new ArrayList<>())
                 .matchTypeId(matchCreateRequest.getMatchTypeId())
+                .comments(new ArrayList<>())
                 .build();
         // 生成赛事邀请码
         if (!matchCreateRequest.getPublicSignUp()) {

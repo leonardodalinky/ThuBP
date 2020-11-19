@@ -56,7 +56,7 @@ public class UserService {
         String userId = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
         User user = User.builder()
                 .thuId(thuId)
-                .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                .userId(userId)
                 .username(userRegisterRequest.getUsername())
                 .realName(userRegisterRequest.getUsername())
                 .thuIdentityType(ThuIdentityType.STUDENT)
@@ -81,7 +81,7 @@ public class UserService {
         String userId = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
         User user = User.builder()
                 .thuId(thuId)
-                .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                .userId(userId)
                 .username(userRegisterRequest.getUsername())
                 .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
                 .role(RoleType.USER)

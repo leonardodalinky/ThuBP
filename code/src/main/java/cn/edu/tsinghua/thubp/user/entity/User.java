@@ -79,11 +79,11 @@ public class User extends AuditBase {
     @NonNull
     private Gender gender;
 
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     @org.jetbrains.annotations.Nullable
     private String mobile;
 
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     @org.jetbrains.annotations.Nullable
     private String email;
 

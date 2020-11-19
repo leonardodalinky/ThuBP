@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.thubp.web.request;
 
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,4 +24,13 @@ public class GameModifyRequest {
     @ApiModelProperty(value = "参赛单位 1 的 ID", required = false)
     @org.jetbrains.annotations.Nullable
     private String unit1;
+    @ApiModelProperty(value = "比赛记分板类型", required = false)
+    @org.jetbrains.annotations.Nullable
+    private String scoreboardTypeId;
+    @ApiModelProperty(value = "比赛记分板配置", required = false)
+    @org.jetbrains.annotations.Nullable
+    private JsonNode scoreboardConfig;
+    @ApiModelProperty(value = "比赛记分结果", required = false)
+    @org.jetbrains.annotations.Nullable
+    private JsonNode result;
 }

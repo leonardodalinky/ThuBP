@@ -1,5 +1,7 @@
 package cn.edu.tsinghua.thubp.plugin.api.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,13 +9,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 
 public interface GameConfig extends Cloneable {
 
-    String FIELD_TEXT = "text";
-    String FIELD_INTEGER = "integer";
-    String FIELD_SELECT = "select";
-    String FIELD_SWITCH = "switch";
+    enum FieldType {
+        @JsonProperty("text")
+        FIELD_TEXT,
+        @JsonProperty("integer")
+        FIELD_INTEGER,
+        @JsonProperty("select")
+        FIELD_SELECT,
+        @JsonProperty("swich")
+        FIELD_SWITCH
+    }
 
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -64,8 +73,9 @@ public interface GameConfig extends Cloneable {
         private final String displayName;
         private final String defaultValue;
         private final boolean required;
-        private final String fieldType;
+        private final FieldType fieldType;
         private String[] selections;
         private int keyOrder;
+        private Field field;
     }
 }

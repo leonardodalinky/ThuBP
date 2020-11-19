@@ -1,5 +1,7 @@
 package cn.edu.tsinghua.thubp.plugin.api.scoreboard;
 
+import cn.edu.tsinghua.thubp.plugin.GameResult;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,7 +14,7 @@ import java.lang.annotation.Target;
  * 这个实例的大部分方法需要接受一个 Config 配置类，这意味着这是一个纯函数.
  * @param <Config> 配置类.
  */
-public interface GameScoreboard<Config extends GameScoreboardConfig, Input> {
+public interface GameScoreboard<Config extends GameScoreboardConfig, Input extends GameResult> {
 
     /**
      * 输入是否合规的结果接口.
@@ -46,7 +48,7 @@ public interface GameScoreboard<Config extends GameScoreboardConfig, Input> {
     }
 
     /**
-     * 获得一个默认设置. 这个设置可能被更改.
+     * 获得一个默认设置. 这个设置不会被更改，可以缓存重用.
      * @return 配置.
      */
     Config buildDefaultConfig();
@@ -56,10 +58,14 @@ public interface GameScoreboard<Config extends GameScoreboardConfig, Input> {
      * @param input 输入的字符串.
      * @return 输入是否合规.
      */
-    ValidationResult isValid(Input input);
+    ValidationResult isValid(Config config, Input input);
 
     default GameScoreboard.GameScoreboardInfo getInfo() {
         return this.getClass().getAnnotation(GameScoreboard.GameScoreboardInfo.class);
+    }
+
+    default ValidationResult isInputObjectValid(GameScoreboardConfig config, GameResult input) {
+        return isValid((Config) config, (Input) input);
     }
 
 }

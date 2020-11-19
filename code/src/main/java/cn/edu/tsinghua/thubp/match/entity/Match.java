@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.comment.entity.Comment;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -92,6 +93,17 @@ public class Match extends AuditBase {
      */
     @lombok.NonNull
     private List<String> rounds;
+//   这部分暂且不加入，之后有需求再添加
+//    /**
+//     * 赛事的默认记分板 ID
+//     */
+//    @org.jetbrains.annotations.Nullable
+//    private String defaultScoreboardTypeId;
+//    /**
+//     * 赛事的默认记分板配置
+//     */
+//    @org.jetbrains.annotations.Nullable
+//    private JsonNode defaultScoreboardConfig;
     /**
      * 评论的 ID
      */

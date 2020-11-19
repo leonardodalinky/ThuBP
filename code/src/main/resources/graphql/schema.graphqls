@@ -70,6 +70,7 @@ type Game {
     unit0: User!
     unit1: User
     createdAt: Date!
+    result: GameResult
 }
 
 enum GameStatus {
@@ -78,6 +79,22 @@ enum GameStatus {
     WIN_FIRST
     WIN_SECOND
     DRAW
+}
+
+type GameResult {
+    rounds: [GameRoundResult!]!
+    result: GameFinalResult!
+}
+
+type GameRoundResult {
+    score0: Int
+    score1: Int
+}
+
+type GameFinalResult {
+    winner: Int
+    output0: Int
+    output1: Int
 }
 
 type Round {

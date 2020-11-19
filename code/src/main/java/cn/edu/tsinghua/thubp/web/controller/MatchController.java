@@ -218,7 +218,8 @@ public class MatchController {
     @ApiOperation(value = "修改比赛信息", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
-            @ApiImplicitParam(name = "roundId", value = "轮次 ID", required = true, dataTypeClass = String.class)
+            @ApiImplicitParam(name = "roundId", value = "轮次 ID", required = true, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "gameId", value = "比赛 ID", required = true, dataTypeClass = String.class)
     })
     @ResponseBody
     @RequestMapping(value = "/match/{matchId}/round/{roundId}/game/{gameId}", method = RequestMethod.POST)

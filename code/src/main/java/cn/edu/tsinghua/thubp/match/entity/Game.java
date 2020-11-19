@@ -1,6 +1,15 @@
 package cn.edu.tsinghua.thubp.match.entity;
+
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
+import cn.edu.tsinghua.thubp.plugin.GameResult;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboardConfig;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
+import com.fasterxml.jackson.databind.ser.std.JsonValueSerializer;
+import com.mongodb.DBObject;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -45,5 +54,22 @@ public class Game extends AuditBase {
      */
     @org.jetbrains.annotations.Nullable
     private String unit1;
+    /**
+     * 记分板
+     */
+    @org.jetbrains.annotations.Nullable
+    private String scoreboardTypeId;
+    /**
+     * 记分板配置
+     */
+    @JsonDeserialize(using = JsonNodeDeserializer.class)
+    @org.jetbrains.annotations.Nullable
+    private GameScoreboardConfig scoreboardConfig;
+    /**
+     * 记分板内容
+     */
+    @JsonSerialize(using = JsonValueSerializer.class)
+    @org.jetbrains.annotations.Nullable
+    private GameResult result;
     // TODO: 单场比赛中的其他信息
 }

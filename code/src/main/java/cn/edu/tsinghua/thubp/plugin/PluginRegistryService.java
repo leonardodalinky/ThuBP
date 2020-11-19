@@ -1,11 +1,17 @@
 package cn.edu.tsinghua.thubp.plugin;
 
+import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategy;
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategyType;
 import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboard;
 import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboardConfig;
 import cn.edu.tsinghua.thubp.plugin.api.config.GameConfig;
+import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +36,75 @@ public class PluginRegistryService {
         private final String scoreboardTypeName;
         private final List<GameConfig.ConfigParameter> configParameters;
         private final Class<? extends GameScoreboardConfig> configType;
-        private final Class<?> inputType;
+        private final Class<? extends GameResult> inputType;
         private final GameScoreboard<?, ?> scoreboard;
+
+        public Object buildDefaultConfig() {
+            return scoreboard.buildDefaultConfig();
+        }
+
+        public Object convertTreeToConfig(JsonNode jsonNode) {
+            try {
+                Object objectConfig = objectMapper.treeToValue(jsonNode, configType);
+                for (GameConfig.ConfigParameter parameter : configParameters) {
+                    switch (parameter.getFieldType()) {
+                        case FIELD_INTEGER:
+                            if (!jsonNode.has(parameter.getKey()) && !parameter.getDefaultValue().isEmpty()) {
+                                parameter.getField().setInt(objectConfig, Integer.parseInt(parameter.getDefaultValue()));
+                            }
+                            break;
+                        case FIELD_SELECT:
+                            if (!jsonNode.has(parameter.getKey()) && !parameter.getDefaultValue().isEmpty()) {
+                                parameter.getField().set(objectConfig, parameter.getDefaultValue());
+                            }
+                            boolean ok = false;
+                            String value = (String) parameter.getField().get(objectConfig);
+                            for (String selection : parameter.getSelections()) {
+                                if (Objects.equals(selection, value)) {
+                                    ok = true;
+                                    break;
+                                }
+                            }
+                            if (!ok) {
+                                return null;
+                            }
+                            break;
+                        case FIELD_SWITCH:
+                            if (!jsonNode.has(parameter.getKey()) && !parameter.getDefaultValue().isEmpty()) {
+                                parameter.getField().setBoolean(objectConfig, Boolean.parseBoolean(parameter.getDefaultValue()));
+                            }
+                            break;
+                        case FIELD_TEXT:
+                            if (!jsonNode.has(parameter.getKey()) && !parameter.getDefaultValue().isEmpty()) {
+                                parameter.getField().set(objectConfig, parameter.getDefaultValue());
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return objectConfig;
+            } catch (JsonProcessingException | IllegalAccessException e) {
+                return null;
+            }
+        }
+
+        public Object convertTreeToInput(JsonNode input) {
+            try {
+                return objectMapper.treeToValue(input, inputType);
+            } catch (JsonProcessingException e) {
+                return null;
+            }
+        }
+
+        public GameScoreboard.ValidationResult verifyInput(GameScoreboardConfig config, GameResult input) {
+            return scoreboard.isInputObjectValid(config, input);
+        }
     }
 
+    public static final String MATCH_TYPE_ID = "matchTypeId";
+    public static final String SCOREBOARD_TYPE_ID = "scoreboardTypeId";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final ConcurrentHashMap<String, MatchType> matchTypeRegistry = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, CustomRoundGameStrategyType> roundGameStrategyRegistry = new ConcurrentHashMap<>();
     @Value("${plugin.naming.concat-plugin-id}")
@@ -43,7 +114,7 @@ public class PluginRegistryService {
         return concatPluginId ? pluginId + "#" + keyId : keyId;
     }
 
-    public <C extends GameScoreboardConfig, I> ScoreboardInfo extractScoreboardInfo(
+    public <C extends GameScoreboardConfig, I extends GameResult> ScoreboardInfo extractScoreboardInfo(
             GameScoreboard<C, I> gameScoreboard) {
         GameScoreboard.GameScoreboardInfo info = gameScoreboard.getInfo();
         assert info != null;
@@ -70,9 +141,12 @@ public class PluginRegistryService {
      * @param pluginId      插件 ID
      * @param matchTypeId   赛事类型 ID
      * @param matchTypeName 赛事类型名称
-     * @param scoreboards   计分器类型
+     * @param scoreboards   计分器类型. 第一个是默认的，但至少要有一个.
      */
     public void registerMatchType(String pluginId, String matchTypeId, String matchTypeName, GameScoreboard<?, ?>... scoreboards) {
+        if (scoreboards.length == 0) {
+            throw new ArrayIndexOutOfBoundsException("Missing scoreboards");
+        }
         String fullMatchTypeId = getFullName(pluginId, matchTypeId);
         List<ScoreboardInfo> scoreboardInfos = Arrays.stream(scoreboards).map((scoreboard) -> {
             ScoreboardInfo info = extractScoreboardInfo(scoreboard);
@@ -85,9 +159,28 @@ public class PluginRegistryService {
         matchTypeRegistry.put(fullMatchTypeId, new MatchType(fullMatchTypeId, matchTypeName, scoreboardInfos));
     }
 
+    @org.jetbrains.annotations.Nullable
     public MatchType getMatchType(String pluginId, String matchTypeId) {
         String fullMatchTypeId = getFullName(pluginId, matchTypeId);
         return matchTypeRegistry.get(fullMatchTypeId);
+    }
+
+    @org.jetbrains.annotations.Nullable
+    public MatchType getMatchType(String fullMatchTypeId) {
+        return matchTypeRegistry.get(fullMatchTypeId);
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public ScoreboardInfo getScoreboardInfo(String fullMatchTypeId, String scoreboardTypeId) {
+        MatchType matchType = this.getMatchType(fullMatchTypeId);
+        if (matchType == null) {
+            throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND, ImmutableMap.of(MATCH_TYPE_ID, fullMatchTypeId));
+        }
+        PluginRegistryService.ScoreboardInfo scoreboardInfo = matchType.getScoreboardInfo(scoreboardTypeId);
+        if (scoreboardInfo == null) {
+            throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND, ImmutableMap.of(SCOREBOARD_TYPE_ID, scoreboardTypeId));
+        }
+        return scoreboardInfo;
     }
 
     /**
@@ -134,7 +227,7 @@ public class PluginRegistryService {
             String displayName = formParameter.displayName();
             String defaultValue;
             boolean required;
-            String fieldType;
+            GameConfig.FieldType fieldType;
             String[] selections = null;
             GameConfig.SelectionField selectionFieldAnnotation;
             GameConfig.TextField textFieldAnnotation;
@@ -142,23 +235,23 @@ public class PluginRegistryService {
             GameConfig.SwitchField switchFieldAnnotation;
             required = (field.getAnnotation(GameConfig.Required.class) != null);
             if ((textFieldAnnotation = field.getAnnotation(GameConfig.TextField.class)) != null) {
-                fieldType = GameConfig.FIELD_TEXT;
+                fieldType = GameConfig.FieldType.FIELD_TEXT;
                 defaultValue = textFieldAnnotation.defaultValue();
             } else if ((integerFieldAnnotation = field.getAnnotation(GameConfig.IntegerField.class)) != null) {
-                fieldType = GameConfig.FIELD_INTEGER;
+                fieldType = GameConfig.FieldType.FIELD_INTEGER;
                 defaultValue = String.valueOf(integerFieldAnnotation.defaultValue());
             } else if ((selectionFieldAnnotation = field.getAnnotation(GameConfig.SelectionField.class)) != null) {
-                fieldType = GameConfig.FIELD_SELECT;
+                fieldType = GameConfig.FieldType.FIELD_SELECT;
                 selections = selectionFieldAnnotation.value();
                 defaultValue = selectionFieldAnnotation.defaultValue();
             } else if ((switchFieldAnnotation = field.getAnnotation(GameConfig.SwitchField.class)) != null) {
-                fieldType = GameConfig.FIELD_SWITCH;
+                fieldType = GameConfig.FieldType.FIELD_SWITCH;
                 defaultValue = switchFieldAnnotation.defaultValue() ? "true" : "false";
             } else {
-                fieldType = GameConfig.FIELD_TEXT;
+                fieldType = GameConfig.FieldType.FIELD_TEXT;
                 defaultValue = "";
             }
-            parameters.add(new GameConfig.ConfigParameter(key, displayName, defaultValue, required, fieldType, selections, keyOrder));
+            parameters.add(new GameConfig.ConfigParameter(key, displayName, defaultValue, required, fieldType, selections, keyOrder, field));
         }
         parameters.sort(Comparator.comparingInt(GameConfig.ConfigParameter::getKeyOrder));
         return ImmutableList.copyOf(parameters);

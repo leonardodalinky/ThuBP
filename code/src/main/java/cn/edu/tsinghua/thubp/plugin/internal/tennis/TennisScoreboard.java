@@ -25,7 +25,7 @@ public class TennisScoreboard implements GameScoreboard<TennisScoreboardConfig, 
     }
 
     @Override
-    public ValidationResult isValid(GameResult gameResult) {
+    public ValidationResult isValid(TennisScoreboardConfig config, GameResult gameResult) {
         return TennisValidationResult.OK;
     }
 

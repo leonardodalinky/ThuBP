@@ -7,12 +7,20 @@ import cn.edu.tsinghua.thubp.match.entity.Round;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.plugin.GameResult;
+import cn.edu.tsinghua.thubp.plugin.MatchType;
+import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboard;
+import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboardConfig;
+import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.GameCreateRequest;
 import cn.edu.tsinghua.thubp.web.request.GameDeleteRequest;
 import cn.edu.tsinghua.thubp.web.request.GameModifyRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+
+import static cn.edu.tsinghua.thubp.plugin.PluginRegistryService.MATCH_TYPE_ID;
+import static cn.edu.tsinghua.thubp.plugin.PluginRegistryService.SCOREBOARD_TYPE_ID;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -45,6 +57,8 @@ public class GameService {
     private final SequenceGeneratorService sequenceGeneratorService;
     private final MongoTemplate mongoTemplate;
     private final TokenGeneratorService tokenGeneratorService;
+    private final PluginRegistryService pluginRegistryService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 在指定轮次中，增加新的 game
@@ -104,25 +118,24 @@ public class GameService {
     }
 
     /**
-     * 在指定轮次中，增加新的 game
+     * 在指定轮次中，修改 game
      * @param user 用户
      * @param matchId 赛事 ID
      * @param roundId 轮次 ID
      * @param gameModifyRequest 比赛修改请求
-     * @return 新比赛的 ID
      */
     @Transactional(rollbackFor = Exception.class)
     public void modifyGame(User user, String matchId, String roundId, String gameId, GameModifyRequest gameModifyRequest) {
         // 校验合法
-        boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+        Match match = mongoTemplate.findOne(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
                 Criteria.where("organizerUserId").is(user.getUserId()),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
-        if (!ret) {
+        if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
         }
-        ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+        boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                 Criteria.where("roundId").is(roundId),
                 Criteria.where("games").all(gameId)
         )), Round.class);
@@ -169,6 +182,70 @@ public class GameService {
         // 改变 gameStatus
         if (gameModifyRequest.getStatus() != null) {
             game.setStatus(gameModifyRequest.getStatus());
+        }
+        // 配置比赛记分板项目
+        MatchType matchType = pluginRegistryService.getMatchType(match.getMatchTypeId());
+        if (matchType == null) {
+            throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND, ImmutableMap.of(MATCH_TYPE_ID, match.getMatchTypeId()));
+        }
+        PluginRegistryService.ScoreboardInfo scoreboardInfo;
+        GameScoreboardConfig configObject = null;
+        if (game.getScoreboardTypeId() == null) {
+            if (gameModifyRequest.getScoreboardTypeId() != null) {
+                scoreboardInfo = pluginRegistryService.getScoreboardInfo(match.getMatchTypeId(), gameModifyRequest.getScoreboardTypeId());
+                if (!Objects.equals(game.getScoreboardTypeId(), scoreboardInfo.getScoreboardTypeId())) {
+                    game.setScoreboardTypeId(scoreboardInfo.getScoreboardTypeId());
+                    // 检查记分板配置
+                    if (game.getScoreboardConfig() != null) {
+                        // configObject = scoreboardInfo.convertTreeToConfig(game.getScoreboardConfig());
+                        configObject = game.getScoreboardConfig();
+                        // 如果不能重用，直接清除
+                        if (!scoreboardInfo.getConfigType().isAssignableFrom(configObject.getClass())) {
+                            game.setScoreboardConfig(null);
+                        }
+                    }
+                }
+            }
+            scoreboardInfo = matchType.getDefaultScoreboardInfo();
+            game.setScoreboardTypeId(scoreboardInfo.getScoreboardTypeId());
+        } else {
+            scoreboardInfo = pluginRegistryService.getScoreboardInfo(match.getMatchTypeId(), game.getScoreboardTypeId());
+        }
+        if (game.getScoreboardConfig() == null) {
+            if (gameModifyRequest.getScoreboardConfig() != null) {
+                configObject = (GameScoreboardConfig) scoreboardInfo.convertTreeToConfig(gameModifyRequest.getScoreboardConfig());
+                // 如果我们想要设置的 config object 格式有误，通知客户端.
+                if (configObject == null) {
+                    throw new CommonException(PluginErrorCode.SCOREBOARD_CONFIG_NOT_VALID, ImmutableMap.of(SCOREBOARD_TYPE_ID, game.getScoreboardTypeId()));
+                }
+                game.setScoreboardConfig(configObject);
+            } else {
+                configObject = (GameScoreboardConfig) scoreboardInfo.buildDefaultConfig();
+                game.setScoreboardConfig(configObject);
+            }
+        } else if (configObject == null) {
+            configObject = game.getScoreboardConfig();
+        }
+        if (gameModifyRequest.getResult() != null) {
+            GameResult resultObject = (GameResult) scoreboardInfo.convertTreeToInput(gameModifyRequest.getResult());
+            if (resultObject == null) {
+                throw new CommonException(PluginErrorCode.SCOREBOARD_INPUT_NOT_VALID, ImmutableMap.of(
+                        SCOREBOARD_TYPE_ID, scoreboardInfo.getScoreboardTypeId()
+                ));
+            }
+            // 判断记分板格式是否正确.
+            // 大部分情况下，只要能正常反序列化为 JsonValue，结果多半是合法的.
+            GameScoreboard.ValidationResult result = scoreboardInfo.verifyInput(configObject, resultObject);
+            if (!result.isValid()) {
+                String message = result.getMessage();
+                if (message != null) {
+                    throw new CommonException(PluginErrorCode.SCOREBOARD_INPUT_NOT_VALID, ImmutableMap.of(
+                            "message", message
+                    ));
+                }
+                throw new CommonException(PluginErrorCode.SCOREBOARD_INPUT_NOT_VALID, null);
+            }
+            game.setResult(resultObject);
         }
         // 保存 game
         mongoTemplate.save(game);
@@ -248,5 +325,18 @@ public class GameService {
             throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(GAMES, gameIds));
         }
         return ret;
+    }
+
+    /**
+     * 通过 {@link Game} 实例，获得反序列化后的比赛结果.
+     *
+     * @param game Game 实例
+     * @return 比赛结果
+     */
+    public GameResult deserializeGameResultFromGame(Game game) {
+        if (game.getScoreboardTypeId() == null || game.getScoreboardConfig() == null || game.getResult() == null) {
+            return null;
+        }
+        return game.getResult();
     }
 }

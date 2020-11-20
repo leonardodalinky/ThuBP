@@ -1,7 +1,9 @@
 package cn.edu.tsinghua.thubp.match.service;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
+import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
@@ -19,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -77,6 +80,7 @@ public class MatchService {
                 .organizerUserId(user.getUserId())
                 .name(matchCreateRequest.getName())
                 .description(matchCreateRequest.getDescription())
+                .targetGroup(matchCreateRequest.getTargetGroup())
                 .publicSignUp(matchCreateRequest.getPublicSignUp())
                 .participants(new ArrayList<>())
                 .referees(new ArrayList<>())
@@ -112,7 +116,8 @@ public class MatchService {
      * @param matchModifyRequest 赛事信息修改的请求
      */
     @Transactional(rollbackFor = Exception.class)
-    public void modifyMatch(User user, String matchId, MatchModifyRequest matchModifyRequest) throws MalformedURLException {
+    public void modifyMatch(User user, String matchId, MatchModifyRequest matchModifyRequest)
+            throws MalformedURLException {
         // 校验
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
@@ -123,13 +128,9 @@ public class MatchService {
         if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
         }
+        // 自动修改部分属性
+        AutoModifyUtil.autoModify(matchModifyRequest, match);
         // 修改属性
-        if (matchModifyRequest.getName() != null) {
-            match.setName(matchModifyRequest.getName());
-        }
-        if (matchModifyRequest.getDescription() != null) {
-            match.setDescription(matchModifyRequest.getDescription());
-        }
         if (matchModifyRequest.getPreview() != null) {
             match.setPreview(
                     new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchModifyRequest.getPreview())

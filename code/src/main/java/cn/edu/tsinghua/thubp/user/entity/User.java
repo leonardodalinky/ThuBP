@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.user.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
 import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
@@ -22,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "user")
-public class User extends AuditBase {
+public class User extends AuditBase implements ModifiableTarget {
     /**
      * 用于给每个 user 赋值 userId 的静态常量
      */

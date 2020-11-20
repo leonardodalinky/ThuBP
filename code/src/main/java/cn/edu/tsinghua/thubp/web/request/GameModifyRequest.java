@@ -1,5 +1,7 @@
 package cn.edu.tsinghua.thubp.web.request;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -14,9 +16,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameModifyRequest {
+public class GameModifyRequest implements ModifiableSource {
     @ApiModelProperty(value = "比赛的状态", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private GameStatus status;
     @ApiModelProperty(value = "参赛单位 0 的 ID", required = false)
     @org.jetbrains.annotations.Nullable

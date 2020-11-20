@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.plugin.GameResult;
 import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboardConfig;
@@ -26,7 +28,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @Document(collection = "game")
-public class Game extends AuditBase {
+public class Game extends AuditBase implements ModifiableTarget {
     @Transient
     public static final String SEQUENCE_NAME = "game_sequence";
 

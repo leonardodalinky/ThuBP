@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.response;
 
+import cn.edu.tsinghua.thubp.common.util.FieldCopier;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.entity.UnitToken;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,6 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnitInfoResponse extends SimpleResponse {
+    @ApiModelProperty(value = "参赛单位 ID", required = true)
+    private String unitId;
     @ApiModelProperty(value = "参赛单位名称", required = true)
     private String name;
     @ApiModelProperty(value = "参赛单位创建者 ID", required = true)
@@ -25,9 +28,6 @@ public class UnitInfoResponse extends SimpleResponse {
     private UnitToken unitToken;
 
     public UnitInfoResponse(Unit unit) {
-        this.name = unit.getName();
-        this.creatorId = unit.getCreatorId();
-        this.matchId = unit.getMatchId();
-        this.unitToken = unit.getUnitToken();
+        FieldCopier.copy(unit, this);
     }
 }

@@ -2,7 +2,9 @@ package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.comment.entity.Comment;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -19,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "match")
-public class Match extends AuditBase {
+public class Match extends AuditBase implements ModifiableTarget {
     /**
      * 用于给每个 match 赋值 matchId 的静态常量
      */
@@ -45,6 +47,10 @@ public class Match extends AuditBase {
      */
     @lombok.NonNull
     private String description;
+    /**
+     * 面向人群
+     */
+    private String targetGroup;
     /**
      * 赛事预览图
      */

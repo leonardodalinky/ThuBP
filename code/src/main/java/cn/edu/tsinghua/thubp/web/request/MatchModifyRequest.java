@@ -1,5 +1,7 @@
 package cn.edu.tsinghua.thubp.web.request;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
 import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import cn.edu.tsinghua.thubp.web.enums.UploadType;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,11 +17,16 @@ import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchModifyRequest {
+public class MatchModifyRequest implements ModifiableSource {
     @ApiModelProperty(value = "赛事名字", required = false)
+    @AutoModify
     private String name;
     @ApiModelProperty(value = "赛事描述", required = false)
+    @AutoModify
     private String description;
+    @ApiModelProperty(value = "面向人群", required = false)
+    @AutoModify
+    private String targetGroup;
     @ApiModelProperty(value = "赛事预览图的文件名(key)", required = false)
     @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "-[a-zA-Z0-9.-]+$")
     private String preview;

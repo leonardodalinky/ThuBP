@@ -19,6 +19,8 @@ public class MatchCreateRequest {
     @ApiModelProperty(value = "赛事描述", required = true)
     @javax.validation.constraints.NotBlank
     String description;
+    @ApiModelProperty(value = "面向人群", required = false)
+    private String targetGroup;
     @javax.validation.constraints.NotBlank
     String matchTypeId;
     @ApiModelProperty(value = "公开报名", required = true)

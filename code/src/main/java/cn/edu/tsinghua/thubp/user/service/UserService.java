@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp.user.service;
 //import cn.edu.tsinghua.thubp.user.entity.Role;
 
 import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
+import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -119,9 +120,8 @@ public class UserService {
 
     public void update(User user, UserUpdateRequest userUpdateRequest) throws MalformedURLException {
         Update update = new Update();
-        if (Objects.nonNull(userUpdateRequest.getUsername())) {
-            update.set("username", userUpdateRequest.getUsername());
-        }
+        // 自动修改部份属性
+        AutoModifyUtil.autoModify(userUpdateRequest, user);
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {
             if (!Objects.nonNull(userUpdateRequest.getOldPassword())) {
                 throw new UserOldPwdNotProvidedException(ImmutableMap.of("OldPwd", ""));
@@ -138,22 +138,7 @@ public class UserService {
             user.setAvatar(new URL("http", globalConfig.getQiNiuHost(), userUpdateRequest.getAvatar()));
             update.set("avatar", user.getAvatar());
         }
-        if (Objects.nonNull(userUpdateRequest.getGender())) {
-            user.setGender(userUpdateRequest.getGender());
-            update.set("gender", userUpdateRequest.getGender());
-        }
-        if (Objects.nonNull(userUpdateRequest.getMobile())) {
-            user.setMobile(userUpdateRequest.getMobile());
-            update.set("mobile", userUpdateRequest.getMobile());
-        }
-        if (Objects.nonNull(userUpdateRequest.getEmail())) {
-            user.setEmail(userUpdateRequest.getEmail());
-            update.set("email", userUpdateRequest.getEmail());
-        }
-//        mongoTemplate.updateFirst(
-//                Query.query(Criteria.where("userId").is(user.getUserId())),
-//                update,
-//                User.class);
+        // 保存
         User u = mongoTemplate.findAndModify(
                 Query.query(Criteria.where("userId").is(user.getUserId())),
                 update,

@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static cn.edu.tsinghua.thubp.security.constant.SecurityConstant.AUTH_LOGIN_URL;
+
 /**
  * 过滤器处理所有HTTP请求，并检查是否存在带有正确令牌的Authorization标头。例如，如果令牌未过期或签名密钥正确。
  * @author Link
@@ -41,7 +43,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
-
+        // 登录时界面不 authorize
+        if (request.getRequestURI().equals(AUTH_LOGIN_URL)) {
+            chain.doFilter(request, response);
+            return;
+        }
         String token = request.getHeader(SecurityConstant.TOKEN_HEADER);
         if (token == null || !token.startsWith(SecurityConstant.TOKEN_PREFIX)) {
             SecurityContextHolder.clearContext();

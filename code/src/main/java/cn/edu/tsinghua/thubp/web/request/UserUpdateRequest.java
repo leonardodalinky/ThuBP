@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.thubp.web.request;
 
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,8 +22,9 @@ import javax.validation.constraints.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserUpdateRequest {
+public class UserUpdateRequest implements ModifiableSource {
     @ApiModelProperty(value = "用户名")
+    @AutoModify
     private String username;
     @ApiModelProperty(value = "旧密码")
     private String oldPassword;
@@ -31,11 +34,14 @@ public class UserUpdateRequest {
     @Pattern(regexp = "^"+ IUploadType.STR_AVATAR + "-[a-zA-Z0-9.-]+$")
     private String avatar;
     @ApiModelProperty(value = "性别")
+    @AutoModify
     private Gender gender;
     @ApiModelProperty(value = "手机")
     @Pattern(regexp = "^\\d{11}$")
+    @AutoModify
     private String mobile;
     @ApiModelProperty(value = "邮箱")
     @Email
+    @AutoModify
     private String email;
 }

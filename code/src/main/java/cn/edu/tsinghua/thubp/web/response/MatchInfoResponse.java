@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.response;
 
+import cn.edu.tsinghua.thubp.common.util.FieldCopier;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.MatchToken;
 import cn.edu.tsinghua.thubp.match.entity.RefereeToken;
@@ -24,6 +25,9 @@ public class MatchInfoResponse extends SimpleResponse {
     private String name;
     @ApiModelProperty(value = "赛事描述", required = true)
     private String description;
+    @ApiModelProperty(value = "面向人群", required = false)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String targetGroup;
     @ApiModelProperty(value = "赛事预览图", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private URL preview;
@@ -42,15 +46,6 @@ public class MatchInfoResponse extends SimpleResponse {
     private MatchToken matchToken;
 
     public MatchInfoResponse(Match match) {
-        this.matchId = match.getMatchId();
-        this.organizerUserId = match.getOrganizerUserId();
-        this.name = match.getName();
-        this.description = match.getDescription();
-        this.preview = match.getPreview();
-        this.previewLarge = match.getPreviewLarge();
-        this.matchTypeId = match.getMatchTypeId();
-        this.refereeToken = match.getRefereeToken();
-        this.publicSignUp = match.getPublicSignUp();
-        this.matchToken = match.getMatchToken();
+        FieldCopier.copy(match, this);
     }
 }

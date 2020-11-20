@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.response;
 
+import cn.edu.tsinghua.thubp.common.util.FieldCopier;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -38,13 +39,6 @@ public class UserInfoResponse extends SimpleResponse {
     private String email;
 
     public UserInfoResponse(User user) {
-        this.thuId = user.getThuId();
-        this.userId = user.getUserId();
-        this.username = user.getUsername();
-        this.avatar = user.getAvatar();
-        this.role = user.getRole();
-        this.gender = user.getGender();
-        this.mobile = user.getMobile();
-        this.email = user.getEmail();
+        FieldCopier.copy(user, this);
     }
 }

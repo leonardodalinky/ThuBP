@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.match.service;
 
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
+import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
@@ -154,9 +155,7 @@ public class UnitService {
             throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
         }
         // 修改
-        if (unitModifyRequest.getName() != null) {
-            unit.setName(unitModifyRequest.getName());
-        }
+        AutoModifyUtil.autoModify(unitModifyRequest, unit);
         mongoTemplate.save(unit);
     }
 

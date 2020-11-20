@@ -3,6 +3,8 @@ package cn.edu.tsinghua.thubp.security.constant;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import static cn.edu.tsinghua.thubp.web.constant.WebConstant.URL_PREFIX_API_V1;
+
 /**
  * Spring Security相关配置常量
  * @author Link
@@ -12,11 +14,11 @@ public class SecurityConstant {
     /**
      * 登录的地址
      */
-    public static final String AUTH_LOGIN_URL = "/api/v1/auth/login";
+    public static final String AUTH_LOGIN_URL = URL_PREFIX_API_V1 + "/auth/login";
     /**
      * 登录的地址
      */
-    public static final String AUTH_REGISTER_URL = "/api/v1/auth/register";
+    public static final String AUTH_REGISTER_URL = URL_PREFIX_API_V1 + "/auth/register";
     /**
      * 角色的key
      **/

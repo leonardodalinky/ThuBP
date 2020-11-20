@@ -7,6 +7,7 @@ import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
 import cn.edu.tsinghua.thubp.web.request.UserRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
+import cn.edu.tsinghua.thubp.web.response.LoginResponse;
 import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import cn.edu.tsinghua.thubp.web.response.UserRegisterResponse;
@@ -44,7 +45,8 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
     public SimpleResponse login() {
-        return new SimpleResponse(SimpleResponse.OK);
+        User user = currentUserService.getUser();
+        return new LoginResponse(user.getUserId());
     }
 
     @ApiOperation(value = "注册账户", tags = SwaggerTagUtil.ROLECHECK)

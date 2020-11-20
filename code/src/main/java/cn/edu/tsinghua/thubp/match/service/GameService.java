@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.match.service;
 
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
+import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Round;
@@ -149,6 +150,8 @@ public class GameService {
         if (game == null) {
             throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(GAME_ID, gameId));
         }
+        // 自动修改，目前只改变 gameStatus
+        AutoModifyUtil.autoModify(gameModifyRequest, game);
         // unit0 与 unit1 的修改
         if (gameModifyRequest.getUnit1() == null && gameModifyRequest.getUnit0() != null) {
             ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
@@ -178,10 +181,6 @@ public class GameService {
                             UNIT0, gameModifyRequest.getUnit0(),
                             UNIT1, gameModifyRequest.getUnit1()
                     ));
-        }
-        // 改变 gameStatus
-        if (gameModifyRequest.getStatus() != null) {
-            game.setStatus(gameModifyRequest.getStatus());
         }
         // 配置比赛记分板项目
         MatchType matchType = pluginRegistryService.getMatchType(match.getMatchTypeId());

@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -20,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "unit")
-public class Unit extends AuditBase {
+public class Unit extends AuditBase implements ModifiableTarget {
     @Transient
     public static final String SEQUENCE_NAME = "unit_sequence";
 

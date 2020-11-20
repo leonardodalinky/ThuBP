@@ -47,6 +47,7 @@ type Match {
     organizerUser: User!
     name: String!
     description: String!
+    targetGroup: String
     preview: String
     previewLarge: String
     participants: [User!]!

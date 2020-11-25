@@ -45,8 +45,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
     public SimpleResponse login() {
-        User user = currentUserService.getUser();
-        return new LoginResponse(user.getUserId());
+        return new LoginResponse(currentUserService.getUserId());
     }
 
     @ApiOperation(value = "注册账户", tags = SwaggerTagUtil.ROLECHECK)

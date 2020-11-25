@@ -20,8 +20,22 @@ public class CurrentUserService {
         return (JwtUser)authenticationFacade.getAuthentication().getPrincipal();
     }
 
+    /**
+     * 获得当前的用户的全部信息
+     * @apiNote 此操作需要额外进行一次数据库查询
+     * @return 当前 User
+     */
     public User getUser() {
         JwtUser jwtUser = (JwtUser)authenticationFacade.getAuthentication().getPrincipal();
         return userService.findByUserId(jwtUser.getUserId());
+    }
+
+    /**
+     * 获得当前的用户的 ID
+     * @apiNote 此操作无需额外数据库查询
+     * @return 当前用户 ID
+     */
+    public String getUserId() {
+        return ((JwtUser)authenticationFacade.getAuthentication().getPrincipal()).getUserId();
     }
 }

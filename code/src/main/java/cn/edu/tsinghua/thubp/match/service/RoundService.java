@@ -55,7 +55,7 @@ public class RoundService {
      * @return 新的轮次的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String createRound(User user, String matchId, RoundCreateRequest roundCreateRequest) {
+    public String createRound(String userId, String matchId, RoundCreateRequest roundCreateRequest) {
         // 先检验 request 的 units
         List<String> units = roundCreateRequest.getUnits();
         boolean ret = mongoTemplate.exists(Query.query(
@@ -99,13 +99,13 @@ public class RoundService {
      * @param roundId 轮次 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteRound(User user, String matchId, String roundId) {
+    public void deleteRound(String userId, String matchId, String roundId) {
         // 检验 round 是否同一赛事并且 user 是否 round 的创建者
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId"),
                         Criteria.where("rounds").all(roundId),
-                        Criteria.where("organizerUserId").is(user.getUserId())
+                        Criteria.where("organizerUserId").is(userId)
                 )
         ), Match.class);
         if (!ret) {

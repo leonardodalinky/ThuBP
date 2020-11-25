@@ -5,20 +5,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 /**
  * 系统通知
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Document(collection = "notification")
-public class Notification extends AuditBase {
+public class Notification {
     @Transient
     @JsonIgnore
     public static final String SEQUENCE_NAME = "notification_sequence";
@@ -42,4 +44,7 @@ public class Notification extends AuditBase {
     @ApiModelProperty(value = "是否已读", required = true)
     @NonNull
     private Boolean isRead;
+    @ApiModelProperty(value = "创建日期", required = true)
+    @CreatedDate
+    private Instant createdAt;
 }

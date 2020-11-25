@@ -63,6 +63,7 @@ public class ThubpApplication implements CommandLineRunner {
                         .mobile("10000000000")
                         .email("thubp@tsinghua.edu.cn")
                         .thuId("2018000000")
+                        .unreadNotificationCount(0)
                         .build();
                 userRepository.save(user);
             }

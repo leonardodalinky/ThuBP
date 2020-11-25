@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
+import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.user.enums.RoleType;
@@ -8,10 +9,13 @@ import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
-import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
+import cn.edu.tsinghua.thubp.web.request.SendNotificationRequest;
+import cn.edu.tsinghua.thubp.web.response.SendNotificationResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import com.google.common.collect.ImmutableMap;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +24,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +38,7 @@ public class AdminController {
     private final MongoTemplate mongoTemplate;
     private final UserRepository userRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final NotificationService notificationService;
 
     @ApiOperation(value = "获得所有的用户（管理员）", tags = {SwaggerTagUtil.ADMIN, SwaggerTagUtil.ROOT})
     @ResponseBody
@@ -79,9 +84,27 @@ public class AdminController {
                     .mobile("10000000000")
                     .email("thubp@tsinghua.edu.cn")
                     .thuId("2018000000")
+                    .unreadNotificationCount(0)
                     .build();
             userRepository.save(user);
         }
         return new SimpleResponse(SimpleResponse.OK);
+    }
+
+    @ApiOperation(value = "发送系统通知", tags = {SwaggerTagUtil.ROOT})
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "userId", value = "用户 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/admin/{userId}/notification", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyRole('ROOT')")
+    public SendNotificationResponse sendNotification(@PathVariable String userId,
+                                           @RequestBody @Valid SendNotificationRequest sendNotificationRequest) {
+        String notificationId = notificationService.sendNotificationFromSystem(
+                userId,
+                sendNotificationRequest.getTitle(),
+                sendNotificationRequest.getContent()
+        );
+        return new SendNotificationResponse(notificationId);
     }
 }

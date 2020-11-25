@@ -67,6 +67,7 @@ public class UserService {
                 .mobile(userRegisterRequest.getMobile())
                 .email(userRegisterRequest.getEmail())
                 .gender(Gender.UNKNOWN)
+                .unreadNotificationCount(0)
                 .build();
         userRepository.save(user);
         return userId;

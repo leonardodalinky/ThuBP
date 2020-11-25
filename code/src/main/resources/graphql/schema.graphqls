@@ -24,6 +24,8 @@ type Query {
 
 scalar Date
 
+# TODO: 告知 size
+
 type User {
     userId: String!
     username: String!
@@ -32,7 +34,9 @@ type User {
     mobile: String
     email: String
     organizedMatches(page: Int = 0, pageSize: Int = 10): [Match!]!
+    organizedMatchSize: Int!
     participatedMatches(page: Int = 0, pageSize: Int = 10): [Match!]!
+    participatedMatchSize: Int!
     createdAt: Date!
 }
 
@@ -55,6 +59,7 @@ type Match {
     participants: [User!]!
     referees: [User!]!
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
+    commentSize: Int!
     createdAt: Date!
 }
 

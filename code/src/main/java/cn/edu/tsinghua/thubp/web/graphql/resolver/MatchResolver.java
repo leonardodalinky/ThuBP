@@ -47,4 +47,8 @@ public class MatchResolver implements GraphQLResolver<Match> {
         );
         return commentPage.getContent();
     }
+
+    public Integer commentSize(Match match) {
+        return match.getComments().size();
+    }
 }

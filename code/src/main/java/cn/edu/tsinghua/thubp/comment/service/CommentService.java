@@ -24,6 +24,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 评论的服务
+ */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CommentService {
@@ -57,13 +60,13 @@ public class CommentService {
 
     /**
      * 评论赛事
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param commentRequest 评论的请求
      * @return 新的评论的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String commentMatch(User user, String matchId, CommentRequest commentRequest) {
+    public String commentMatch(String userId, String matchId, CommentRequest commentRequest) {
         // 如果是回复评论,检查比赛下是否有该评论
         if (commentRequest.getReplyId() != null) {
             boolean ret = mongoTemplate.exists(Query.query(
@@ -84,7 +87,7 @@ public class CommentService {
             throw new CommonException(CommentErrorCode.MODERATION_FAILED, ImmutableMap.of(DETAIL, result.getDetail()));
         }
         // 创建评论
-        String commentId = createComment(user.getUserId(), commentRequest.getContent(), commentRequest.getReplyId());
+        String commentId = createComment(userId, commentRequest.getContent(), commentRequest.getReplyId());
         mongoTemplate.updateFirst(Query.query(
                 Criteria.where("matchId").is(matchId)
         ), new Update().push("comments", commentId), Match.class);
@@ -94,13 +97,13 @@ public class CommentService {
 
     /**
      * 修改评论
-     * @param user 用户
+     * @param userId 用户 ID
      * @param commentId 评论 ID
      * @param commentModifyRequest 修改评论的请求
      * @return 当前评论的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String modifyComment(User user, String commentId, CommentModifyRequest commentModifyRequest) {
+    public String modifyComment(String userId, String commentId, CommentModifyRequest commentModifyRequest) {
         // 文本审核
         // 不需要异步，因为需要结果
         Result result = moderationService.moderate(commentModifyRequest.getContent());
@@ -111,7 +114,7 @@ public class CommentService {
         long cnt = mongoTemplate.updateFirst(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("commentId").is(commentId),
-                        Criteria.where("issuerId").is(user.getUserId())
+                        Criteria.where("issuerId").is(userId)
                 )
         ), new Update().set("content", commentModifyRequest.getContent()), Comment.class).getModifiedCount();
         if (cnt != 1) {
@@ -122,17 +125,17 @@ public class CommentService {
 
     /**
      * 删除评论
-     * @param user 用户
+     * @param userId 用户 ID
      * @param commentId 评论 ID
      * @return 当前评论的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String deleteComment(User user, String commentId) {
+    public String deleteComment(String userId, String commentId) {
         // 修改评论
         long cnt = mongoTemplate.remove(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("commentId").is(commentId),
-                        Criteria.where("issuerId").is(user.getUserId())
+                        Criteria.where("issuerId").is(userId)
                 )
         ), Comment.class).getDeletedCount();
         if (cnt != 1) {

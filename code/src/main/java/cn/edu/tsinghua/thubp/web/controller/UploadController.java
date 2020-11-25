@@ -35,11 +35,10 @@ public class UploadController {
     public UploadResponse upload(@RequestBody @Valid UploadRequest uploadRequest) {
         UploadType uploadType = uploadRequest.getUploadType();
         // 此处可以限制一个人不能短时间传太多次？但现阶段不加入。
-        User nowUser = currentUserService.getUser();
         // 生成文件名
         String key = uploadType.getName() +
                 "_" +
-                nowUser.getUserId() +
+                currentUserService.getUserId() +
                 "_" + new Date().getTime() +
                 ((Objects.isNull(uploadRequest.getSuffix()))? "" : uploadRequest.getSuffix());
         Auth auth = Auth.create(globalConfig.getQiNiuAccessKey(), globalConfig.getQiNiuPrivateKey());

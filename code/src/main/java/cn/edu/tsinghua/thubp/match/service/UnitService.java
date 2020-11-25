@@ -119,13 +119,13 @@ public class UnitService {
         addMember(user.getUserId(), unitId);
     }
 
-    public Unit infoUnit(User user, String matchId, String unitId) {
+    public Unit infoUnit(String userId, String matchId, String unitId) {
         // 校验
         Unit unit = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("unitId").is(unitId),
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("creatorId").is(user.getUserId())
+                        Criteria.where("creatorId").is(userId)
                 )
         ), Unit.class);
         if (unit == null) {
@@ -142,13 +142,13 @@ public class UnitService {
      * @param unitModifyRequest 修改参赛单位信息的请求
      */
     @Transactional(rollbackFor = Exception.class)
-    public void modifyUnit(User user, String matchId, String unitId, UnitModifyRequest unitModifyRequest) {
+    public void modifyUnit(String userId, String matchId, String unitId, UnitModifyRequest unitModifyRequest) {
         // 校验
         Unit unit = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("unitId").is(unitId),
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("creatorId").is(user.getUserId())
+                        Criteria.where("creatorId").is(userId)
                 )
         ), Unit.class);
         if (unit == null) {

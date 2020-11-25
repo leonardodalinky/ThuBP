@@ -43,8 +43,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/{matchId}", method = RequestMethod.GET)
     public MatchInfoResponse infoMatch(@PathVariable String matchId) {
-        User user = currentUserService.getUser();
-        Match match = matchService.infoMatch(user, matchId);
+        Match match = matchService.infoMatch(currentUserService.getUserId(), matchId);
         return new MatchInfoResponse(match);
     }
 
@@ -57,8 +56,7 @@ public class MatchController {
     public SimpleResponse modifyMatch(@PathVariable String matchId,
                                       @RequestBody @Valid MatchModifyRequest matchModifyRequest)
             throws MalformedURLException {
-        User user = currentUserService.getUser();
-        matchService.modifyMatch(user, matchId, matchModifyRequest);
+        matchService.modifyMatch(currentUserService.getUserId(), matchId, matchModifyRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -69,8 +67,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/assign-match-token/{matchId}", method = RequestMethod.POST)
     public AssignMatchTokenResponse assignMatchToken(@PathVariable String matchId) {
-        User user = currentUserService.getUser();
-        MatchToken token = matchService.assignMatchToken(user.getUserId(), matchId);
+        MatchToken token = matchService.assignMatchToken(currentUserService.getUserId(), matchId);
         return AssignMatchTokenResponse.builder().
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime())
@@ -113,8 +110,7 @@ public class MatchController {
     public SimpleResponse modifyUnit(@PathVariable String matchId,
                                      @PathVariable String unitId,
                                      @RequestBody @Valid UnitModifyRequest unitModifyRequest) {
-        User user = currentUserService.getUser();
-        unitService.modifyUnit(user, matchId, unitId, unitModifyRequest);
+        unitService.modifyUnit(currentUserService.getUserId(), matchId, unitId, unitModifyRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -126,8 +122,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/{matchId}/unit/{unitId}", method = RequestMethod.GET)
     public UnitInfoResponse infoUnit(@PathVariable String matchId, @PathVariable String unitId) {
-        User user = currentUserService.getUser();
-        Unit unit = unitService.infoUnit(user, matchId, unitId);
+        Unit unit = unitService.infoUnit(currentUserService.getUserId(), matchId, unitId);
         return new UnitInfoResponse(unit);
     }
 
@@ -138,8 +133,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/assign-unit-token/{unitId}", method = RequestMethod.POST)
     public AssignUnitTokenResponse assignUnitToken(@PathVariable String unitId) {
-        User user = currentUserService.getUser();
-        UnitToken token = unitService.assignUnitToken(user.getUserId(), unitId);
+        UnitToken token = unitService.assignUnitToken(currentUserService.getUserId(), unitId);
         return AssignUnitTokenResponse.builder().
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime())
@@ -153,8 +147,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/assign-referee-token/{matchId}", method = RequestMethod.POST)
     public AssignRefereeTokenResponse assignRefereeToken(@PathVariable String matchId) {
-        User user = currentUserService.getUser();
-        RefereeToken token = matchService.assignRefereeToken(user.getUserId(), matchId);
+        RefereeToken token = matchService.assignRefereeToken(currentUserService.getUserId(), matchId);
         return AssignRefereeTokenResponse.builder().
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime())
@@ -169,8 +162,7 @@ public class MatchController {
     @RequestMapping(value = "/match/become-referee/{matchId}", method = RequestMethod.POST)
     public SimpleResponse becomeRefereeByToken(@PathVariable String matchId,
                                                @RequestBody @Valid BecomeRefereeRequest becomeRefereeRequest) {
-        User user = currentUserService.getUser();
-        matchService.becomeRefereeByToken(user.getUserId(), matchId, becomeRefereeRequest.getToken());
+        matchService.becomeRefereeByToken(currentUserService.getUserId(), matchId, becomeRefereeRequest.getToken());
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -182,8 +174,7 @@ public class MatchController {
     @RequestMapping(value = "/match/{matchId}/round", method = RequestMethod.POST)
     public RoundCreateResponse createRound(@PathVariable String matchId,
                                            @RequestBody @Valid RoundCreateRequest roundCreateRequest) {
-        User user = currentUserService.getUser();
-        String roundId = roundService.createRound(user, matchId, roundCreateRequest);
+        String roundId = roundService.createRound(currentUserService.getUserId(), matchId, roundCreateRequest);
         return new RoundCreateResponse(roundId);
     }
 
@@ -195,8 +186,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/{matchId}/round/{roundId}", method = RequestMethod.DELETE)
     public SimpleResponse deleteRound(@PathVariable String matchId, @PathVariable String roundId) {
-        User user = currentUserService.getUser();
-        roundService.deleteRound(user, matchId, roundId);
+        roundService.deleteRound(currentUserService.getUserId(), matchId, roundId);
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -210,8 +200,7 @@ public class MatchController {
     public GameCreateResponse createGame(@PathVariable String matchId,
                                           @PathVariable String roundId,
                                           @RequestBody @Valid GameCreateRequest gameCreateRequest) {
-        User user = currentUserService.getUser();
-        String gameId = gameService.createGame(user, matchId, roundId, gameCreateRequest);
+        String gameId = gameService.createGame(currentUserService.getUserId(), matchId, roundId, gameCreateRequest);
         return new GameCreateResponse(gameId);
     }
 
@@ -227,8 +216,7 @@ public class MatchController {
                                          @PathVariable String roundId,
                                          @PathVariable String gameId,
                                          @RequestBody @Valid GameModifyRequest gameModifyRequest) {
-        User user = currentUserService.getUser();
-        gameService.modifyGame(user, matchId, roundId, gameId, gameModifyRequest);
+        gameService.modifyGame(currentUserService.getUserId(), matchId, roundId, gameId, gameModifyRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 
@@ -243,8 +231,7 @@ public class MatchController {
     public SimpleResponse createGame(@PathVariable String matchId,
                                          @PathVariable String roundId,
                                          @RequestBody @Valid GameDeleteRequest gameDeleteRequest) {
-        User user = currentUserService.getUser();
-        gameService.deleteGame(user, matchId, roundId, gameDeleteRequest);
+        gameService.deleteGame(currentUserService.getUserId(), matchId, roundId, gameDeleteRequest);
         return new SimpleResponse(SimpleResponse.OK);
     }
 }

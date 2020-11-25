@@ -49,15 +49,15 @@ public class MatchService {
 
     /**
      * 组织者用户获取比赛，否则抛出 Exception
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @return 赛事
      */
-    public Match infoMatch(User user, String matchId) {
+    public Match infoMatch(String userId, String matchId) {
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("organizerUserId").is(user.getUserId())
+                        Criteria.where("organizerUserId").is(userId)
                 )
         ), Match.class);
         if (match == null) {
@@ -111,18 +111,18 @@ public class MatchService {
 
     /**
      * 修改赛事信息
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param matchModifyRequest 赛事信息修改的请求
      */
     @Transactional(rollbackFor = Exception.class)
-    public void modifyMatch(User user, String matchId, MatchModifyRequest matchModifyRequest)
+    public void modifyMatch(String userId, String matchId, MatchModifyRequest matchModifyRequest)
             throws MalformedURLException {
         // 校验
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("organizerUserId").is(user.getUserId())
+                        Criteria.where("organizerUserId").is(userId)
                 )
         ), Match.class);
         if (match == null) {

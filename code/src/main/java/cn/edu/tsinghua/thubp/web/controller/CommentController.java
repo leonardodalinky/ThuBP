@@ -34,8 +34,7 @@ public class CommentController {
     @RequestMapping(value = "/comment/match/{matchId}", method = RequestMethod.POST)
     public CommentResponse commentMatch(@PathVariable String matchId,
                                         @RequestBody @Valid CommentRequest commentRequest) {
-        User user = currentUserService.getUser();
-        String commentId = commentService.commentMatch(user, matchId, commentRequest);
+        String commentId = commentService.commentMatch(currentUserService.getUserId(), matchId, commentRequest);
         return new CommentResponse(commentId);
     }
 
@@ -47,8 +46,7 @@ public class CommentController {
     @RequestMapping(value = "/comment/{commentId}", method = RequestMethod.PATCH)
     public CommentResponse modifyComment(@PathVariable String commentId,
                                         @RequestBody @Valid CommentModifyRequest commentModifyRequest) {
-        User user = currentUserService.getUser();
-        String ret = commentService.modifyComment(user, commentId, commentModifyRequest);
+        String ret = commentService.modifyComment(currentUserService.getUserId(), commentId, commentModifyRequest);
         return new CommentResponse(ret);
     }
 
@@ -59,8 +57,7 @@ public class CommentController {
     @ResponseBody
     @RequestMapping(value = "/comment/{commentId}", method = RequestMethod.DELETE)
     public CommentResponse deleteComment(@PathVariable String commentId) {
-        User user = currentUserService.getUser();
-        String ret = commentService.deleteComment(user, commentId);
+        String ret = commentService.deleteComment(currentUserService.getUserId(), commentId);
         return new CommentResponse(ret);
     }
 }

@@ -63,23 +63,23 @@ public class GameService {
 
     /**
      * 在指定轮次中，增加新的 game
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param roundId 轮次 ID
      * @param gameCreateRequest 比赛创建请求
      * @return 新比赛的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String createGame(User user, String matchId, String roundId, GameCreateRequest gameCreateRequest) {
+    public String createGame(String userId, String matchId, String roundId, GameCreateRequest gameCreateRequest) {
         // 校验 user 是否有权限且 roundId 合法
         boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
-                Criteria.where("organizerUserId").is(user.getUserId()),
+                Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
         if (!ret) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND,
-                    ImmutableMap.of(MATCH_ID, matchId, USER_ID, user.getUserId(), ROUND_ID, roundId));
+                    ImmutableMap.of(MATCH_ID, matchId, USER_ID, userId, ROUND_ID, roundId));
         }
         // 检验 gameCreateRequest 的合法性
         if (gameCreateRequest.getUnit1() == null) {
@@ -120,17 +120,17 @@ public class GameService {
 
     /**
      * 在指定轮次中，修改 game
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param roundId 轮次 ID
      * @param gameModifyRequest 比赛修改请求
      */
     @Transactional(rollbackFor = Exception.class)
-    public void modifyGame(User user, String matchId, String roundId, String gameId, GameModifyRequest gameModifyRequest) {
+    public void modifyGame(String userId, String matchId, String roundId, String gameId, GameModifyRequest gameModifyRequest) {
         // 校验合法
         Match match = mongoTemplate.findOne(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
-                Criteria.where("organizerUserId").is(user.getUserId()),
+                Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
         if (match == null) {
@@ -252,17 +252,17 @@ public class GameService {
 
     /**
      * 删除一个 round 中的 game
-     * @param user 用户
+     * @param userId 用户 Id
      * @param matchId 赛事 ID
      * @param roundId 轮次 ID
      * @param gameDeleteRequest 删除比赛的请求
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteGame(User user, String matchId, String roundId, GameDeleteRequest gameDeleteRequest) {
+    public void deleteGame(String userId, String matchId, String roundId, GameDeleteRequest gameDeleteRequest) {
         // 校验 user 是否有权限且 roundId 合法
         boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
-                Criteria.where("organizerUserId").is(user.getUserId()),
+                Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
         if (!ret) {

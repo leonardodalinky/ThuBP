@@ -10,6 +10,8 @@ public class SwaggerTagUtil {
 
     public static final String COMMENT = "评论管理";
 
+    public static final String NOTIFICATION = "通知管理";
+
     public static final String ADMIN = "ADMIN";
     public static final String ROOT = "ROOT";
 }

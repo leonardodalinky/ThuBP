@@ -97,6 +97,11 @@ public class User extends AuditBase implements ModifiableTarget {
     @org.jetbrains.annotations.Nullable
     private List<String> participatedUnits;
 
+    @NonNull
+    private Integer unreadNotificationCount;
+    @org.jetbrains.annotations.Nullable
+    private List<String> notifications;
+
     public List<SimpleGrantedAuthority> getRoles() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));

@@ -28,4 +28,12 @@ public class UserResolver implements GraphQLResolver<User> {
     public List<Match> participatedMatches(User user, Integer page, Integer pageSize) {
         return matchRepository.findAllByMatchIdIn(user.getParticipatedMatches(), PageRequest.of(page, pageSize));
     }
+
+    public Integer organizedMatchSize(User user) {
+        return (user.getOrganizedMatches() == null)? 0 : user.getOrganizedMatches().size();
+    }
+
+    public Integer participatedMatchSize(User user) {
+        return (user.getParticipatedMatches() == null)? 0 : user.getParticipatedMatches().size();
+    }
 }

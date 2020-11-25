@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -26,6 +28,8 @@ public class UnitInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "参赛单位邀请码", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UnitToken unitToken;
+    @ApiModelProperty(value = "创建时间", required = true)
+    private Instant createdAt;
 
     public UnitInfoResponse(Unit unit) {
         FieldCopier.copy(unit, this);

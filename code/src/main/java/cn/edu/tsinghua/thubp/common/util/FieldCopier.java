@@ -12,18 +12,21 @@ public class FieldCopier {
      */
     public static void copy(@NotNull Object src, @NotNull Object dst) {
         Class<?> srcClazz = src.getClass();
-        Field[] dstFields = dst.getClass().getDeclaredFields();
-        for (Field dstField : dstFields) {
-            dstField.setAccessible(true);
-            Field srcField;
-            try {
-                srcField = srcClazz.getDeclaredField(dstField.getName());
-                srcField.setAccessible(true);
-                dstField.set(dst, srcField.get(src));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // pass
-            }
+        while(srcClazz != null) {
+            Field[] dstFields = dst.getClass().getDeclaredFields();
+            for (Field dstField : dstFields) {
+                dstField.setAccessible(true);
+                Field srcField;
+                try {
+                    srcField = srcClazz.getDeclaredField(dstField.getName());
+                    srcField.setAccessible(true);
+                    dstField.set(dst, srcField.get(src));
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    // pass
+                }
 
+            }
+            srcClazz = srcClazz.getSuperclass();
         }
     }
 }

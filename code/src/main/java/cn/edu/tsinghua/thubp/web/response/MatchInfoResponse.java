@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.net.URL;
+import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -44,6 +45,8 @@ public class MatchInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "赛事邀请码", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private MatchToken matchToken;
+    @ApiModelProperty(value = "创建时间", required = true)
+    private Instant createdAt;
 
     public MatchInfoResponse(Match match) {
         FieldCopier.copy(match, this);

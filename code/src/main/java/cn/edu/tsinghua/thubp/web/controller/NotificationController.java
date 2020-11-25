@@ -31,8 +31,8 @@ public class NotificationController {
 
     @ApiOperation(value = "查看自身通知", tags = SwaggerTagUtil.NOTIFICATION)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页面", required = true, dataTypeClass = String.class),
-            @ApiImplicitParam(name = "pageSize", value = "页面大小", required = true, dataTypeClass = String.class)
+            @ApiImplicitParam(name = "page", value = "页面", required = false, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "pageSize", value = "页面大小", required = false, dataTypeClass = String.class)
     })
     @ResponseBody
     @RequestMapping(value = "/notification", method = RequestMethod.GET)

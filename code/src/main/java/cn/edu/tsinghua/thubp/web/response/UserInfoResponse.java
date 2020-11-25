@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.net.URL;
+import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -37,6 +38,8 @@ public class UserInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "邮箱")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String email;
+    @ApiModelProperty(value = "创建时间", required = true)
+    private Instant createdAt;
 
     public UserInfoResponse(User user) {
         FieldCopier.copy(user, this);

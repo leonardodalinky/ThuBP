@@ -18,15 +18,20 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationService {
-    public static String SYSTEM_ID = "1";
-    public static String USER_ID = "userId";
-    public static String FROM_USER_ID = "fromUserId";
-    public static String NOTIFICATION_ID = "notificationId";
+    public static final String SYSTEM_ID = "1";
+    public static final String USER_ID = "userId";
+    public static final String FROM_USER_ID = "fromUserId";
+    public static final String NOTIFICATION_ID = "notificationId";
+
+    public static final String PLACEHOLDER_RECEIVER_USERNAME = "{receiver.username}";
+    public static final String PLACEHOLDER_SENDER_USERNAME = "{sender.username}";
 
     private final MongoTemplate mongoTemplate;
     private final SequenceGeneratorService sequenceGeneratorService;
@@ -78,6 +83,59 @@ public class NotificationService {
             ));
         }
         return notificationId;
+    }
+
+    /**
+     * 给一些用户群发通知.
+     * 不存在的用户会直接被忽略.
+     * @param userIds 接收的用户 ID 列表
+     * @param fromUserId 发送的用户 ID
+     * @param title 通知的标题
+     * @param content 通知的内容
+     * @return 成功发送的用户 ID 列表
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public List<String> sendNotificationToMultipleUsers(List<String> userIds, String fromUserId, String title, String content) {
+        // check fromUserId
+        User sender = mongoTemplate.findOne(Query.query(
+                Criteria.where("userId").is(fromUserId)
+        ), User.class);
+        if (sender == null) {
+            throw new UserIdNotFoundException(ImmutableMap.of(FROM_USER_ID, fromUserId));
+        }
+        // check userId
+        List<User> users = mongoTemplate.find(Query.query(
+                Criteria.where("userId").in(userIds)
+        ), User.class);
+        List<String> notificationIds = new ArrayList<>();
+        for (User user : users) {
+            // build notification and save
+            String notificationId = sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME);
+            String userContent = content.replace(PLACEHOLDER_RECEIVER_USERNAME, user.getUsername())
+                                        .replace(PLACEHOLDER_SENDER_USERNAME, sender.getUsername());
+            Notification notification = Notification.builder()
+                    .notificationId(notificationId)
+                    .fromUserId(fromUserId)
+                    .toUserId(user.getUserId())
+                    .title(title)
+                    .content(userContent)
+                    .isRead(false)
+                    .build();
+            mongoTemplate.save(notification);
+            notificationIds.add(user.getUserId());
+            // update user relevant fields
+            long cnt = mongoTemplate.updateFirst(Query.query(
+                    Criteria.where("userId").is(user.getUserId())
+                    ), new Update().push("notifications", notificationId).inc("unreadNotificationCount", 1)
+                    , User.class).getModifiedCount();
+            if (cnt == 0) {
+                throw new CommonException(NotificationErrorCode.NOTIFICATION_FAILED, ImmutableMap.of(
+                        USER_ID, user.getUserId(),
+                        FROM_USER_ID, fromUserId
+                ));
+            }
+        }
+        return notificationIds;
     }
 
     /**

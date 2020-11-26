@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.MalformedURLException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -138,6 +139,19 @@ public class MatchController {
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime())
                 .build();
+    }
+
+    @ApiOperation(value = "邀请成为裁判", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/match/invite-referees/{matchId}", method = RequestMethod.POST)
+    public InviteRefereesResponse inviteReferees(@PathVariable String matchId,
+                                                 @RequestBody @Valid InviteRefereesRequest inviteRefereesRequest) {
+        User user = currentUserService.getUser();
+        List<String> userIds = matchService.sendRefereeInvitations(user.getUsername(), inviteRefereesRequest.getUserIds(), matchId);
+        return new InviteRefereesResponse(userIds);
     }
 
     @ApiOperation(value = "签发裁判邀请码", tags = SwaggerTagUtil.MATCH_MANAGE)

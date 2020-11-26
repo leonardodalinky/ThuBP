@@ -60,7 +60,10 @@ public class UnitService {
         // 排除 match 不存在的情况
         // 若赛事非公开报名且邀请码错误，同时也排除
         Match match = mongoTemplate.findOne(Query.query(
-                Criteria.where("matchId").is(matchId)
+                new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("active").is(true)
+                )
         ), Match.class);
         if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
@@ -136,7 +139,7 @@ public class UnitService {
 
     /**
      * 修改参赛单位信息
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param unitId 参赛单位 ID
      * @param unitModifyRequest 修改参赛单位信息的请求
@@ -233,7 +236,10 @@ public class UnitService {
                 .build();
         mongoTemplate.save(unit);
         mongoTemplate.updateFirst(Query.query(
-                Criteria.where("matchId").is(matchId)),
+                new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("active").is(true)
+                )),
                 new Update().push("units", unit.getUnitId()),
                 Match.class
         );
@@ -277,6 +283,7 @@ public class UnitService {
         while (true) {
             boolean rc = mongoTemplate.exists(
                     Query.query(new Criteria().andOperator(
+                            Criteria.where("active").is(true),
                             Criteria.where("unitToken.token").is(tokenStr),
                             Criteria.where("unitToken.expirationTime").gt(Instant.now())
                     )), Match.class);

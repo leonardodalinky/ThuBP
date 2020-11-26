@@ -49,7 +49,7 @@ public class RoundService {
     private final PluginRegistryService pluginRegistryService;
     /**
      * 生成新的轮次
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param roundCreateRequest 创建轮次的请求
      * @return 新的轮次的 ID
@@ -61,6 +61,7 @@ public class RoundService {
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
+                        Criteria.where("active").is(true),
                         Criteria.where("units").all(units)
                 )
         ), Match.class);
@@ -94,7 +95,7 @@ public class RoundService {
 
     /**
      * 删除轮次
-     * @param user 用户
+     * @param userId 用户 ID
      * @param matchId 赛事 ID
      * @param roundId 轮次 ID
      */
@@ -104,6 +105,7 @@ public class RoundService {
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId"),
+                        Criteria.where("active").is(true),
                         Criteria.where("rounds").all(roundId),
                         Criteria.where("organizerUserId").is(userId)
                 )

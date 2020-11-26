@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.web.graphql.resolver;
 
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.repository.MatchRepository;
+import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import com.coxautodev.graphql.tools.GraphQLResolver;
@@ -16,17 +17,18 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserResolver implements GraphQLResolver<User> {
     private final MatchRepository matchRepository;
+    private final MatchService matchService;
 
     public String avatar(User user) {
         return (user.getAvatar() == null)? null : user.getAvatar().toString();
     }
 
     public List<Match> organizedMatches(User user, Integer page, Integer pageSize) {
-        return matchRepository.findAllByMatchIdIn(user.getOrganizedMatches(), PageRequest.of(page, pageSize));
+        return matchService.findMatchesByMatchIds(user.getOrganizedMatches(), PageRequest.of(page, pageSize), false, null);
     }
 
     public List<Match> participatedMatches(User user, Integer page, Integer pageSize) {
-        return matchRepository.findAllByMatchIdIn(user.getParticipatedMatches(), PageRequest.of(page, pageSize));
+        return matchService.findMatchesByMatchIds(user.getParticipatedMatches(), PageRequest.of(page, pageSize), false, null);
     }
 
     public Integer organizedMatchSize(User user) {

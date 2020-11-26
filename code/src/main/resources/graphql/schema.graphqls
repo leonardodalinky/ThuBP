@@ -23,14 +23,17 @@ type Query {
     listRoundGameStrategyTypes: [RoundGameStrategyType!]!
 }
 
+# Date 本质是符合 ISO 标准的 String
 scalar Date
+# URL 本质就是 String
+scalar URL
 
 # TODO: 告知 size
 
 type User {
     userId: String!
     username: String!
-    avatar: String
+    avatar: URL
     gender: Gender!
     mobile: String
     email: String
@@ -50,13 +53,15 @@ enum Gender {
 
 type Match {
     matchId: String!
+    active: Boolean!
     matchTypeId: String!
     organizerUser: User!
     name: String!
     description: String!
     targetGroup: String
-    preview: String
-    previewLarge: String
+    startTime: Date
+    preview: URL
+    previewLarge: URL
     participants: [User!]!
     referees: [User!]!
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!

@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp.web.graphql.resolver;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.service.MatchService;
+import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.service.UserService;
 import com.coxautodev.graphql.tools.GraphQLResolver;
@@ -17,6 +18,7 @@ import java.util.List;
 public class UnitResolver implements GraphQLResolver<Unit> {
     private final UserService userService;
     private final MatchService matchService;
+    private final CurrentUserService currentUserService;
 
     public User creator(Unit unit) {
         return userService.findByUserId(unit.getCreatorId());
@@ -27,6 +29,6 @@ public class UnitResolver implements GraphQLResolver<Unit> {
     }
 
     public Match match(Unit unit) {
-        return matchService.findByMatchId(unit.getMatchId());
+        return matchService.findByMatchId(unit.getMatchId(), true, currentUserService.getUserId());
     }
 }

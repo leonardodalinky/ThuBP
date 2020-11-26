@@ -1,12 +1,13 @@
 package cn.edu.tsinghua.thubp.match.service;
 
-import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
+import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
@@ -23,11 +24,12 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
+
+import static cn.edu.tsinghua.thubp.notification.service.NotificationService.SYSTEM_ID;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -50,6 +52,8 @@ public class MatchService {
     private final TokenGeneratorService tokenGeneratorService;
     private final GlobalConfig globalConfig;
     private final PluginRegistryService pluginRegistryService;
+    private final NotificationService notificationService;
+    private final MatchMessageConstant matchMessageConstant;
 
     /**
      * 组织者用户获取比赛，否则抛出 Exception
@@ -198,6 +202,34 @@ public class MatchService {
     }
 
     /**
+     * 邀请用户成为裁判，给受邀请者发送私信.
+     * @param senderName 发送者用户名
+     * @param userIds 用户 ID 列表
+     * @param matchId 赛事 ID
+     * @return 成功发送出去的用户 ID 列表
+     */
+    public List<String> sendRefereeInvitations(String senderName, List<String> userIds, String matchId) {
+        // 检验比赛存在
+        Match match = mongoTemplate.findOne(Query.query(Criteria.where("matchId").is(matchId)), Match.class);
+        if (match == null) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // 检查邀请码
+        if (match.getRefereeToken() == null
+                || match.getRefereeToken().getExpirationTime().toEpochMilli() < Instant.now().toEpochMilli()) {
+            throw new CommonException(MatchErrorCode.MATCH_REFEREE_TOKEN_EXPIRED_OR_INVALID,
+                    ImmutableMap.of(MATCH_ID, match.getMatchTypeId()));
+        }
+        return notificationService.sendNotificationToMultipleUsers(userIds, SYSTEM_ID,
+                matchMessageConstant.INVITE_REFEREE_NOTIFICATION_TITLE
+                        .replace("{inviter}", senderName)
+                        .replace("{match}", match.getName()),
+                matchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT.replace("{inviter}", senderName)
+                        .replace("{match}", match.getName())
+                        .replace("{refereeToken}", match.getRefereeToken().getToken()));
+    }
+
+    /**
      * 签发一个裁判邀请码. 这会导致之前的邀请码失效.
      * @param userId 用户 ID
      * @param matchId 赛事 ID.
@@ -255,7 +287,7 @@ public class MatchService {
     }
 
     /**
-     * 签发一个裁判邀请码. 这会导致之前的邀请码失效.
+     * 签发一个加入赛事. 这会导致之前的邀请码失效.
      * @param userId 用户 ID
      * @param matchId 赛事 ID.
      * @return 成功签发的邀请码

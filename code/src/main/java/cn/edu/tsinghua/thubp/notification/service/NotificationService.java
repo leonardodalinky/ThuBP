@@ -97,7 +97,7 @@ public class NotificationService {
      * @return 成功发送的用户 ID 列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<String> sendNotificationToMultipleUsers(List<String> userIds, String fromUserId, String title, String content) {
+    public List<String> sendNotificationToMultipleUsers(List<String> userIds, String fromUserId, String title, String content, NotificationTag tag) {
         // check fromUserId
         User sender = mongoTemplate.findOne(Query.query(
                 Criteria.where("userId").is(fromUserId)
@@ -119,6 +119,7 @@ public class NotificationService {
                     .notificationId(notificationId)
                     .fromUserId(fromUserId)
                     .toUserId(user.getUserId())
+                    .tag(tag)
                     .title(title)
                     .content(userContent)
                     .isRead(false)
@@ -131,10 +132,7 @@ public class NotificationService {
                     ), new Update().push("notifications", notificationId).inc("unreadNotificationCount", 1)
                     , User.class).getModifiedCount();
             if (cnt == 0) {
-                throw new CommonException(NotificationErrorCode.NOTIFICATION_FAILED, ImmutableMap.of(
-                        USER_ID, user.getUserId(),
-                        FROM_USER_ID, fromUserId
-                ));
+                mongoTemplate.remove(notification);
             }
         }
         return notificationIds;

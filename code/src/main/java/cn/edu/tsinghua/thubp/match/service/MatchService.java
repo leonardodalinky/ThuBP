@@ -16,7 +16,9 @@ import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -64,6 +66,7 @@ public class MatchService {
     public Match infoMatch(String userId, String matchId) {
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
+                        Criteria.where("active").is(true),
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("organizerUserId").is(userId)
                 )
@@ -90,10 +93,13 @@ public class MatchService {
         String matchId = sequenceGeneratorService.generateSequence(Match.SEQUENCE_NAME);
         Match match = Match.builder()
                 .matchId(matchId)
+                .active(true)
                 .organizerUserId(user.getUserId())
                 .name(matchCreateRequest.getName())
                 .description(matchCreateRequest.getDescription())
+                .publicShowUp(matchCreateRequest.getPublicShowUp())
                 .targetGroup(matchCreateRequest.getTargetGroup())
+                .startTime(matchCreateRequest.getStartTime())
                 .publicSignUp(matchCreateRequest.getPublicSignUp())
                 .participants(new ArrayList<>())
                 .referees(new ArrayList<>())
@@ -134,6 +140,7 @@ public class MatchService {
         // 校验
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
+                        Criteria.where("active").is(true),
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("organizerUserId").is(userId)
                 )
@@ -178,12 +185,32 @@ public class MatchService {
     /**
      * 根据 matchId 查找赛事.
      * @param matchId 赛事 ID
+     * @param needPublicShow 需要赛事是可公开查看的，否则只有关系者能看
+     * @param userId 查询者 ID，可为空
      * @return 对应的赛事
      */
-    public Match findByMatchId(String matchId) {
-        Match match = mongoTemplate.findOne(Query.query(
-                Criteria.where("matchId").is(matchId)
-        ), Match.class);
+    public Match findByMatchId(String matchId, boolean needPublicShow, @Nullable String userId) {
+        Match match;
+        if (!needPublicShow) {
+            match = mongoTemplate.findOne(Query.query(
+                    new Criteria().andOperator(
+                            Criteria.where("matchId").is(matchId)
+                    )
+            ), Match.class);
+        } else {
+            match = mongoTemplate.findOne(Query.query(
+                    new Criteria().andOperator(
+                            Criteria.where("matchId").is(matchId),
+                            new Criteria().orOperator(
+                                    Criteria.where("publicShowUp").is(true),
+                                    Criteria.where("organizerUserId").is(userId),
+                                    Criteria.where("participants").all(userId),
+                                    Criteria.where("referees").all(userId)
+                            )
+                    )
+            ), Match.class);
+        }
+
         if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
         }
@@ -193,12 +220,87 @@ public class MatchService {
     /**
      * 根据 matchId 列表查找赛事列表.
      * @param matchIds matchId 列表
+     * @param pageable 分页选项，{@code null} 表示不分页
+     * @param needPublicShow 需要赛事是可公开查看的，否则只有关系者能看
+     * @param userId 查询者 ID，可为空，配合 {@code needPublicShow} 使用
      * @return 对应的赛事列表
      */
-    public List<Match> findMatchesByMatchIds(List<String> matchIds) {
-        return mongoTemplate.find(Query.query(
-                Criteria.where("matchId").in(matchIds)
-        ), Match.class);
+    public List<Match> findMatchesByMatchIds(List<String> matchIds, @Nullable Pageable pageable,
+                                             boolean needPublicShow, @Nullable String userId) {
+        Match match;
+        if (!needPublicShow) {
+            if (pageable != null) {
+                return mongoTemplate.find(Query.query(
+                        new Criteria().andOperator(
+                                Criteria.where("matchId").in(matchIds)
+                        )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
+                        Match.class);
+            } else {
+                return mongoTemplate.find(Query.query(
+                        new Criteria().andOperator(
+                                Criteria.where("matchId").in(matchIds)
+                        )), Match.class);
+            }
+        } else {
+            if (pageable != null) {
+                return mongoTemplate.find(Query.query(
+                        new Criteria().andOperator(
+                                Criteria.where("matchId").in(matchIds),
+                                Criteria.where("active").is(true),
+                                new Criteria().orOperator(
+                                        Criteria.where("publicShowUp").is(true),
+                                        Criteria.where("organizerUserId").is(userId),
+                                        Criteria.where("participants").all(userId),
+                                        Criteria.where("referees").all(userId)
+                                )
+                        )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
+                        Match.class);
+            } else {
+                return mongoTemplate.find(Query.query(
+                        new Criteria().andOperator(
+                                Criteria.where("matchId").in(matchIds),
+                                Criteria.where("active").is(true),
+                                new Criteria().orOperator(
+                                        Criteria.where("publicShowUp").is(true),
+                                        Criteria.where("organizerUserId").is(userId),
+                                        Criteria.where("participants").all(userId),
+                                        Criteria.where("referees").all(userId)
+                                )
+                        )
+                ), Match.class);
+            }
+        }
+    }
+
+    /**
+     * 查找某些类型的赛事
+     * @param matchTypeIds 类型 Id 列表
+     * @param pageable 分页选项
+     * @param needPublicShow 需要赛事是可公开查看的，否则只有关系者能看
+     * @param userId 查询者 ID，可为空，配合 {@code needPublicShow} 使用
+     * @return 查询到的比赛
+     */
+    public List<Match> findAllByMatchTypeIdIn(List<String> matchTypeIds, Pageable pageable,
+                                              boolean needPublicShow, @Nullable String userId) {
+        if (!needPublicShow) {
+            return mongoTemplate.find(Query.query(
+                    new Criteria().andOperator(
+                            Criteria.where("matchTypeId").in(matchTypeIds)
+                    )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
+                    Match.class);
+        } else {
+            return mongoTemplate.find(Query.query(
+                    new Criteria().andOperator(
+                            Criteria.where("matchTypeId").in(matchTypeIds),
+                            new Criteria().orOperator(
+                                    Criteria.where("publicShowUp").is(true),
+                                    Criteria.where("organizerUserId").is(userId),
+                                    Criteria.where("participants").all(userId),
+                                    Criteria.where("referees").all(userId)
+                            )
+                    )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
+                    Match.class);
+        }
     }
 
     /**
@@ -362,6 +464,7 @@ public class MatchService {
             boolean rc = mongoTemplate.exists(
                     Query.query(new Criteria().andOperator(
                             Criteria.where("publicSignUp").is(false),
+                            Criteria.where("active").is(true),
                             Criteria.where("matchToken.token").is(tokenStr),
                             Criteria.where("matchToken.expirationTime").gt(Instant.now())
                     )), Match.class);
@@ -384,6 +487,7 @@ public class MatchService {
         while (true) {
             boolean rc = mongoTemplate.exists(
                     Query.query(new Criteria().andOperator(
+                            Criteria.where("active").is(true),
                             Criteria.where("refereeToken.token").is(tokenStr),
                             Criteria.where("refereeToken.expirationTime").gt(Instant.now())
                     )), Match.class);

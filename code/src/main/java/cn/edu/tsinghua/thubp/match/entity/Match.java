@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -33,6 +34,12 @@ public class Match extends AuditBase implements ModifiableTarget {
     @Indexed(unique = true)
     private String matchId;
     /**
+     * 是否活跃中（归档)
+     * 不展示于用户
+     */
+    @lombok.NonNull
+    private Boolean active;
+    /**
      * 赛事发起者/组织者
      */
     @lombok.NonNull
@@ -48,9 +55,19 @@ public class Match extends AuditBase implements ModifiableTarget {
     @lombok.NonNull
     private String description;
     /**
+     * 是否公开展示
+     */
+    @lombok.NonNull
+    private Boolean publicShowUp;
+    /**
      * 面向人群
      */
     private String targetGroup;
+    /**
+     * 赛事开始时间
+     */
+    @org.jetbrains.annotations.Nullable
+    private Instant startTime;
     /**
      * 赛事预览图
      */

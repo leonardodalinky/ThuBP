@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 /**
  * 创建赛事请求.
  * @author Rhacoal
@@ -15,15 +17,20 @@ import lombok.NoArgsConstructor;
 public class MatchCreateRequest {
     @ApiModelProperty(value = "赛事名字", required = true)
     @javax.validation.constraints.NotBlank
-    String name;
+    private String name;
     @ApiModelProperty(value = "赛事描述", required = true)
     @javax.validation.constraints.NotBlank
-    String description;
+    private String description;
     @ApiModelProperty(value = "面向人群", required = false)
     private String targetGroup;
+    @ApiModelProperty(value = "开始时间", required = false)
+    private Instant startTime;
     @javax.validation.constraints.NotBlank
-    String matchTypeId;
+    private String matchTypeId;
     @ApiModelProperty(value = "公开报名", required = true)
     @javax.validation.constraints.NotNull
-    Boolean publicSignUp;
+    private Boolean publicSignUp;
+    @ApiModelProperty(value = "公开查询", required = true)
+    @javax.validation.constraints.NotNull
+    private Boolean publicShowUp;
 }

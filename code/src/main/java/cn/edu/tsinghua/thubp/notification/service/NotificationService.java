@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.notification.service;
 
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.notification.entity.Notification;
+import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
 import cn.edu.tsinghua.thubp.notification.exception.NotificationErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.exception.UserErrorCode;
@@ -40,7 +41,7 @@ public class NotificationService {
      * @return 新通知的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String sendNotification(String userId, String fromUserId, String title, String content) {
+    public String sendNotification(String userId, String fromUserId, String title, String content, NotificationTag tag) {
         // check userId
         boolean ret = mongoTemplate.exists(Query.query(
                 Criteria.where("userId").is(userId)
@@ -61,6 +62,7 @@ public class NotificationService {
                 .notificationId(notificationId)
                 .fromUserId(fromUserId)
                 .toUserId(userId)
+                .tag(tag)
                 .title(title)
                 .content(content)
                 .isRead(false)
@@ -88,8 +90,8 @@ public class NotificationService {
      * @return 新通知的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String sendNotificationFromSystem(String userId, String title, String content) {
-        return sendNotification(userId, SYSTEM_ID, title, content);
+    public String sendNotificationFromSystem(String userId, String title, String content, NotificationTag tag) {
+        return sendNotification(userId, SYSTEM_ID, title, content, tag);
     }
 
     public String getUnreadCount(String userId) {

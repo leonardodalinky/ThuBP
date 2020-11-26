@@ -1,19 +1,21 @@
-package cn.edu.tsinghua.thubp.web.graphql.resolver;
+package cn.edu.tsinghua.thubp.web.graphql.scalar;
 
 import graphql.language.StringValue;
 import graphql.schema.*;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
 import java.time.Instant;
 
 @Component
-public class ScalarDate extends GraphQLScalarType {
-    public ScalarDate() {
+public class URLDate extends GraphQLScalarType {
+    public URLDate() {
         //noinspection rawtypes
-        super("Date", "Scalar Date", new Coercing() {
+        super("URL", "Scalar URL", new Coercing() {
             @Override
             public Object serialize(Object o) throws CoercingSerializeException {
-                return ((Instant) o).toString();
+                return ((URL) o).toString();
             }
 
             @Override
@@ -21,9 +23,10 @@ public class ScalarDate extends GraphQLScalarType {
                 return serialize(o);
             }
 
+            @SneakyThrows
             @Override
             public Object parseLiteral(Object o) throws CoercingParseLiteralException {
-                return Instant.parse(((StringValue) o).getValue());
+                return new URL(((StringValue) o).getValue());
             }
         });
     }

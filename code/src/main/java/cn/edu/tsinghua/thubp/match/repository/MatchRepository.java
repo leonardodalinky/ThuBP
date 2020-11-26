@@ -15,7 +15,5 @@ import java.util.List;
  */
 @Repository
 public interface MatchRepository extends MongoRepository<Match, Integer> {
-    List<Match> findAllByMatchIdIn(List<String> userIds, Pageable pageable);
 
-    List<Match> findAllByMatchTypeIdIn(List<String> matchTypeIds, Pageable pageable);
 }

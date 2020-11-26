@@ -5,6 +5,7 @@ import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.plugin.MatchType;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
+import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,21 @@ import java.util.stream.Collectors;
 public class MatchQueryResolver implements GraphQLQueryResolver {
     private final MatchService matchService;
     private final PluginRegistryService pluginRegistryService;
-    private final MatchRepository matchRepository;
+    private final CurrentUserService currentUserService;
 
     public Match findMatchById(String matchId) {
-        return matchService.findByMatchId(matchId);
+        return matchService.findByMatchId(matchId, true, currentUserService.getUserId());
     }
 
     public List<Match> findMatchesByType(@org.jetbrains.annotations.Nullable List<String> typeIds, int page, int pageSize) {
         if (typeIds == null || typeIds.size() == 0) {
             typeIds = pluginRegistryService.getAllMatchTypes().stream().map(MatchType::getMatchTypeId).collect(Collectors.toList());
         }
-        return matchRepository.findAllByMatchTypeIdIn(typeIds, PageRequest.of(page, pageSize));
+        return matchService.findAllByMatchTypeIdIn(typeIds, PageRequest.of(page, pageSize),
+                true, currentUserService.getUserId());
     }
 
     public List<Match> findMatches(List<String> matchIds) {
-        return matchService.findMatchesByMatchIds(matchIds);
+        return matchService.findMatchesByMatchIds(matchIds, null, true, currentUserService.getUserId());
     }
 }

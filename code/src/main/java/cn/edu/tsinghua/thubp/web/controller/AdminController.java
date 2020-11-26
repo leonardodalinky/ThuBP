@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
+import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
 import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
@@ -103,7 +104,8 @@ public class AdminController {
         String notificationId = notificationService.sendNotificationFromSystem(
                 userId,
                 sendNotificationRequest.getTitle(),
-                sendNotificationRequest.getContent()
+                sendNotificationRequest.getContent(),
+                NotificationTag.NORMAL
         );
         return new SendNotificationResponse(notificationId);
     }

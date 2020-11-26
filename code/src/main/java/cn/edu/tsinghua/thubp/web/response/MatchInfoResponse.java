@@ -20,6 +20,8 @@ import java.time.Instant;
 public class MatchInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "赛事 ID", required = true)
     private String matchId;
+    @ApiModelProperty(value = "赛事是否结束", required = true)
+    private Boolean active;
     @ApiModelProperty(value = "组织者 ID", required = true)
     private String organizerUserId;
     @ApiModelProperty(value = "赛事名字", required = true)
@@ -29,6 +31,9 @@ public class MatchInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "面向人群", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String targetGroup;
+    @ApiModelProperty(value = "开始时间", required = false)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Instant startTime;
     @ApiModelProperty(value = "赛事预览图", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private URL preview;
@@ -42,6 +47,8 @@ public class MatchInfoResponse extends SimpleResponse {
     private RefereeToken refereeToken;
     @ApiModelProperty(value = "公开报名", required = true)
     private Boolean publicSignUp;
+    @ApiModelProperty(value = "公开查询", required = true)
+    private Boolean publicShowUp;
     @ApiModelProperty(value = "赛事邀请码", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private MatchToken matchToken;

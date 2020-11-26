@@ -74,6 +74,7 @@ public class GameService {
         // 校验 user 是否有权限且 roundId 合法
         boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
+                Criteria.where("active").is(true),
                 Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
@@ -130,6 +131,7 @@ public class GameService {
         // 校验合法
         Match match = mongoTemplate.findOne(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
+                Criteria.where("active").is(true),
                 Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
@@ -262,6 +264,7 @@ public class GameService {
         // 校验 user 是否有权限且 roundId 合法
         boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
+                Criteria.where("active").is(true),
                 Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);

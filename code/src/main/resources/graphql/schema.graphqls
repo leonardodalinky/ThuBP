@@ -6,6 +6,7 @@ type Query {
     # 赛事相关
     findMatchById(matchId: String!): Match
     findMatches(matchIds: [String!]!): [Match!]!
+    findMatchesByType(typeIds: [String!], page: Int = 0, pageSize: Int = 10): [Match!]!
 
     # 参赛单位相关
     findUnitById(unitId: String!): Unit

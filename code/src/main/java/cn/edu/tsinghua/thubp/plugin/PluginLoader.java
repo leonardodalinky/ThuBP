@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.plugin;
 
+import cn.edu.tsinghua.thubp.plugin.internal.basketball.Basketball;
 import cn.edu.tsinghua.thubp.plugin.internal.example_strategy.OrderedKnockoutStrategy;
 import cn.edu.tsinghua.thubp.plugin.internal.tennis.Tennis;
 import lombok.*;
@@ -30,7 +31,7 @@ public class PluginLoader {
     public void loadAllPluginsFromDirectory() {
         File pluginDirFile = new File(pluginDirectory);
         if (!pluginDirFile.exists()) {
-            pluginDirFile.mkdirs();
+            boolean ignore = pluginDirFile.mkdirs();
         }
         File[] files = pluginDirFile.listFiles();
         assert files != null;
@@ -54,6 +55,7 @@ public class PluginLoader {
      */
     private void loadInternalPlugins() {
         pluginManager.registerPluginFromInternal(Tennis.TennisPluginConfig);
+        pluginManager.registerPluginFromInternal(Basketball.BasketballPluginConfig);
         pluginManager.registerPluginFromInternal(OrderedKnockoutStrategy.ExampleStrategyConfig);
     }
 

@@ -7,6 +7,7 @@ import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
+import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
 import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
@@ -55,7 +56,6 @@ public class MatchService {
     private final GlobalConfig globalConfig;
     private final PluginRegistryService pluginRegistryService;
     private final NotificationService notificationService;
-    private final MatchMessageConstant matchMessageConstant;
 
     /**
      * 组织者用户获取比赛，否则抛出 Exception
@@ -323,12 +323,13 @@ public class MatchService {
                     ImmutableMap.of(MATCH_ID, match.getMatchTypeId()));
         }
         return notificationService.sendNotificationToMultipleUsers(userIds, SYSTEM_ID,
-                matchMessageConstant.INVITE_REFEREE_NOTIFICATION_TITLE
+                MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_TITLE
                         .replace("{inviter}", senderName)
                         .replace("{match}", match.getName()),
-                matchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT.replace("{inviter}", senderName)
+                MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT.replace("{inviter}", senderName)
                         .replace("{match}", match.getName())
-                        .replace("{refereeToken}", match.getRefereeToken().getToken()));
+                        .replace("{refereeToken}", match.getRefereeToken().getToken()),
+                NotificationTag.REFEREE_INVITE);
     }
 
     /**

@@ -7,6 +7,8 @@ import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
+import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.*;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
@@ -33,6 +35,7 @@ public class MatchService {
     public static final String USER_ID = "userId";
     public static final String MATCH_ID = "matchId";
     public static final String REFEREE_TOKEN = "refereeToken";
+    public static final String MATCH_TYPE_ID = "matchTypeId";
     public static final String UNIT_ID = "unitId";
     public static final String ROUND_ID = "roundId";
     public static final String TOKEN = "token";
@@ -46,6 +49,7 @@ public class MatchService {
     private final MongoTemplate mongoTemplate;
     private final TokenGeneratorService tokenGeneratorService;
     private final GlobalConfig globalConfig;
+    private final PluginRegistryService pluginRegistryService;
 
     /**
      * 组织者用户获取比赛，否则抛出 Exception
@@ -74,6 +78,11 @@ public class MatchService {
      */
     @Transactional(rollbackFor = Exception.class)
     public String createMatch(User user, MatchCreateRequest matchCreateRequest) {
+        // 检查赛事类型 ID 是否存在
+        if (pluginRegistryService.getMatchType(matchCreateRequest.getMatchTypeId()) == null) {
+            throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND,
+                    ImmutableMap.of(MATCH_TYPE_ID, matchCreateRequest.getMatchTypeId()));
+        }
         String matchId = sequenceGeneratorService.generateSequence(Match.SEQUENCE_NAME);
         Match match = Match.builder()
                 .matchId(matchId)

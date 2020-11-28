@@ -305,12 +305,12 @@ public class MatchService {
 
     /**
      * 邀请用户成为裁判，给受邀请者发送私信.
-     * @param senderName 发送者用户名
+     * @param sender 发送者
      * @param userIds 用户 ID 列表
      * @param matchId 赛事 ID
      * @return 成功发送出去的用户 ID 列表
      */
-    public List<String> sendRefereeInvitations(String senderName, List<String> userIds, String matchId) {
+    public List<String> sendRefereeInvitations(User sender, List<String> userIds, String matchId) {
         // 检验比赛存在
         Match match = mongoTemplate.findOne(Query.query(Criteria.where("matchId").is(matchId)), Match.class);
         if (match == null) {
@@ -324,11 +324,14 @@ public class MatchService {
         }
         return notificationService.sendNotificationToMultipleUsers(userIds, SYSTEM_ID,
                 MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_TITLE
-                        .replace("{inviter}", senderName)
+                        .replace("{inviter}", sender.getUsername())
                         .replace("{match}", match.getName()),
-                MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT.replace("{inviter}", senderName)
+                MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT
+                        .replace("{inviter}", sender.getUsername())
                         .replace("{match}", match.getName())
-                        .replace("{refereeToken}", match.getRefereeToken().getToken()),
+                        .replace("{refereeToken}", match.getRefereeToken().getToken())
+                        .replace("{matchId}", matchId)
+                        .replace("{inviterUserId}", sender.getUserId()),
                 NotificationTag.REFEREE_INVITE);
     }
 

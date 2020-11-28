@@ -150,7 +150,7 @@ public class MatchController {
     public InviteRefereesResponse inviteReferees(@PathVariable String matchId,
                                                  @RequestBody @Valid InviteRefereesRequest inviteRefereesRequest) {
         User user = currentUserService.getUser();
-        List<String> userIds = matchService.sendRefereeInvitations(user.getUsername(), inviteRefereesRequest.getUserIds(), matchId);
+        List<String> userIds = matchService.sendRefereeInvitations(user, inviteRefereesRequest.getUserIds(), matchId);
         return new InviteRefereesResponse(userIds);
     }
 

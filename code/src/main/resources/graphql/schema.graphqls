@@ -64,6 +64,7 @@ type Match {
     previewLarge: URL
     participants: [User!]!
     referees: [User!]!
+    units: [Unit!]!
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
     commentSize: Int!
     createdAt: Date!

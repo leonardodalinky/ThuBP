@@ -65,6 +65,8 @@ type Match {
     participants: [User!]!
     referees: [User!]!
     units: [Unit!]!
+    publicSignUp: Boolean!
+    publicShowUp: Boolean!
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
     commentSize: Int!
     createdAt: Date!

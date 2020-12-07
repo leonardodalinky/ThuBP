@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp.match.entity;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
+import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -39,6 +40,10 @@ public class Match extends AuditBase implements ModifiableTarget {
      */
     @lombok.NonNull
     private Boolean active;
+    /**
+     * TODO
+     */
+    private MatchStatus status;
     /**
      * 赛事发起者/组织者
      */
@@ -80,7 +85,6 @@ public class Match extends AuditBase implements ModifiableTarget {
     private URL previewLarge;
     @lombok.NonNull
     private String matchTypeId;
-
     /**
      * 参赛者的 userId 列表
      */
@@ -101,6 +105,16 @@ public class Match extends AuditBase implements ModifiableTarget {
      */
     @lombok.NonNull
     private List<String> units;
+    /**
+     * 参赛单位有效最小人数
+     */
+    @lombok.NonNull
+    private Integer minUnitMember;
+    /**
+     * 参赛单位最大人数
+     */
+    @lombok.NonNull
+    private Integer maxUnitMember;
     /**
      * 是否开放报名创建参赛单位
      */

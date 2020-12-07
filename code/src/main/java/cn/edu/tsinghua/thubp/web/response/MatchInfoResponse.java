@@ -45,6 +45,10 @@ public class MatchInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "裁判邀请码", required = false)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private RefereeToken refereeToken;
+    @ApiModelProperty(value = "参赛单位有效最小人数", required = true)
+    private Integer minUnitMember;
+    @ApiModelProperty(value = "参赛单位最大人数", required = true)
+    private Integer maxUnitMember;
     @ApiModelProperty(value = "公开报名", required = true)
     private Boolean publicSignUp;
     @ApiModelProperty(value = "公开查询", required = true)

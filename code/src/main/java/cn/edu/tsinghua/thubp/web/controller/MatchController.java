@@ -127,6 +127,34 @@ public class MatchController {
         return new UnitInfoResponse(unit);
     }
 
+    @ApiOperation(value = "删除参赛单位中成员", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长限定")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)
+    })
+    @ResponseBody
+    @RequestMapping(value = "/match/{matchId}/unit/{unitId}/member", method = RequestMethod.DELETE)
+    public SimpleResponse deleteUnitMember(@PathVariable String matchId,
+                                           @PathVariable String unitId,
+                                           @RequestBody @Valid UnitDeleteMemberRequest unitDeleteMemberRequest) {
+        unitService.deleteMember(currentUserService.getUserId(), matchId, unitId,
+                unitDeleteMemberRequest.getMembers());
+        return new SimpleResponse();
+    }
+
+    @ApiOperation(value = "删除参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长限定，须在比赛开始前")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)
+    })
+    @ResponseBody
+    @RequestMapping(value = "/match/{matchId}/unit/{unitId}", method = RequestMethod.DELETE)
+    public SimpleResponse deleteUnit(@PathVariable String matchId,
+                                     @PathVariable String unitId) {
+        unitService.deleteUnit(currentUserService.getUserId(), matchId, unitId);
+        return new SimpleResponse();
+    }
+
     @ApiOperation(value = "签发参赛单位邀请码", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)
@@ -139,6 +167,17 @@ public class MatchController {
                 token(token.getToken())
                 .expirationTime(token.getExpirationTime())
                 .build();
+    }
+
+    @ApiOperation(value = "邀请人员加入参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/match/assign-unit-token/{unitId}", method = RequestMethod.PUT)
+    public SimpleResponse invite(@PathVariable String unitId, @RequestBody UnitInviteRequest unitInviteRequest) {
+        unitService.inviteMembers(currentUserService.getUserId(), unitId, unitInviteRequest.getUserIds());
+        return new SimpleResponse(SimpleResponse.OK);
     }
 
     @ApiOperation(value = "邀请成为裁判", tags = SwaggerTagUtil.MATCH_MANAGE)

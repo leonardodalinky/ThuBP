@@ -27,6 +27,13 @@ public class MatchCreateRequest {
     private Instant startTime;
     @javax.validation.constraints.NotBlank
     private String matchTypeId;
+    @ApiModelProperty(value = "参赛单位有效最小人数", required = true)
+    @javax.validation.constraints.NotNull
+    @javax.validation.constraints.Min(value = 1)
+    private Integer minUnitMember;
+    @ApiModelProperty(value = "参赛单位最大人数", required = true)
+    @javax.validation.constraints.Min(value = 1)
+    private Integer maxUnitMember;
     @ApiModelProperty(value = "公开报名", required = true)
     @javax.validation.constraints.NotNull
     private Boolean publicSignUp;

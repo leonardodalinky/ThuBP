@@ -32,6 +32,10 @@ public abstract class TokenBase {
         } else return token.equals(this.token);
     }
 
+    public boolean isExpired() {
+        return Instant.now().isAfter(expirationTime);
+    }
+
     public abstract ErrorCode createException();
 
     public CommonException createException(String wrongToken) {

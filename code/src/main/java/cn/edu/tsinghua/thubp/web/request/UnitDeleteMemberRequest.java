@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameDeleteRequest {
-    @ApiModelProperty(value = "需要被删除的比赛 ID", required = true)
+public class UnitDeleteMemberRequest {
+    @ApiModelProperty(value = "需要被删除的成员 ID，不包括自身", required = true)
     @NotEmpty
-    private List<String> games;
+    private List<String> members;
 }

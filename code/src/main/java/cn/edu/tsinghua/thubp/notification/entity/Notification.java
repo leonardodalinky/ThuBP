@@ -37,7 +37,7 @@ public class Notification {
     @ApiModelProperty(value = "接收者 Id", required = true)
     @NonNull
     private String toUserId;
-    @ApiModelProperty(value = "接收者 Id", required = true)
+    @ApiModelProperty(value = "通知类型", required = true)
     @NonNull
     private NotificationTag tag;
     @ApiModelProperty(value = "通知标题", required = true)

@@ -38,6 +38,7 @@ import static cn.edu.tsinghua.thubp.notification.service.NotificationService.SYS
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchService {
     public static final String USER_ID = "userId";
+    public static final String USERS = "users";
     public static final String MATCH_ID = "matchId";
     public static final String REFEREE_TOKEN = "refereeToken";
     public static final String MATCH_TYPE_ID = "matchTypeId";
@@ -90,6 +91,12 @@ public class MatchService {
             throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND,
                     ImmutableMap.of(MATCH_TYPE_ID, matchCreateRequest.getMatchTypeId()));
         }
+        // 检验参赛单位最大最小人数是否可行
+        if (matchCreateRequest.getMinUnitMember() > matchCreateRequest.getMaxUnitMember()) {
+            throw new CommonException(MatchErrorCode.MATCH_UNIT_MIN_MAX_INVALID,
+                    ImmutableMap.of("minUnitMember", matchCreateRequest.getMinUnitMember(),
+                            "maxUnitMember", matchCreateRequest.getMaxUnitMember()));
+        }
         String matchId = sequenceGeneratorService.generateSequence(Match.SEQUENCE_NAME);
         Match match = Match.builder()
                 .matchId(matchId)
@@ -105,6 +112,8 @@ public class MatchService {
                 .referees(new ArrayList<>())
                 .rounds(new ArrayList<>())
                 .units(new ArrayList<>())
+                .minUnitMember(matchCreateRequest.getMinUnitMember())
+                .maxUnitMember(matchCreateRequest.getMaxUnitMember())
                 .matchTypeId(matchCreateRequest.getMatchTypeId())
                 .comments(new ArrayList<>())
                 .build();
@@ -453,6 +462,36 @@ public class MatchService {
                 new Update().push("participatedMatches", matchId), User.class).getModifiedCount();
         if (userUpdateCount == 0) {
             throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, matchId));
+        }
+    }
+
+    /**
+     * 将 match 中的 user 列表中删去 members.
+     * @param matchId matchId.
+     * @param members 待删除的成员 ID 列表.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void dropParticipant(String matchId, List<String> members) {
+        long matchUpdateCount = mongoTemplate.updateFirst(
+                Query.query(new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("participants").all(members)
+                )),
+                new Update().pullAll("participants", members.toArray()), Match.class).getModifiedCount();
+        if (matchUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_PARTICIPANT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, USERS, members)
+            );
+        }
+        long userUpdateCount = mongoTemplate.updateMulti(
+                Query.query(new Criteria().andOperator(
+                        Criteria.where("userId").in(members),
+                        Criteria.where("participatedMatches").all(matchId)
+                )),
+                new Update().pull("participatedMatches", matchId), User.class).getModifiedCount();
+        if (userUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_PARTICIPANT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, USERS, members));
         }
     }
 

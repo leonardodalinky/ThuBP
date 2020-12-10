@@ -7,6 +7,7 @@ import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.entity.UnitToken;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
 import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
 import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.user.entity.User;
@@ -31,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -140,7 +142,8 @@ public class UnitService {
                 user.getUserId(),
                 "参与小组成功!",
                 String.format("您已参加小组(unitId: %s)，谢谢您的参加!", unitId),
-                NotificationTag.NORMAL);
+                NotificationTag.NORMAL,
+                null);
     }
 
     public Unit infoUnit(String userId, String matchId, String unitId) {
@@ -226,28 +229,41 @@ public class UnitService {
      * 向用户发送邀请请求.
      *
      * 需要邀请码已经生成，否则返回错误。
-     * @param userId 用户 ID
+     * @param user 用户
      * @param unitId 参赛单位 ID
      * @param invitedUserIds 被邀请的用户 ID
      */
-    public void inviteMembers(String userId, String unitId, String[] invitedUserIds) {
+    public void inviteMembers(User user, String unitId, String[] invitedUserIds) {
         Unit unit = findByUnitId(unitId);
         // 检验参赛单位的操作权限
-        if (!unit.getCreatorId().equals(userId)) {
+        if (!unit.getCreatorId().equals(user.getUserId())) {
             throw new CommonException(MatchErrorCode.UNIT_PERMISSION_DENIED,
-                    ImmutableMap.of(UNIT_ID, unitId, USER_ID, userId));
+                    ImmutableMap.of(UNIT_ID, unitId, USER_ID, user.getUserId()));
         }
         // 检验验证码是否产生
         if (unit.getUnitToken() == null || unit.getUnitToken().isExpired()) {
-            throw new CommonException(MatchErrorCode.UNIT_TOKEN_EXPIRED_OR_INVALID,
-                    ImmutableMap.of(UNIT_ID, unitId, USER_ID, userId));
+            assignUnitToken(user.getUserId(), unitId);
         }
+        // 更新有效期
+        unit.getUnitToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));
+        Match match = matchService.findByMatchId(unit.getMatchId(), false, null);
         notificationService.sendNotificationToMultipleUsers(
                 Arrays.asList(invitedUserIds),
-                userId,
-                String.format("用户(userId: %s)邀请你参加小组(unitId: %s)", userId, unitId),
-                unit.getUnitToken().getToken(),
-                NotificationTag.UNIT_INVITE);
+                user.getUserId(),
+                MatchMessageConstant.INVITE_UNIT_NOTIFICATION_TITLE
+                        .replace("{inviter}", user.getUsername())
+                        .replace("{match}", match.getName())
+                        .replace("{unit}", unitId),
+                MatchMessageConstant.INVITE_UNIT_NOTIFICATION_CONTENT
+                        .replace("{inviter}", user.getUsername())
+                        .replace("{match}", match.getName())
+                        .replace("{unit}", unitId),
+                NotificationTag.UNIT_INVITE,
+                ImmutableMap.of("token", unit.getUnitToken().getToken(),
+                        "expirationTime", unit.getUnitToken().getExpirationTime(),
+                        "matchId", unit.getMatchId(),
+                        "unitId", unitId)
+        );
     }
 
     /**

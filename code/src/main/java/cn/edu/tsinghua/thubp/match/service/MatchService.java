@@ -319,6 +319,7 @@ public class MatchService {
      * @param matchId 赛事 ID
      * @return 成功发送出去的用户 ID 列表
      */
+    @Transactional(rollbackFor = Exception.class)
     public List<String> sendRefereeInvitations(User sender, List<String> userIds, String matchId) {
         // 检验比赛存在
         Match match = mongoTemplate.findOne(Query.query(Criteria.where("matchId").is(matchId)), Match.class);
@@ -328,20 +329,23 @@ public class MatchService {
         // 检查邀请码
         if (match.getRefereeToken() == null
                 || match.getRefereeToken().getExpirationTime().toEpochMilli() < Instant.now().toEpochMilli()) {
-            throw new CommonException(MatchErrorCode.MATCH_REFEREE_TOKEN_EXPIRED_OR_INVALID,
-                    ImmutableMap.of(MATCH_ID, match.getMatchTypeId()));
+            // 邀请码失效，重新生成一个
+            assignRefereeToken(sender.getUserId(), matchId);
         }
+        // 更新邀请码有效期
+        match.getRefereeToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));
         return notificationService.sendNotificationToMultipleUsers(userIds, SYSTEM_ID,
                 MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_TITLE
                         .replace("{inviter}", sender.getUsername())
                         .replace("{match}", match.getName()),
                 MatchMessageConstant.INVITE_REFEREE_NOTIFICATION_CONTENT
                         .replace("{inviter}", sender.getUsername())
-                        .replace("{match}", match.getName())
-                        .replace("{refereeToken}", match.getRefereeToken().getToken())
-                        .replace("{matchId}", matchId)
-                        .replace("{inviterUserId}", sender.getUserId()),
-                NotificationTag.REFEREE_INVITE);
+                        .replace("{match}", match.getName()),
+                NotificationTag.REFEREE_INVITE,
+                ImmutableMap.of("token", match.getRefereeToken().getToken(),
+                        "expirationTime", match.getRefereeToken().getExpirationTime(),
+                        "matchId", matchId)
+        );
     }
 
     /**
@@ -350,6 +354,7 @@ public class MatchService {
      * @param matchId 赛事 ID.
      * @return 成功签发的邀请码
      */
+    @Transactional(rollbackFor = Exception.class)
     public RefereeToken assignRefereeToken(String userId, String matchId) {
         // 生成一个目前唯一未过期的邀请码
         String tokenStr =  generateDistinctRefereeToken();

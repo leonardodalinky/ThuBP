@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 系统通知
@@ -46,6 +48,10 @@ public class Notification {
     @ApiModelProperty(value = "通知内容", required = true)
     @NonNull
     private String content;
+    @ApiModelProperty(value = "额外内容", required = false)
+    @Nullable
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Map<String, Object> extra;
     @ApiModelProperty(value = "是否已读", required = true)
     @NonNull
     private Boolean isRead;

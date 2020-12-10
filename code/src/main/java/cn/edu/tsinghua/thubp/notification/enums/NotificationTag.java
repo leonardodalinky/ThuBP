@@ -11,6 +11,9 @@ public enum NotificationTag {
     MATCH_INVITE("MATCH_INVITE", "赛事邀请"),
     REFEREE_INVITE("REFEREE_INVITE", "裁判邀请"),
     UNIT_INVITE("UNIT_INVITE", "参赛单位邀请"),
+    MATCH_INVITE_EXPIRING("MATCH_INVITE_EXPIRING", "赛事邀请码即将过期"),
+    REFEREE_INVITE_EXPIRING("REFEREE_INVITE_EXPIRING", "裁判邀请码即将过期"),
+    UNIT_INVITE_EXPIRING("UNIT_INVITE_EXPIRING", "参赛单位邀请码即将过期"),
     ;
 
     private final String name;

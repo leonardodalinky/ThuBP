@@ -176,7 +176,7 @@ public class MatchController {
     @ResponseBody
     @RequestMapping(value = "/match/assign-unit-token/{unitId}", method = RequestMethod.PUT)
     public SimpleResponse invite(@PathVariable String unitId, @RequestBody UnitInviteRequest unitInviteRequest) {
-        unitService.inviteMembers(currentUserService.getUserId(), unitId, unitInviteRequest.getUserIds());
+        unitService.inviteMembers(currentUserService.getUser(), unitId, unitInviteRequest.getUserIds());
         return new SimpleResponse(SimpleResponse.OK);
     }
 

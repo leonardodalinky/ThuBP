@@ -11,6 +11,7 @@ import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -46,7 +47,8 @@ public class NotificationService {
      * @return 新通知的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String sendNotification(String userId, String fromUserId, String title, String content, NotificationTag tag) {
+    public String sendNotification(String userId, String fromUserId, String title, String content, NotificationTag tag,
+                                   @Nullable Map<String, Object> extra) {
         // check userId
         boolean ret = mongoTemplate.exists(Query.query(
                 Criteria.where("userId").is(userId)
@@ -70,6 +72,7 @@ public class NotificationService {
                 .tag(tag)
                 .title(title)
                 .content(content)
+                .extra(extra)
                 .isRead(false)
                 .build();
         mongoTemplate.save(notification);
@@ -97,7 +100,8 @@ public class NotificationService {
      * @return 成功发送的用户 ID 列表
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<String> sendNotificationToMultipleUsers(List<String> userIds, String fromUserId, String title, String content, NotificationTag tag) {
+    public List<String> sendNotificationToMultipleUsers(List<String> userIds, String fromUserId, String title, String content,
+                                                        NotificationTag tag, @Nullable Map<String, Object> extra) {
         // check fromUserId
         User sender = mongoTemplate.findOne(Query.query(
                 Criteria.where("userId").is(fromUserId)
@@ -122,6 +126,7 @@ public class NotificationService {
                     .tag(tag)
                     .title(title)
                     .content(userContent)
+                    .extra(extra)
                     .isRead(false)
                     .build();
             mongoTemplate.save(notification);
@@ -146,8 +151,9 @@ public class NotificationService {
      * @return 新通知的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String sendNotificationFromSystem(String userId, String title, String content, NotificationTag tag) {
-        return sendNotification(userId, SYSTEM_ID, title, content, tag);
+    public String sendNotificationFromSystem(String userId, String title, String content, NotificationTag tag,
+                                             @Nullable Map<String, Object> extra) {
+        return sendNotification(userId, SYSTEM_ID, title, content, tag, extra);
     }
 
     public String getUnreadCount(String userId) {

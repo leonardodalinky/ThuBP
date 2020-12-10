@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.common.entity;
 
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.exception.ErrorCode;
+import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -105,7 +105,8 @@ public class AdminController {
                 userId,
                 sendNotificationRequest.getTitle(),
                 sendNotificationRequest.getContent(),
-                NotificationTag.NORMAL
+                sendNotificationRequest.getTag(),
+                sendNotificationRequest.getExtra()
         );
         return new SendNotificationResponse(notificationId);
     }

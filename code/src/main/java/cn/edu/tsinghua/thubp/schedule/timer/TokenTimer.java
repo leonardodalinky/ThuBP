@@ -27,9 +27,9 @@ public class TokenTimer {
     private final NotificationService notificationService;
 
     public static final String REFEREE_EXPIRING_TITLE = "赛事 {match} 裁判邀请码即将过期";
-    public static final String REFEREE_EXPIRING_CONTENT = "赛事 {match}(ID: {matchId}) 裁判邀请码即将过期";
-    public static final String UNIT_EXPIRING_TITLE = "赛事 {match} 参赛单位 {unitId} 邀请码即将过期";
-    public static final String UNIT_EXPIRING_CONTENT = "赛事 {match} 参赛单位 {unit} ID:{unitId} 邀请码即将过期";
+    public static final String REFEREE_EXPIRING_CONTENT = "赛事 {match}(ID: {matchId}) 裁判邀请码即将过期。";
+    public static final String UNIT_EXPIRING_TITLE = "赛事 {match} 参赛单位 {unit} 邀请码即将过期";
+    public static final String UNIT_EXPIRING_CONTENT = "赛事 {match} 参赛单位 {unit}(ID: {unitId}) 邀请码即将过期。";
 
     /**
      * 自动检查即将过期的 token，并发出提示通知
@@ -93,12 +93,13 @@ public class TokenTimer {
                     unit.getCreatorId(),
                     UNIT_EXPIRING_TITLE
                             .replace("{match}", matchName)
-                            .replace("{unitId}", unit.getUnitId())
+                            .replace("{unit}", unit.getName())
                     ,
                     UNIT_EXPIRING_CONTENT
                             .replace("{match}", matchName)
-                            .replace("{unit}", unit.getName() == null ? "" : unit.getName())
-                            .replace("{unitId}", unit.getUnitId()),
+                            .replace("{unit}", unit.getName())
+                            .replace("{unitId}", unit.getUnitId())
+                    ,
                     NotificationTag.UNIT_INVITE_EXPIRING,
                     ImmutableMap.of(
                             "matchId", unit.getMatchId(),

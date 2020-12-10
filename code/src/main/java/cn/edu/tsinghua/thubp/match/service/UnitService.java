@@ -253,11 +253,11 @@ public class UnitService {
                 MatchMessageConstant.INVITE_UNIT_NOTIFICATION_TITLE
                         .replace("{inviter}", user.getUsername())
                         .replace("{match}", match.getName())
-                        .replace("{unit}", unitId),
+                        .replace("{unit}", unit.getName()),
                 MatchMessageConstant.INVITE_UNIT_NOTIFICATION_CONTENT
                         .replace("{inviter}", user.getUsername())
                         .replace("{match}", match.getName())
-                        .replace("{unit}", unitId),
+                        .replace("{unit}", unit.getName()),
                 NotificationTag.UNIT_INVITE,
                 ImmutableMap.of("token", unit.getUnitToken().getToken(),
                         "expirationTime", unit.getUnitToken().getExpirationTime(),

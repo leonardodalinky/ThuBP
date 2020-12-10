@@ -40,6 +40,7 @@ public class NotificationController {
                                          @RequestParam(value = "pageSize", defaultValue = "10") String pageSize) {
         User user = currentUserService.getUser();
         return new NotificationInfoResponse(
+                (int) notificationService.countNotification(user.getUserId()),
                 notificationRepository.findAllByNotificationIdIn(
                         user.getNotifications(),
                         PageRequest.of(Integer.parseInt(page), Integer.parseInt(pageSize)

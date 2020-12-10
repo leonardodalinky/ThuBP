@@ -295,4 +295,16 @@ public class NotificationService {
             ));
         }
     }
+
+    /**
+     * 获得一个用户所有的通知数量
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public long countNotification(String userId) {
+        return mongoTemplate.count(
+                Query.query(
+                        Criteria.where("toUserId").is(userId)
+                ), Notification.class
+        );
+    }
 }

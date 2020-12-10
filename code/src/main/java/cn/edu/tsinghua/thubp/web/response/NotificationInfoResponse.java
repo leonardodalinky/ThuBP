@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationInfoResponse extends SimpleResponse {
+    @ApiModelProperty(value = "个人通知总数量", required = true)
+    Integer total;
     @ApiModelProperty(value = "个人收到的通知", required = true)
     List<Notification> notifications;
 }

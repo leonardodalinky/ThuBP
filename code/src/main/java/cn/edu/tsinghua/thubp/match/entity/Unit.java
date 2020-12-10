@@ -32,7 +32,7 @@ public class Unit extends AuditBase implements ModifiableTarget {
     /**
      * 参赛单位名字，通常用于小组
      */
-    @org.jetbrains.annotations.Nullable
+    @lombok.NonNull
     private String name;
 
     /**

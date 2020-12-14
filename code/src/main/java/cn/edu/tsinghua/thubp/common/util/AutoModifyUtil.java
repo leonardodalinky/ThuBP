@@ -24,13 +24,13 @@ public class AutoModifyUtil {
                     Object rf = requestField.get(modifyRequest);
                     if (autoModify.entityFieldName().length() == 0) {
                         // 如果未指定域名
-                        matchField = Match.class.getDeclaredField(requestField.getName());
+                        matchField = entity.getClass().getDeclaredField(requestField.getName());
                     } else {
                         // 指定域名
-                        matchField = Match.class.getDeclaredField(autoModify.entityFieldName());
+                        matchField = entity.getClass().getDeclaredField(autoModify.entityFieldName());
                     }
                     matchField.setAccessible(true);
-                    if (autoModify.nullable() || Objects.nonNull(rf)) {
+                    if (!autoModify.nullable() && Objects.nonNull(rf)) {
                         matchField.set(entity, rf);
                     }
                 } catch (NoSuchFieldException | IllegalAccessException e) {

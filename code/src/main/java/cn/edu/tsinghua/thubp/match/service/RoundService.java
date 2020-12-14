@@ -17,6 +17,7 @@ import cn.edu.tsinghua.thubp.web.request.GameGenerateRequest;
 import cn.edu.tsinghua.thubp.web.request.RoundCreateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -66,9 +67,13 @@ public class RoundService {
         List<String> units = roundCreateRequest.getUnits();
         if (roundCreateRequest.getGames() != null) {
             for (GameCreateRequest req : roundCreateRequest.getGames()) {
-                units.add(req.getUnit0());
-                if (req.getUnit1() != null) {
-                    units.add(req.getUnit1());
+                if (req.getUnit0() != null && !units.contains(req.getUnit0())) {
+                    throw new CommonException(MatchErrorCode.GAME_UNIT_INVALID,
+                            ImmutableMap.of(MATCH_ID, matchId, UNITS, ImmutableList.of(req.getUnit0())));
+                }
+                if (req.getUnit1() != null && !units.contains(req.getUnit1())) {
+                    throw new CommonException(MatchErrorCode.GAME_UNIT_INVALID,
+                            ImmutableMap.of(MATCH_ID, matchId, UNITS, ImmutableList.of(req.getUnit1())));
                 }
             }
         }

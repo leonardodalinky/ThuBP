@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
+import cn.edu.tsinghua.thubp.comment.intf.Commentable;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
 import com.fasterxml.jackson.databind.ser.std.JsonValueSerializer;
+import com.google.common.collect.ImmutableList;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -15,6 +17,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.time.Instant;
 
 /**
@@ -26,7 +30,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Document(collection = "game")
-public class Game extends AuditBase implements ModifiableTarget {
+public class Game extends AuditBase implements ModifiableTarget, Commentable {
     @Transient
     public static final String SEQUENCE_NAME = "game_sequence";
 
@@ -65,5 +69,10 @@ public class Game extends AuditBase implements ModifiableTarget {
      */
     @org.jetbrains.annotations.Nullable
     private String location;
+    /**
+     * 评论的 ID
+     */
+    @Builder.Default
+    private List<String> comments = new ArrayList<>();
     // TODO: 单场比赛中的其他信息
 }

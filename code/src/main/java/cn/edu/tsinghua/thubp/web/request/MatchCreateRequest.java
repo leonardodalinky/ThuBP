@@ -39,10 +39,10 @@ public class MatchCreateRequest implements ModifiableSource {
     @javax.validation.constraints.Min(value = 1)
     private Integer maxUnitMember;
     @ApiModelProperty(value = "赛事预览图的文件名(key)", required = false)
-    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "-[a-zA-Z0-9.-]+$")
+    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "_[a-zA-Z0-9.-]+$")
     private String preview;
     @ApiModelProperty(value = "赛事预览大图的文件名(key)", required = false)
-    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "-[a-zA-Z0-9.-]+$")
+    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "_[a-zA-Z0-9.-]+$")
     private String previewLarge;
     @ApiModelProperty(value = "公开报名", required = true)
     @javax.validation.constraints.NotNull

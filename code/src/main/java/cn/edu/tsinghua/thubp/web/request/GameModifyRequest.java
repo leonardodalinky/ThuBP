@@ -26,17 +26,22 @@ public class GameModifyRequest implements ModifiableSource {
     private GameStatus status;
     @ApiModelProperty(value = "参赛单位 0 的 ID", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private String unit0;
     @ApiModelProperty(value = "参赛单位 1 的 ID", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private String unit1;
     @ApiModelProperty(value = "比赛记分结果", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private GameResult result;
     @ApiModelProperty(value = "开始时间", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private Instant startTime;
     @ApiModelProperty(value = "地点", required = false)
     @org.jetbrains.annotations.Nullable
+    @AutoModify
     private String location;
 }

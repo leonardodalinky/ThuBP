@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -87,12 +88,14 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
      * 参赛者的 userId 列表
      */
     @lombok.NonNull
-    private List<String> participants;
+    @lombok.Builder.Default
+    private List<String> participants = new ArrayList<>();
     /**
      * 裁判的 userId 列表
      */
     @lombok.NonNull
-    private List<String> referees;
+    @lombok.Builder.Default
+    private List<String> referees = new ArrayList<>();
     /**
      * 裁判邀请码
      */
@@ -102,22 +105,26 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
      * 参赛单位的 unitId 列表
      */
     @lombok.NonNull
-    private List<String> units;
+    @lombok.Builder.Default
+    private List<String> units = new ArrayList<>();
     /**
      * 参赛单位有效最小人数
      */
     @lombok.NonNull
-    private Integer minUnitMember;
+    @lombok.Builder.Default
+    private Integer minUnitMember = 1;
     /**
      * 参赛单位最大人数
      */
     @lombok.NonNull
-    private Integer maxUnitMember;
+    @lombok.Builder.Default
+    private Integer maxUnitMember = 99;
     /**
      * 是否开放报名创建参赛单位
      */
     @lombok.NonNull
-    private Boolean publicSignUp;
+    @lombok.Builder.Default
+    private Boolean publicSignUp = true;
     /**
      * 若未公开报名，则需要邀请码才能注册参赛单位
      */
@@ -127,7 +134,8 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
      * 赛事中的赛程（轮）
      */
     @lombok.NonNull
-    private List<String> rounds;
+    @lombok.Builder.Default
+    private List<String> rounds = new ArrayList<>();
 //   这部分暂且不加入，之后有需求再添加
 //    /**
 //     * 赛事的默认记分板 ID
@@ -143,5 +151,6 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
      * 评论的 ID
      */
     @lombok.NonNull
-    private List<String> comments;
+    @lombok.Builder.Default
+    private List<String> comments = new ArrayList<>();
 }

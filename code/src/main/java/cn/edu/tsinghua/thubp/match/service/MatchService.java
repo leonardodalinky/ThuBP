@@ -85,7 +85,7 @@ public class MatchService {
      * @return 新的赛事的 ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public String createMatch(User user, MatchCreateRequest matchCreateRequest) {
+    public String createMatch(User user, MatchCreateRequest matchCreateRequest) throws MalformedURLException {
         // 检查赛事类型 ID 是否存在
         if (pluginRegistryService.getMatchType(matchCreateRequest.getMatchTypeId()) == null) {
             throw new CommonException(PluginErrorCode.MATCH_TYPE_NOT_FOUND,
@@ -117,6 +117,17 @@ public class MatchService {
                 .matchTypeId(matchCreateRequest.getMatchTypeId())
                 .comments(new ArrayList<>())
                 .build();
+        // 修改属性
+        if (matchCreateRequest.getPreview() != null) {
+            match.setPreview(
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchCreateRequest.getPreview())
+            );
+        }
+        if (matchCreateRequest.getPreviewLarge() != null) {
+            match.setPreviewLarge(
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchCreateRequest.getPreviewLarge())
+            );
+        }
         // 生成赛事邀请码
         if (!matchCreateRequest.getPublicSignUp()) {
             String tokenStr = generateDistinctMatchToken();

@@ -15,10 +15,11 @@ import java.util.Objects;
 public class AutoModifyUtil {
     public static void autoModify(ModifiableSource modifyRequest, ModifiableTarget entity) {
         Field[] requestFields = modifyRequest.getClass().getDeclaredFields();
+        AutoModify autoModify = entity.getClass().getAnnotation(AutoModify.class);
+        boolean isClass = entity.getClass().isAnnotationPresent(AutoModify.class);
         for (Field requestField : requestFields) {
             requestField.setAccessible(true);
-            AutoModify autoModify;
-            if (Objects.nonNull(autoModify = requestField.getDeclaredAnnotation(AutoModify.class))) {
+            if (isClass || Objects.nonNull(autoModify = requestField.getDeclaredAnnotation(AutoModify.class))) {
                 try {
                     Field matchField;
                     Object rf = requestField.get(modifyRequest);

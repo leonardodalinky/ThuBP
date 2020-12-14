@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +45,8 @@ public class Unit extends AuditBase implements ModifiableTarget {
      * 成员的 userId 列表（包括创建者）
      */
     @lombok.NonNull
-    private List<String> members;
+    @lombok.Builder.Default
+    private List<String> members = new ArrayList<>();
     /**
      * 所属比赛的 ID
      */

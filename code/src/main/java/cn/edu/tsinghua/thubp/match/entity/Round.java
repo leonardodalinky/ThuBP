@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,10 +54,12 @@ public class Round extends AuditBase {
      * 参赛单位的 unitId 列表
      */
     @lombok.NonNull
-    private List<String> units;
+    @lombok.Builder.Default
+    private List<String> units = new ArrayList<>();
     /**
      * 所有单场比赛的 gameId 列表
      */
     @lombok.NonNull
-    private List<String> games;
+    @lombok.Builder.Default
+    private List<String> games = new ArrayList<>();
 }

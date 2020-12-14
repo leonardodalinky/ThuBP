@@ -28,8 +28,4 @@ public class GameResolver implements GraphQLResolver<Game> {
         }
         return userService.findByUserId(game.getUnit1());
     }
-
-    public GameResult result(Game game) {
-        return gameService.deserializeGameResultFromGame(game);
-    }
 }

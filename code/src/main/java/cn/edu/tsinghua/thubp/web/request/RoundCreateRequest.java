@@ -21,6 +21,8 @@ public class RoundCreateRequest {
     private String name;
     @ApiModelProperty(value = "轮次的描述", required = false)
     private String description;
+    @ApiModelProperty(value = "轮次的标签", required = false)
+    private String tag;
     @ApiModelProperty(value = "参赛单位的 ID 列表", required = true)
     @NotEmpty
     @NotNull
@@ -28,7 +30,10 @@ public class RoundCreateRequest {
     /**
      * 自动生成 Game 的策略
      */
-    @ApiModelProperty(value = "参赛单位预生成策略", required = true)
-    @NotNull
+    @ApiModelProperty(value = "参赛单位预生成策略", required = false)
+    @Deprecated
     private RoundGameStrategy autoStrategy;
+    @ApiModelProperty(value = "预置比赛列表", required = false)
+    private List<GameCreateRequest> games;
+
 }

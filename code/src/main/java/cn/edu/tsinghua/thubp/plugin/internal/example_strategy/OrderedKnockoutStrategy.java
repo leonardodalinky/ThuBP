@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.plugin.internal.example_strategy;
 
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
+import cn.edu.tsinghua.thubp.match.misc.GameArrangement;
 import cn.edu.tsinghua.thubp.plugin.PluginBase;
 import cn.edu.tsinghua.thubp.plugin.PluginConfig;
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategy;
@@ -26,13 +27,13 @@ public class OrderedKnockoutStrategy extends PluginBase {
     )
     private static final class SpecialCustomRoundGameStrategy implements CustomRoundGameStrategy {
         @Override
-        public Collection<Game> generateGames(List<String> unitIds) {
-            List<Game> games = new ArrayList<>();
+        public List<GameArrangement> generateGames(List<String> unitIds) {
+            List<GameArrangement> games = new ArrayList<>();
             for (int i = 0, m = unitIds.size() >> 1; i < m; ++i) {
-                games.add(new Game(unitIds.get(i * 2), unitIds.get(i * 2 + 1)));
+                games.add(new GameArrangement(unitIds.get(i * 2), unitIds.get(i * 2 + 1)));
             }
             if ((unitIds.size() % 2) == 1) {
-                games.add(new Game(unitIds.get(unitIds.size() - 1), null));
+                games.add(new GameArrangement(unitIds.get(unitIds.size() - 1), null));
             }
             return games;
         }

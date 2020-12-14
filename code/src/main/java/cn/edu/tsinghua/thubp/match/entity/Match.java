@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
+import cn.edu.tsinghua.thubp.comment.intf.Commentable;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
@@ -23,7 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "match")
-public class Match extends AuditBase implements ModifiableTarget {
+public class Match extends AuditBase implements ModifiableTarget, Commentable {
     /**
      * 用于给每个 match 赋值 matchId 的静态常量
      */

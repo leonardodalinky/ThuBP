@@ -136,7 +136,7 @@ public class UserService {
             update.set("password", bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
         }
         if (Objects.nonNull(userUpdateRequest.getAvatar())) {
-            user.setAvatar(new URL("http", globalConfig.getQiNiuHost(), userUpdateRequest.getAvatar()));
+            user.setAvatar(new URL("http", globalConfig.getQiNiuHost(), "/" + userUpdateRequest.getAvatar()));
             update.set("avatar", user.getAvatar());
         }
         // 保存

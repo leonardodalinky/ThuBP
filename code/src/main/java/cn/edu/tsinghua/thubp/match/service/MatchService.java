@@ -120,12 +120,12 @@ public class MatchService {
         // 修改属性
         if (matchCreateRequest.getPreview() != null) {
             match.setPreview(
-                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchCreateRequest.getPreview())
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), "/" + matchCreateRequest.getPreview())
             );
         }
         if (matchCreateRequest.getPreviewLarge() != null) {
             match.setPreviewLarge(
-                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchCreateRequest.getPreviewLarge())
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), "/" + matchCreateRequest.getPreviewLarge())
             );
         }
         // 生成赛事邀请码
@@ -173,12 +173,12 @@ public class MatchService {
         // 修改属性
         if (matchModifyRequest.getPreview() != null) {
             match.setPreview(
-                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchModifyRequest.getPreview())
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), "/" + matchModifyRequest.getPreview())
             );
         }
         if (matchModifyRequest.getPreviewLarge() != null) {
             match.setPreviewLarge(
-                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), matchModifyRequest.getPreviewLarge())
+                    new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), "/" + matchModifyRequest.getPreviewLarge())
             );
         }
         if (matchModifyRequest.getPublicSignUp() != null && matchModifyRequest.getPublicSignUp() != match.getPublicSignUp()) {

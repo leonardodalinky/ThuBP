@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
 import java.util.List;
 
 @Component
@@ -22,14 +23,6 @@ public class MatchResolver implements GraphQLResolver<Match> {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final UnitService unitService;
-
-    public String preview(Match match) {
-        return (match.getPreview() == null)? null : match.getPreview().toString();
-    }
-
-    public String previewLarge(Match match) {
-        return (match.getPreviewLarge() == null)? null : match.getPreviewLarge().toString();
-    }
 
     public User organizerUser(Match match) {
         return userService.findByUserId(match.getOrganizerUserId());

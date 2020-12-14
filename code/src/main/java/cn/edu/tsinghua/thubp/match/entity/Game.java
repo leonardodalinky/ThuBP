@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
+import cn.edu.tsinghua.thubp.comment.intf.Commentable;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
@@ -19,6 +20,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 /**
  * 真正的一场比赛，只准有两个参赛单位
  */
@@ -28,7 +31,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @Document(collection = "game")
-public class Game extends AuditBase implements ModifiableTarget {
+public class Game extends AuditBase implements ModifiableTarget, Commentable {
     @Transient
     public static final String SEQUENCE_NAME = "game_sequence";
 
@@ -73,5 +76,10 @@ public class Game extends AuditBase implements ModifiableTarget {
     @JsonSerialize(using = JsonValueSerializer.class)
     @org.jetbrains.annotations.Nullable
     private GameResult result;
+    /**
+     * 评论的 ID
+     */
+    @lombok.NonNull
+    private List<String> comments;
     // TODO: 单场比赛中的其他信息
 }

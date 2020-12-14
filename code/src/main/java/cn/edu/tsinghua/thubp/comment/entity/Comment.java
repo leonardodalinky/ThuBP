@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.comment.entity;
 
+import cn.edu.tsinghua.thubp.comment.enums.CommentSource;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import lombok.*;
 import org.bson.types.ObjectId;
@@ -41,4 +42,14 @@ public class Comment extends AuditBase  {
      */
     @Nullable
     private String replyId;
+    /**
+     * 来源地的 ID
+     */
+    @NonNull
+    private String sourceId;
+    /**
+     * 来源地的类型
+     */
+    @NonNull
+    private CommentSource source;
 }

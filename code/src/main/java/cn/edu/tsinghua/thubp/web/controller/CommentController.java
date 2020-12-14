@@ -38,6 +38,18 @@ public class CommentController {
         return new CommentResponse(commentId);
     }
 
+    @ApiOperation(value = "评论比赛", tags = SwaggerTagUtil.COMMENT)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/comment/game/{gameId}", method = RequestMethod.POST)
+    public CommentResponse commentGame(@PathVariable String gameId,
+                                        @RequestBody @Valid CommentRequest commentRequest) {
+        String commentId = commentService.commentGame(currentUserService.getUserId(), gameId, commentRequest);
+        return new CommentResponse(commentId);
+    }
+
     @ApiOperation(value = "修改评论", tags = SwaggerTagUtil.COMMENT)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "commentId", value = "评论 ID", required = true, dataTypeClass = String.class)

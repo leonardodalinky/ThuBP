@@ -1,8 +1,7 @@
 package cn.edu.tsinghua.thubp.plugin;
 
-import cn.edu.tsinghua.thubp.plugin.internal.basketball.Basketball;
 import cn.edu.tsinghua.thubp.plugin.internal.example_strategy.OrderedKnockoutStrategy;
-import cn.edu.tsinghua.thubp.plugin.internal.tennis.Tennis;
+import cn.edu.tsinghua.thubp.plugin.internal.game.InternalGameTypes;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +53,7 @@ public class PluginLoader {
      * 之后都是要移动到外面去的.
      */
     private void loadInternalPlugins() {
-        pluginManager.registerPluginFromInternal(Tennis.TennisPluginConfig);
-        pluginManager.registerPluginFromInternal(Basketball.BasketballPluginConfig);
+        pluginManager.registerPluginFromInternal(InternalGameTypes.InternalGameTypesConfig);
         pluginManager.registerPluginFromInternal(OrderedKnockoutStrategy.ExampleStrategyConfig);
     }
 

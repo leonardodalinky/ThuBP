@@ -1,7 +1,6 @@
 package cn.edu.tsinghua.thubp.plugin;
 
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategy;
-import cn.edu.tsinghua.thubp.plugin.api.scoreboard.GameScoreboard;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -19,10 +18,9 @@ public class Registry {
      * 赛事类型中的 matchTypeId
      * @param matchTypeId 赛事类型 ID. 这个 ID 是内部 ID.
      * @param matchTypeName 赛事类型名称.
-     * @param scoreboards 记分器类型.
      */
-    public void registerMatchType(String matchTypeId, String matchTypeName, GameScoreboard...scoreboards) {
-        pluginRegistryService.registerMatchType(this.pluginId, matchTypeId, matchTypeName, scoreboards);
+    public void registerMatchType(String matchTypeId, String matchTypeName) {
+        pluginRegistryService.registerMatchType(this.pluginId, matchTypeId, matchTypeName);
     }
 
     /**

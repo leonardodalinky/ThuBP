@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 
 /**
  * 创建比赛的请求
@@ -19,4 +20,8 @@ public class GameCreateRequest {
     private String unit0;
     @ApiModelProperty(value = "参赛单位 1 的 ID", required = false)
     private String unit1;
+    @ApiModelProperty(value = "开始时间", required = false)
+    private Instant startTime;
+    @ApiModelProperty(value = "地点", required = false)
+    private String location;
 }

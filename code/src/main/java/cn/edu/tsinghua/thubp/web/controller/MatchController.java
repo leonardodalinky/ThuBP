@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.web.controller;
 
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
+import cn.edu.tsinghua.thubp.match.misc.GameArrangement;
 import cn.edu.tsinghua.thubp.match.service.GameService;
 import cn.edu.tsinghua.thubp.match.service.MatchService;
 import cn.edu.tsinghua.thubp.match.service.RoundService;
@@ -229,6 +230,19 @@ public class MatchController {
                                            @RequestBody @Valid RoundCreateRequest roundCreateRequest) {
         String roundId = roundService.createRound(currentUserService.getUserId(), matchId, roundCreateRequest);
         return new RoundCreateResponse(roundId);
+    }
+
+    @ApiOperation(value = "自动生成比赛", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/match/{matchId}/generate-games", method = RequestMethod.POST)
+    public GameGenerateResponse generateGames(@PathVariable String matchId,
+                                              @RequestBody @Valid GameGenerateRequest gameGenerateRequest) {
+        List<GameArrangement> gameList = roundService.generateGames(
+                currentUserService.getUserId(), matchId, gameGenerateRequest);
+        return new GameGenerateResponse(gameList);
     }
 
     @ApiOperation(value = "删除轮次", tags = SwaggerTagUtil.MATCH_MANAGE)

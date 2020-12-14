@@ -103,6 +103,7 @@ enum GameStatus {
 type GameResult {
     rounds: [GameRoundResult!]!
     result: GameFinalResult!
+    extra: String
 }
 
 type GameRoundResult {
@@ -136,26 +137,11 @@ enum RoundStatus {
 type MatchType {
     matchTypeId: String!
     matchTypeName: String!
-    matchScoreboardTypes: [ScoreboardInfo!]
 }
 
 type RoundGameStrategyType {
     strategyId: String!
     strategyName: String!
-}
-
-type ScoreboardInfo {
-    scoreboardTypeId: String
-    scoreboardTypeName: String
-    configParameters: [ScoreboardConfigParameter!]
-}
-
-type ScoreboardConfigParameter {
-    key: String
-    displayName: String
-    defaultValue: String
-    required: Boolean
-    fieldType: String
 }
 
 type Comment {

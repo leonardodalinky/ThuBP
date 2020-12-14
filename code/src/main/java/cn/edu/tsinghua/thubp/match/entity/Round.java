@@ -40,6 +40,11 @@ public class Round extends AuditBase {
     @org.jetbrains.annotations.Nullable
     private String description;
     /**
+     * 轮次的标签
+     */
+    @org.jetbrains.annotations.Nullable
+    private String tag;
+    /**
      * 本轮的状态
      */
     @lombok.NonNull

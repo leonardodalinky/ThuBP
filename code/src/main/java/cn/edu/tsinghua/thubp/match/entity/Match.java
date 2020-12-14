@@ -1,11 +1,8 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
-import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
-import com.fasterxml.jackson.databind.JsonNode;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;

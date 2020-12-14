@@ -8,13 +8,18 @@ import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.match.enums.RoundGameStrategy;
 import cn.edu.tsinghua.thubp.match.enums.RoundStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.match.misc.GameArrangement;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategyType;
 import cn.edu.tsinghua.thubp.user.entity.User;
+import cn.edu.tsinghua.thubp.web.request.GameCreateRequest;
+import cn.edu.tsinghua.thubp.web.request.GameGenerateRequest;
 import cn.edu.tsinghua.thubp.web.request.RoundCreateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableMap;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -25,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -58,8 +64,17 @@ public class RoundService {
     public String createRound(String userId, String matchId, RoundCreateRequest roundCreateRequest) {
         // 先检验 request 的 units
         List<String> units = roundCreateRequest.getUnits();
+        if (roundCreateRequest.getGames() != null) {
+            for (GameCreateRequest req : roundCreateRequest.getGames()) {
+                units.add(req.getUnit0());
+                if (req.getUnit1() != null) {
+                    units.add(req.getUnit1());
+                }
+            }
+        }
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
+                        Criteria.where("organizerUserId").is(userId),
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("active").is(true),
                         Criteria.where("units").all(units)
@@ -75,15 +90,23 @@ public class RoundService {
                 .roundId(roundId)
                 .name(roundCreateRequest.getName())
                 .description(roundCreateRequest.getDescription())
+                .tag(roundCreateRequest.getTag())
                 .status(RoundStatus.NOT_START)
                 .units(units)
                 .games(new ArrayList<>())
                 .build();
-        try {
-            RoundGameStrategy roundGameStrategy = RoundGameStrategy.valueOf(roundCreateRequest.getAutoStrategy().getName());
-            autoGenerateGame(round, roundGameStrategy);
-        } catch (IllegalArgumentException exception) {
-            autoGenerateGameByPluginDefinedStrategy(round, roundCreateRequest.getAutoStrategy().getName());
+        if (roundCreateRequest.getGames() != null) {
+            for (GameCreateRequest gameArrangement : roundCreateRequest.getGames()) {
+                Game game = Game.builder()
+                        .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
+                        .status(GameStatus.NOT_START)
+                        .unit0(gameArrangement.getUnit0())
+                        .unit1(gameArrangement.getUnit1())
+                        .build();
+                game.setGameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME));
+                round.getGames().add(game.getGameId());
+                mongoTemplate.save(game);
+            }
         }
         mongoTemplate.save(round);
         // Match 中增添 round 信息
@@ -91,6 +114,83 @@ public class RoundService {
                 Criteria.where("matchId").is(matchId)
         ), new Update().push("rounds", roundId), Match.class);
         return roundId;
+    }
+
+    public List<GameArrangement> generateGames(String userId, String matchId, GameGenerateRequest gameGenerateRequest) {
+        String strategy = gameGenerateRequest.getStrategy();
+        List<String> units = gameGenerateRequest.getUnits();
+        if (!mongoTemplate.exists(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("organizerUserId").is(userId),
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("active").is(true),
+                        Criteria.where("units").all(units)
+                )
+        ), Match.class)) {
+            throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
+                    ImmutableMap.of(MATCH_ID, matchId, UNITS, units));
+        }
+        try {
+            RoundGameStrategy roundGameStrategy = RoundGameStrategy.valueOf(strategy);
+            ArrayList<GameArrangement> games = new ArrayList<>();
+            switch (roundGameStrategy) {
+                case SINGLE_ROUND:
+                    // 排除数量过多
+                    if (units.size() > 8) {
+                        throw new CommonException(MatchErrorCode.ROUND_AUTO_EXCESSIVE, ImmutableMap.of(UNITS, units.size()));
+                    }
+                    for (int i = 0;i < units.size();++i) {
+                        for (int j = i + 1;j < units.size();++j) {
+                            games.add(new GameArrangement(units.get(i), units.get(j)));
+                        }
+                    }
+                    break;
+                case SINGLE_ROUND_HH:
+                    // 排除数量过多
+                    if (units.size() > 8) {
+                        throw new CommonException(MatchErrorCode.ROUND_AUTO_EXCESSIVE, ImmutableMap.of(UNITS, units.size()));
+                    }
+                    for (int i = 0;i < units.size();++i) {
+                        for (int j = 0;j < units.size();++j) {
+                            if (i == j) {
+                                continue;
+                            }
+                            games.add(new GameArrangement(units.get(i), units.get(j)));
+                        }
+                    }
+                    break;
+                case KNOCKOUT:
+                    // 复制一个新表
+                    List<String> us = new ArrayList<>(units);
+                    Random random = new Random(new Date().getTime());
+                    // 打乱顺序
+                    for (int i = 0;i < us.size();++i) {
+                        String tmp = us.get(i);
+                        int lucky = i + random.nextInt(us.size() - i);
+                        us.set(i, us.get(lucky));
+                        us.set(lucky, tmp);
+                    }
+                    if (us.size() % 2 == 1) {
+                        games.add(new GameArrangement(us.remove(us.size() - 1), null));
+                    }
+                    while (!us.isEmpty()) {
+                        String unit0 = us.remove(us.size() - 1);
+                        String unit1 = us.remove(us.size() - 1);
+                        games.add(new GameArrangement(unit0, unit1));
+                    }
+                    break;
+                case CUSTOM:
+                default:
+                    break;
+            }
+            return games;
+        } catch (IllegalArgumentException exception) {
+            CustomRoundGameStrategyType type = pluginRegistryService.getRoundGameStrategyType(strategy);
+            if (type == null) {
+                throw new CommonException(MatchErrorCode.ROUND_STRATEGY_UNKNOWN, ImmutableMap.of(STRATEGY_TYPE, strategy));
+            }
+            return type.getCustomRoundGameStrategy().generateGames(units);
+        }
     }
 
     /**
@@ -156,116 +256,5 @@ public class RoundService {
             throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(ROUNDS, roundIds));
         }
         return ret;
-    }
-
-    /**
-     * 给 round 根据 strategy 自动加入 Game
-     * 不检测 round 中已存在的 game
-     * @param round Round 对象
-     * @param strategy 策略
-     */
-    private void autoGenerateGame(Round round, RoundGameStrategy strategy) {
-        List<String> units = round.getUnits();
-        switch (strategy) {
-            case SINGLE_ROUND:
-                // 排除数量过多
-                if (units.size() > 8) {
-                    throw new CommonException(MatchErrorCode.ROUND_AUTO_EXCESSIVE, ImmutableMap.of(UNITS, round.getUnits().size()));
-                }
-                for (int i = 0;i < units.size();++i) {
-                    for (int j = i + 1;j < units.size();++j) {
-                        Game game = Game
-                                .builder()
-                                .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
-                                .status(GameStatus.NOT_START)
-                                .unit0(units.get(i))
-                                .unit1(units.get(j))
-                                .build();
-                        round.getGames().add(game.getGameId());
-                        mongoTemplate.save(game);
-                    }
-                }
-                break;
-            case SINGLE_ROUND_HH:
-                // 排除数量过多
-                if (units.size() > 8) {
-                    throw new CommonException(MatchErrorCode.ROUND_AUTO_EXCESSIVE, ImmutableMap.of(UNITS, round.getUnits().size()));
-                }
-                for (int i = 0;i < units.size();++i) {
-                    for (int j = 0;j < units.size();++j) {
-                        if (i == j) {
-                            continue;
-                        }
-                        Game game = Game
-                                .builder()
-                                .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
-                                .status(GameStatus.NOT_START)
-                                .unit0(units.get(i))
-                                .unit1(units.get(j))
-                                .build();
-                        round.getGames().add(game.getGameId());
-                        mongoTemplate.save(game);
-                    }
-                }
-                break;
-            case KNOCKOUT:
-                // 复制一个新表
-                List<String> us = new ArrayList<>(units);
-                Random random = new Random(new Date().getTime());
-                // 打乱顺序
-                for (int i = 0;i < us.size();++i) {
-                    String tmp = us.get(i);
-                    int lucky = i + random.nextInt(us.size() - i);
-                    us.set(i, us.get(lucky));
-                    us.set(lucky, tmp);
-                }
-                if (us.size() % 2 == 1) {
-                    Game game = Game
-                            .builder()
-                            .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
-                            .status(GameStatus.WIN_FIRST)
-                            .unit0(us.remove(us.size() - 1))
-                            .unit1(null)
-                            .build();
-                    round.getGames().add(game.getGameId());
-                    mongoTemplate.save(game);
-                }
-                while (!us.isEmpty()) {
-                    Game game = Game
-                            .builder()
-                            .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
-                            .status(GameStatus.NOT_START)
-                            .unit0(us.remove(us.size() - 1))
-                            .unit1(us.remove(us.size() - 1))
-                            .build();
-                    round.getGames().add(game.getGameId());
-                    mongoTemplate.save(game);
-                }
-                break;
-            case CUSTOM:
-            default:
-                break;
-        }
-    }
-
-    /**
-     * 给 round 根据由插件定义的 strategy 自动加入 Game
-     * 不检测 round 中已存在的 game
-     * @param round Round 对象
-     * @param strategy 策略 (字符串 ID)
-     */
-    private void autoGenerateGameByPluginDefinedStrategy(Round round, String strategy) {
-        List<String> units = round.getUnits();
-        CustomRoundGameStrategyType type = pluginRegistryService.getRoundGameStrategyType(strategy);
-        if (type == null) {
-            throw new CommonException(MatchErrorCode.ROUND_STRATEGY_UNKNOWN, ImmutableMap.of(STRATEGY_TYPE, strategy));
-        }
-        Collection<Game> games = type.getCustomRoundGameStrategy().generateGames(units);
-        for (Game game : games) {
-            game.setStatus(GameStatus.NOT_START);
-            game.setGameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME));
-            round.getGames().add(game.getGameId());
-            mongoTemplate.save(game);
-        }
     }
 }

@@ -40,7 +40,7 @@ public class UploadController {
                 "_" +
                 currentUserService.getUserId() +
                 "_" + new Date().getTime() +
-                ((Objects.isNull(uploadRequest.getSuffix()))? "" : uploadRequest.getSuffix());
+                ((Objects.isNull(uploadRequest.getSuffix()))? "" : "." + uploadRequest.getSuffix());
         Auth auth = Auth.create(globalConfig.getQiNiuAccessKey(), globalConfig.getQiNiuPrivateKey());
         String uploadToken = auth.uploadToken(globalConfig.getQiNiuBucketName(), key);
         return new UploadResponse(uploadToken, key);

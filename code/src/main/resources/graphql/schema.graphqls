@@ -90,6 +90,8 @@ type Game {
     unit1: User
     createdAt: Date!
     result: GameResult
+    startTime: Date,
+    location: String,
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
 }
 

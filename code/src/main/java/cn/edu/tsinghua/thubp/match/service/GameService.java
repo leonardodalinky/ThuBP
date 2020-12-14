@@ -249,7 +249,7 @@ public class GameService {
      */
     public List<Game> findByGameIds(List<String> gameIds) {
         List<Game> ret = mongoTemplate.find(Query.query(
-                Criteria.where("unitId").in(gameIds)
+                Criteria.where("gameId").in(gameIds)
         ), Game.class);
         if (ret.size() != gameIds.size()) {
             throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(GAMES, gameIds));

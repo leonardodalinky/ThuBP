@@ -107,6 +107,8 @@ public class RoundService {
                         .status(GameStatus.NOT_START)
                         .unit0(gameArrangement.getUnit0())
                         .unit1(gameArrangement.getUnit1())
+                        .startTime(gameArrangement.getStartTime())
+                        .location(gameArrangement.getLocation())
                         .build();
                 game.setGameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME));
                 round.getGames().add(game.getGameId());
@@ -240,7 +242,7 @@ public class RoundService {
      */
     public Round findByRoundId(String roundId) {
         Round ret = mongoTemplate.findOne(Query.query(
-                Criteria.where("gameId").is(roundId)
+                Criteria.where("roundId").is(roundId)
         ), Round.class);
         if (ret == null) {
             throw new CommonException(MatchErrorCode.ROUND_NOT_FOUND, ImmutableMap.of(ROUND_ID, roundId));

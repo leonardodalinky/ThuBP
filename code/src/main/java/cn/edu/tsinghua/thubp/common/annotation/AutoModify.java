@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * 指示此 field 可通过名字，自动修改 entity
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AutoModify {
     /**

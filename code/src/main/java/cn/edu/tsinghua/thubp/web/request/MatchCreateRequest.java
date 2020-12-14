@@ -1,10 +1,14 @@
 package cn.edu.tsinghua.thubp.web.request;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
+import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Pattern;
 import java.time.Instant;
 
 /**
@@ -14,7 +18,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchCreateRequest {
+public class MatchCreateRequest implements ModifiableSource {
     @ApiModelProperty(value = "赛事名字", required = true)
     @javax.validation.constraints.NotBlank
     private String name;
@@ -34,6 +38,12 @@ public class MatchCreateRequest {
     @ApiModelProperty(value = "参赛单位最大人数", required = true)
     @javax.validation.constraints.Min(value = 1)
     private Integer maxUnitMember;
+    @ApiModelProperty(value = "赛事预览图的文件名(key)", required = false)
+    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "-[a-zA-Z0-9.-]+$")
+    private String preview;
+    @ApiModelProperty(value = "赛事预览大图的文件名(key)", required = false)
+    @Pattern(regexp = "^"+ IUploadType.STR_MATCH_PREVIEW + "-[a-zA-Z0-9.-]+$")
+    private String previewLarge;
     @ApiModelProperty(value = "公开报名", required = true)
     @javax.validation.constraints.NotNull
     private Boolean publicSignUp;

@@ -35,7 +35,7 @@ public class MatchController {
     @ApiOperation(value = "创建赛事", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ResponseBody
     @RequestMapping(value = "/match", method = RequestMethod.POST)
-    public MatchCreateResponse createMatch(@RequestBody @Valid MatchCreateRequest matchCreateRequest) {
+    public MatchCreateResponse createMatch(@RequestBody @Valid MatchCreateRequest matchCreateRequest) throws MalformedURLException {
         User user = currentUserService.getUser();
         String matchId = matchService.createMatch(user, matchCreateRequest);
         return new MatchCreateResponse(matchId);

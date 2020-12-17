@@ -10,6 +10,7 @@ import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import cn.edu.tsinghua.thubp.user.repository.UserRepository;
 import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
+import cn.edu.tsinghua.thubp.web.request.AdminChangePwdRequest;
 import cn.edu.tsinghua.thubp.web.request.SendNotificationRequest;
 import cn.edu.tsinghua.thubp.web.response.SendNotificationResponse;
 import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
@@ -22,6 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +44,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
     private final NotificationService notificationService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @ApiOperation(value = "获得所有的用户（管理员）", tags = {SwaggerTagUtil.ADMIN, SwaggerTagUtil.ROOT})
     @ResponseBody
@@ -57,6 +62,18 @@ public class AdminController {
             );
         }
         return ret;
+    }
+
+    @ApiOperation(value = "更改任何人密码", tags = {SwaggerTagUtil.ROOT})
+    @ResponseBody
+    @RequestMapping(value = "/admin/pwd", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyRole('ROOT')")
+    public SimpleResponse changePwd(@RequestBody @Valid AdminChangePwdRequest adminChangePwdRequest) {
+        mongoTemplate.updateFirst(Query.query(
+                Criteria.where("userId").is(adminChangePwdRequest.getUserId())
+                ), new Update().set("password", bCryptPasswordEncoder.encode(adminChangePwdRequest.getNewPassword()))
+                , User.class);
+        return new SimpleResponse();
     }
 
     @ApiOperation(value = "重置数据库", tags = {SwaggerTagUtil.ROOT})

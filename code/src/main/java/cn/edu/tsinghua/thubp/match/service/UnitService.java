@@ -6,6 +6,7 @@ import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.entity.UnitToken;
+import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
 import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
@@ -191,11 +192,38 @@ public class UnitService {
      * @param userId 用户 ID.
      * @param matchId 赛事 ID.
      * @param unitId 参赛单位 ID.
+     * @param checkStatus 删除时是否检查赛事状态
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteUnit(String userId, String matchId, String unitId) {
-        // TODO
-        throw new NotImplementedException("解散参赛功能尚未完成。");
+    public void deleteUnit(String userId, String matchId, String unitId, boolean checkStatus) {
+        Match match = matchService.findByMatchId(matchId, false, null);
+        // check status of match
+        if (checkStatus && match.getStatus() != MatchStatus.PREPARE) {
+            throw new CommonException(MatchErrorCode.UNIT_DELETE_MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // delete unit
+        Unit unit = findByUnitId(unitId);
+        // check permission
+        if (!unit.getCreatorId().equals(userId)) {
+            throw new CommonException(MatchErrorCode.UNIT_PERMISSION_DENIED,
+                    ImmutableMap.of(UNIT_ID, unitId, USER_ID, userId));
+        }
+        // 删除 match 中的 unit
+        if (!match.getUnits().remove(unitId)) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
+        }
+        // 删除 match 中的 unit 成员
+        if (!match.getParticipants().removeAll(unit.getMembers())) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId, USERS, unit.getMembers()));
+        }
+        // for now, ignore the return value
+        mongoTemplate.updateMulti(Query.query(
+                Criteria.where("userId").in(unit.getMembers())
+        ), new Update().pull("participatedMatches", matchId).pull("participatedUnits", unitId), Unit.class);
+        mongoTemplate.save(match);
+        mongoTemplate.remove(unit);
     }
 
     /**

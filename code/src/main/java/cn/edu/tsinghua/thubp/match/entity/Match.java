@@ -40,7 +40,7 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
     @lombok.NonNull
     private Boolean active;
     /**
-     * TODO
+     * 赛事的状态
      */
     @lombok.NonNull
     @Builder.Default

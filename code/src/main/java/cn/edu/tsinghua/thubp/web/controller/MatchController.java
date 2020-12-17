@@ -143,7 +143,7 @@ public class MatchController {
         return new SimpleResponse();
     }
 
-    @ApiOperation(value = "删除参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长限定，须在比赛开始前")
+    @ApiOperation(value = "解散参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长限定，须在比赛开始前")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
             @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)
@@ -152,7 +152,7 @@ public class MatchController {
     @RequestMapping(value = "/match/{matchId}/unit/{unitId}", method = RequestMethod.DELETE)
     public SimpleResponse deleteUnit(@PathVariable String matchId,
                                      @PathVariable String unitId) {
-        unitService.deleteUnit(currentUserService.getUserId(), matchId, unitId);
+        unitService.deleteUnit(currentUserService.getUserId(), matchId, unitId, true);
         return new SimpleResponse();
     }
 

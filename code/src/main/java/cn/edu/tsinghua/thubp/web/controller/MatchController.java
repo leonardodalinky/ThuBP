@@ -232,6 +232,21 @@ public class MatchController {
         return new RoundCreateResponse(roundId);
     }
 
+    @ApiOperation(value = "修改轮次基本信息", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "roundId", value = "轮次 ID", required = true, dataTypeClass = String.class)
+    })
+    @ResponseBody
+    @RequestMapping(value = "/match/{matchId}/round/{roundId}", method = RequestMethod.POST)
+    public SimpleResponse modifyRound(@PathVariable String matchId, @PathVariable String roundId,
+                                      @RequestBody @Valid RoundModifyRequest roundModifyRequest) {
+        roundService.modifyRound(currentUserService.getUserId(), matchId, roundId, roundModifyRequest);
+        return new SimpleResponse();
+    }
+
+
+
     @ApiOperation(value = "自动生成比赛", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)

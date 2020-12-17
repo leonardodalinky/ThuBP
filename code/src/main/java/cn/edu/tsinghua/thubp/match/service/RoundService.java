@@ -1,6 +1,8 @@
 package cn.edu.tsinghua.thubp.match.service;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
+import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Round;
@@ -15,6 +17,7 @@ import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.GameCreateRequest;
 import cn.edu.tsinghua.thubp.web.request.GameGenerateRequest;
 import cn.edu.tsinghua.thubp.web.request.RoundCreateRequest;
+import cn.edu.tsinghua.thubp.web.request.RoundModifyRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableList;
@@ -121,6 +124,27 @@ public class RoundService {
                 Criteria.where("matchId").is(matchId)
         ), new Update().push("rounds", roundId), Match.class);
         return roundId;
+    }
+
+    public void modifyRound(String userId, String matchId, String roundId, RoundModifyRequest roundModifyRequest) {
+        boolean ret = mongoTemplate.exists(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("organizerUserId").is(userId),
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("active").is(true)
+                )
+        ), Match.class);
+        if (!ret) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId));
+        }
+        Round round = mongoTemplate.findOne(Query.query(Criteria.where("roundId").is(roundId)), Round.class);
+        if (round == null) {
+            throw new CommonException(MatchErrorCode.ROUND_NOT_FOUND,
+                    ImmutableMap.of(ROUND_ID, roundId));
+        }
+        AutoModifyUtil.autoModify(roundModifyRequest, round);
+        mongoTemplate.save(round);
     }
 
     public List<GameArrangement> generateGames(String userId, String matchId, GameGenerateRequest gameGenerateRequest) {

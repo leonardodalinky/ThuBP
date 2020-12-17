@@ -131,6 +131,7 @@ type GameFinalResult {
 type Round {
     roundId: String!
     name: String
+    tag: String
     description: String
     status: RoundStatus!
     units: [Unit!]!
@@ -156,6 +157,7 @@ type RoundGameStrategyType {
 }
 
 type Comment {
+    commentId: String!
     issuer: User!
     content: String!
     reply: Comment

@@ -69,6 +69,7 @@ type Match {
     maxUnitMember: Int!
     publicSignUp: Boolean!
     publicShowUp: Boolean!
+    rounds: [Round!]!
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
     commentSize: Int!
     createdAt: Date!

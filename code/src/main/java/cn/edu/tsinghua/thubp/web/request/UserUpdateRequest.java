@@ -31,7 +31,7 @@ public class UserUpdateRequest implements ModifiableSource {
     @ApiModelProperty(value = "新密码")
     private String newPassword;
     @ApiModelProperty(value = "头像的文件名(key)")
-    @Pattern(regexp = "^"+ IUploadType.STR_AVATAR + "-[a-zA-Z0-9.-]+$")
+    @Pattern(regexp = "^"+ IUploadType.STR_AVATAR + "_\\d+_[a-zA-Z0-9.-]+$")
     private String avatar;
     @ApiModelProperty(value = "性别")
     @AutoModify

@@ -8,6 +8,6 @@ import java.util.Map;
 public class UserThuIdAlreadyExistException extends UserBaseException {
 
     public UserThuIdAlreadyExistException(Map<String, Object> data) {
-        super(UserErrorCode.USER_NAME_ALREADY_EXIST, data);
+        super(UserErrorCode.THUID_ALREADY_EXIST, data);
     }
 }

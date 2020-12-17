@@ -260,7 +260,7 @@ public class RoundService {
                 Criteria.where("roundId").in(roundIds)
         ), Round.class);
         if (ret.size() != roundIds.size()) {
-            throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(ROUNDS, roundIds));
+            throw new CommonException(MatchErrorCode.ROUND_NOT_FOUND, ImmutableMap.of(ROUNDS, roundIds));
         }
         return ret;
     }

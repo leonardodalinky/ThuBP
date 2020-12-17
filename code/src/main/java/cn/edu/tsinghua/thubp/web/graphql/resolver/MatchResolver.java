@@ -3,7 +3,9 @@ package cn.edu.tsinghua.thubp.web.graphql.resolver;
 import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import cn.edu.tsinghua.thubp.comment.repository.CommentRepository;
 import cn.edu.tsinghua.thubp.match.entity.Match;
+import cn.edu.tsinghua.thubp.match.entity.Round;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
+import cn.edu.tsinghua.thubp.match.service.RoundService;
 import cn.edu.tsinghua.thubp.match.service.UnitService;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.service.UserService;
@@ -23,6 +25,7 @@ public class MatchResolver implements GraphQLResolver<Match> {
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final UnitService unitService;
+    private final RoundService roundService;
 
     public User organizerUser(Match match) {
         return userService.findByUserId(match.getOrganizerUserId());
@@ -38,6 +41,10 @@ public class MatchResolver implements GraphQLResolver<Match> {
 
     public List<Unit> units(Match match) {
         return unitService.findByUnitIds(match.getUnits());
+    }
+
+    public List<Round> rounds(Match match) {
+        return roundService.findByRoundIds(match.getRounds());
     }
 
     public List<Comment> comments(Match match, Integer page, Integer pageSize) {

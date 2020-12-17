@@ -30,8 +30,10 @@ public class SwaggerConfig {
     @Bean
     public Docket api() throws MalformedURLException {
         log.info("生成 Swagger2 文档");
-        URL url = new URL("http", "localhost", port.intValue(), "/swagger-ui/");
-        log.info("本地 Swagger 文档: " + url.toString());
+        URL url = new URL("http", "0.0.0.0", port.intValue(), "/swagger-ui/");
+        URL localUrl = new URL("http", "localhost", port.intValue(), "/swagger-ui/");
+        log.info("开放 Swagger 文档: " + url.toString());
+        log.info("本地可访问 Swagger: " + localUrl.toString());
         ApiInfo apiInfo = new ApiInfo(
                 "清球汇 API 文档",
                 "通过 Swagger2 产生的清球汇文档",

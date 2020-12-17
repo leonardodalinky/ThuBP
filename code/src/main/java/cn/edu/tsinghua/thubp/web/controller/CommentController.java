@@ -40,7 +40,7 @@ public class CommentController {
 
     @ApiOperation(value = "评论比赛", tags = SwaggerTagUtil.COMMENT)
     @ApiImplicitParams(
-            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+            @ApiImplicitParam(name = "gameId", value = "比赛 ID", required = true, dataTypeClass = String.class)
     )
     @ResponseBody
     @RequestMapping(value = "/comment/game/{gameId}", method = RequestMethod.POST)

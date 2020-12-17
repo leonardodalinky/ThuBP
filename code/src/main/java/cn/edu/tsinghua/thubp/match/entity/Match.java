@@ -42,7 +42,9 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
     /**
      * TODO
      */
-    private MatchStatus status;
+    @lombok.NonNull
+    @Builder.Default
+    private MatchStatus status = MatchStatus.PREPARE;
     /**
      * 赛事发起者/组织者
      */

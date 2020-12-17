@@ -51,11 +51,18 @@ enum Gender {
     UNKNOWN
 }
 
+enum MatchStatus {
+    PREPARE
+    RUNNING
+    FINISHED
+}
+
 type Match {
     matchId: String!
     active: Boolean!
     matchTypeId: String!
     organizerUser: User!
+    status: MatchStatus
     name: String!
     description: String!
     targetGroup: String

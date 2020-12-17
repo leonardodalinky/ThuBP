@@ -24,6 +24,7 @@ public enum MatchErrorCode implements ErrorCode {
     UNIT_PERMISSION_DENIED(2105, HttpStatus.BAD_REQUEST, "操作参赛单位权限不足"),
     UNIT_DELETE_SELF(2106, HttpStatus.BAD_REQUEST, "删除成员包含自身"),
     UNIT_DELETE_NOT_FOUND(2107, HttpStatus.BAD_REQUEST, "参赛单位中有未知人员"),
+    UNIT_DELETE_MATCH_NOT_PREPARE(2108, HttpStatus.BAD_REQUEST, "赛事已开始"),
     ROUND_UNIT_INVALID(2201, HttpStatus.BAD_REQUEST, "指定参赛单位有误"),
     ROUND_AUTO_EXCESSIVE(2202, HttpStatus.BAD_REQUEST, "自动生成的比赛数量过多"),
     ROUND_NOT_FOUND(2203, HttpStatus.BAD_REQUEST, "轮次未找到或不允许"),

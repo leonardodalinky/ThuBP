@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 public class CommentRequest {
     @ApiModelProperty(value = "评论内容", required = true)
     @NotNull
+    @javax.validation.constraints.Size(max = 1000)
     private String content;
     @ApiModelProperty(value = "回复的评论 ID")
     @Nullable

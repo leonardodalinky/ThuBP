@@ -94,8 +94,8 @@ type Unit {
 type Game {
     gameId: String!
     status: GameStatus!
-    unit0: User!
-    unit1: User
+    unit0: Unit!
+    unit1: Unit
     createdAt: Date!
     result: GameResult
     startTime: Date,

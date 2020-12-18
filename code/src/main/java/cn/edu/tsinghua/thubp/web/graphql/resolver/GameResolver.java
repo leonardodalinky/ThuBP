@@ -4,7 +4,9 @@ import cn.edu.tsinghua.thubp.comment.entity.Comment;
 import cn.edu.tsinghua.thubp.comment.repository.CommentRepository;
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.entity.Match;
+import cn.edu.tsinghua.thubp.match.entity.Unit;
 import cn.edu.tsinghua.thubp.match.service.GameService;
+import cn.edu.tsinghua.thubp.match.service.UnitService;
 import cn.edu.tsinghua.thubp.plugin.GameResult;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.user.entity.User;
@@ -22,19 +24,18 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GameResolver implements GraphQLResolver<Game> {
-    private final UserService userService;
-    private final GameService gameService;
+    private final UnitService unitService;
     private final CommentRepository commentRepository;
 
-    public User unit0(Game game) {
-        return userService.findByUserId(game.getUnit0());
+    public Unit unit0(Game game) {
+        return unitService.findByUnitId(game.getUnit0());
     }
 
-    public User unit1(Game game) {
+    public Unit unit1(Game game) {
         if (game.getUnit1() == null) {
             return null;
         }
-        return userService.findByUserId(game.getUnit1());
+        return unitService.findByUnitId(game.getUnit1());
     }
 
     public List<Comment> comments(Game game, Integer page, Integer pageSize) {

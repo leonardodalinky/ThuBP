@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文本审查的结果
@@ -40,37 +41,37 @@ public class Result {
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> porn;
+        public Object porn;
         /**
          * 政治
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> politics;
+        public Object politics;
         /**
          * 广告
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> ad;
+        public Object ad;
         /**
          * 暴力
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> abuse;
+        public Object abuse;
         /**
          * 违禁品
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> contraband;
+        public Object contraband;
         /**
          * 灌水
          */
         @Nullable
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        public List<String> flood;
+        public Object flood;
     }
 
     public static Result fromRunTextModerationResponse(RunTextModerationResponse response) {
@@ -85,7 +86,7 @@ public class Result {
             result = new Result(ResultType.BLOCK, new ResultInner());
         }
         @SuppressWarnings("unchecked")
-        HashMap<String, List<String>> map = (HashMap<String, List<String>>) body.getDetail();
+        Map<String, Object> map = (Map<String, Object>) body.getDetail();
         // 给 inner 中赋值
         ResultInner inner = result.getDetail();
         Field[] fields = ResultInner.class.getDeclaredFields();

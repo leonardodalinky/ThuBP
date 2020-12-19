@@ -25,6 +25,9 @@ public class UserInfoResponse extends SimpleResponse {
     private String userId;
     @ApiModelProperty(value = "用户名", required = true)
     private String username;
+    @ApiModelProperty(value = "个人描述")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
     @ApiModelProperty(value = "用户头像", required = false)
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private URL avatar;

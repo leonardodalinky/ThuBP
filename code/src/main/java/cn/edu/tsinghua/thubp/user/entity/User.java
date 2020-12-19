@@ -7,6 +7,7 @@ import cn.edu.tsinghua.thubp.user.enums.RoleType;
 import cn.edu.tsinghua.thubp.user.enums.ThuIdentityType;
 import lombok.*;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -59,6 +60,11 @@ public class User extends AuditBase implements ModifiableTarget {
      */
     @NonNull
     private String username;
+    /**
+     * 个人描述
+     */
+    @org.jetbrains.annotations.Nullable
+    private String description;
     @NonNull
     private String password;
     @NonNull

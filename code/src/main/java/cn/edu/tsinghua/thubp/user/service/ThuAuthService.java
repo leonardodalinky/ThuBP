@@ -82,6 +82,9 @@ public class ThuAuthService {
                             throw new CommonException(UserErrorCode.THUAUTH_USER_IDENTITY_NOT_VALID, ImmutableMap.of(TYPE, kv[1]));
                     }
                     break;
+                case "email":
+                    builder.email(kv[1]);
+                    break;
             }
         }
         try {

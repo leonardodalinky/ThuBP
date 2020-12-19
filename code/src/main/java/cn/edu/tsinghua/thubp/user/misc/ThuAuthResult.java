@@ -19,4 +19,6 @@ public final class ThuAuthResult {
     private final ThuIdentityType identityType;
     @NonNull
     private final String realName;
+    @org.jetbrains.annotations.Nullable
+    private final String email;
 }

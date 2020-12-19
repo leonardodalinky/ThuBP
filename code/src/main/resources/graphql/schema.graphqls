@@ -3,6 +3,9 @@ type Query {
     findUserByFuzzy(username: String!, page: Int = 0, pageSize: Int = 10): [User!]!
     findUserById(userIds: [String!]!): [User!]!
 
+    # 走马灯（可能为 0 个，但不超过 4 个）
+    getBulletin: [Match!]!
+
     # 赛事相关
     findMatchById(matchId: String!): Match
     findMatches(matchIds: [String!]!): [Match!]!

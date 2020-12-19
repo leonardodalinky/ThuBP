@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.match.entity;
 
 import cn.edu.tsinghua.thubp.comment.intf.Commentable;
+import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.entity.AuditBase;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
@@ -77,13 +78,15 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
     /**
      * 赛事预览图
      */
-    @org.jetbrains.annotations.Nullable
-    private URL preview;
+    @NonNull
+    @Builder.Default
+    private URL preview = GlobalConfig.DEFAULT_IMAGE_URL;
     /**
      * 赛事预览大图
      */
-    @org.jetbrains.annotations.Nullable
-    private URL previewLarge;
+    @NonNull
+    @Builder.Default
+    private URL previewLarge = GlobalConfig.DEFAULT_IMAGE_URL;
     @lombok.NonNull
     private String matchTypeId;
     /**

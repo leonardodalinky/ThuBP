@@ -98,7 +98,8 @@ public class User extends AuditBase implements ModifiableTarget {
     private List<String> participatedUnits;
 
     @NonNull
-    private Integer unreadNotificationCount;
+    @Builder.Default
+    private Integer unreadNotificationCount = 0;
     @org.jetbrains.annotations.Nullable
     private List<String> notifications;
 

@@ -81,15 +81,21 @@ public class UserService {
             throw new UserThuIdAlreadyExistException(ImmutableMap.of(THUID, thuId));
         });
         String userId = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
+        String userEmail = userRegisterRequest.getEmail();
+        if (userEmail == null) {
+            userEmail = identity.getEmail();
+        }
         User user = User.builder()
                 .thuId(thuId)
                 .userId(userId)
                 .username(userRegisterRequest.getUsername())
                 .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
                 .role(RoleType.USER)
+                .realName(identity.getRealName())
+                .thuIdentityType(identity.getIdentityType())
                 .enabled(true)
                 .mobile(userRegisterRequest.getMobile())
-                .email(userRegisterRequest.getEmail())
+                .email(userEmail)
                 .gender(Gender.UNKNOWN)
                 .build();
         userRepository.save(user);

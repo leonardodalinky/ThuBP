@@ -25,6 +25,8 @@ public class ThuAuthService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${thuauth.appid}")
     private String appId;
+    @Value("${thuauth.loginurl}")
+    private String loginUrl;
 
     /**
      * 根据 ticket 获取用户身份信息.
@@ -35,10 +37,9 @@ public class ThuAuthService {
      */
     public ThuAuthResult getThuIdentity(String userIpAddr, String ticket) {
         String result = restTemplate.getForEntity(
-                "{prefix}/thuser/authapi/checkticket/{AppID}/{ticket}/{UserIpAddr}",
+                loginUrl,
                 String.class,
                 ImmutableMap.of(
-                        "prefix", WebConstant.URL_AUTH,
                         "AppID", appId,
                         "ticket", ticket,
                         "UserIpAddr", userIpAddr

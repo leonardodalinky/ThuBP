@@ -52,13 +52,13 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
     public UserRegisterResponse register(HttpServletRequest request, @RequestBody @Valid UserRegisterRequest userRegisterRequest) {
+        String userId;
         if (Objects.equals(profile, "dev")) {
-            String userId = userService.saveLegacy(userRegisterRequest);
-            return new UserRegisterResponse(userId);
+            userId = userService.saveLegacy(userRegisterRequest);
         } else {
-            String userId = userService.save(requestService.getClientIP(request).replace(".", "_"), userRegisterRequest);
-            return new UserRegisterResponse(userId);
+            userId = userService.save(requestService.getClientIP(request).replace(".", "_"), userRegisterRequest);
         }
+        return new UserRegisterResponse(userId);
     }
 
     @ApiOperation(value = "个人信息", tags = SwaggerTagUtil.USERINFO)

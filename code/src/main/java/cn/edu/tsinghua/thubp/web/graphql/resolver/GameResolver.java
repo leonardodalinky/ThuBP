@@ -25,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GameResolver implements GraphQLResolver<Game> {
     private final UnitService unitService;
+    private final UserService userService;
     private final CommentRepository commentRepository;
 
     public Unit unit0(Game game) {
@@ -36,6 +37,13 @@ public class GameResolver implements GraphQLResolver<Game> {
             return null;
         }
         return unitService.findByUnitId(game.getUnit1());
+    }
+
+    public User referee(Game game) {
+        if (game.getReferee() == null) {
+            return null;
+        }
+        return userService.findByUserId(game.getReferee());
     }
 
     public List<Comment> comments(Game game, Integer page, Integer pageSize) {

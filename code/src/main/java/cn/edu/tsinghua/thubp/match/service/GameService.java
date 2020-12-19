@@ -7,7 +7,6 @@ import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Round;
 import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
-import cn.edu.tsinghua.thubp.plugin.GameResult;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.web.request.GameCreateRequest;
 import cn.edu.tsinghua.thubp.web.request.GameDeleteRequest;
@@ -15,7 +14,6 @@ import cn.edu.tsinghua.thubp.web.request.GameModifyRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -53,26 +52,28 @@ public class GameService {
 
     /**
      * 在指定轮次中，增加新的 game
-     * @param userId 用户 ID
-     * @param matchId 赛事 ID
-     * @param roundId 轮次 ID
+     *
+     * @param userId            用户 ID
+     * @param matchId           赛事 ID
+     * @param roundId           轮次 ID
      * @param gameCreateRequest 比赛创建请求
      * @return 新比赛的 ID
      */
     @Transactional(rollbackFor = Exception.class)
     public String createGame(String userId, String matchId, String roundId, GameCreateRequest gameCreateRequest) {
         // 校验 user 是否有权限且 roundId 合法
-        boolean ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+        Match match = mongoTemplate.findOne(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
                 Criteria.where("active").is(true),
                 Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
-        if (!ret) {
+        if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND,
                     ImmutableMap.of(MATCH_ID, matchId, USER_ID, userId, ROUND_ID, roundId));
         }
         // 检验 gameCreateRequest 的合法性
+        boolean ret = true;
         if (gameCreateRequest.getUnit1() == null) {
             ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                     Criteria.where("roundId").is(roundId),
@@ -91,13 +92,18 @@ public class GameService {
                             UNIT1, gameCreateRequest.getUnit1()
                     ));
         }
+        // 确定 referee 是裁判中的一员
+        if (gameCreateRequest.getReferee() != null && !match.getReferees().contains(gameCreateRequest.getReferee())) {
+            throw new CommonException(MatchErrorCode.MATCH_REFEREE_NOT_FOUND, ImmutableMap.of(USER_ID, gameCreateRequest.getReferee()));
+        }
         // 生成 game
         Game game = Game
                 .builder()
                 .gameId(sequenceGeneratorService.generateSequence(Game.SEQUENCE_NAME))
-                .status((gameCreateRequest.getUnit1() == null)? GameStatus.WIN_FIRST : GameStatus.NOT_START)
+                .status((gameCreateRequest.getUnit1() == null) ? GameStatus.WIN_FIRST : GameStatus.NOT_START)
                 .unit0(gameCreateRequest.getUnit0())
                 .unit1(gameCreateRequest.getUnit1())
+                .referee(gameCreateRequest.getReferee())
                 .startTime(gameCreateRequest.getStartTime())
                 .location(gameCreateRequest.getLocation())
                 .build();
@@ -113,9 +119,10 @@ public class GameService {
 
     /**
      * 在指定轮次中，修改 game
-     * @param userId 用户 ID
-     * @param matchId 赛事 ID
-     * @param roundId 轮次 ID
+     *
+     * @param userId            用户 ID
+     * @param matchId           赛事 ID
+     * @param roundId           轮次 ID
      * @param gameModifyRequest 比赛修改请求
      */
     @Transactional(rollbackFor = Exception.class)
@@ -124,7 +131,6 @@ public class GameService {
         Match match = mongoTemplate.findOne(Query.query(new Criteria().andOperator(
                 Criteria.where("matchId").is(matchId),
                 Criteria.where("active").is(true),
-                Criteria.where("organizerUserId").is(userId),
                 Criteria.where("rounds").all(roundId)
         )), Match.class);
         if (match == null) {
@@ -144,47 +150,67 @@ public class GameService {
         if (game == null) {
             throw new CommonException(MatchErrorCode.GAME_NOT_FOUND, ImmutableMap.of(GAME_ID, gameId));
         }
-        // 自动修改，目前只改变 gameStatus
-        AutoModifyUtil.autoModify(gameModifyRequest, game);
-        // unit0 与 unit1 的修改
-        if (gameModifyRequest.getUnit1() == null && gameModifyRequest.getUnit0() != null) {
-            ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
-                    Criteria.where("roundId").is(roundId),
-                    Criteria.where("units").all(gameModifyRequest.getUnit0())
-            )), Round.class);
-            game.setUnit0(gameModifyRequest.getUnit0());
-        } else if (gameModifyRequest.getUnit0() == null && gameModifyRequest.getUnit1() != null) {
-            ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
-                    Criteria.where("roundId").is(roundId),
-                    Criteria.where("units").all(gameModifyRequest.getUnit1())
-            )), Round.class);
-            game.setUnit0(gameModifyRequest.getUnit1());
-        } else if (gameModifyRequest.getUnit0() != null && gameModifyRequest.getUnit1() != null) {
-            ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
-                    Criteria.where("roundId").is(roundId),
-                    Criteria.where("units").all(gameModifyRequest.getUnit0(), gameModifyRequest.getUnit1())
-            )), Round.class);
-            game.setUnit0(game.getUnit0());
-            game.setUnit1(game.getUnit1());
+        if (!match.getOrganizerUserId().equals(userId)) {
+            if (Objects.equals(game.getReferee(), userId)) {
+                // 如果只是裁判，只允许修改 result
+                if (gameModifyRequest.getResult() != null) {
+                    game.setResult(gameModifyRequest.getResult());
+                    mongoTemplate.save(game);
+                }
+            } else {
+                throw new CommonException(MatchErrorCode.GAME_INACCESSIBLE, ImmutableMap.of(GAME_ID, gameId));
+            }
         } else {
-            ret = true;
+            // 自动修改
+            AutoModifyUtil.autoModify(gameModifyRequest, game);
+            // 裁判的修改
+            if (gameModifyRequest.getReferee() != null) {
+                if (!match.getReferees().contains(gameModifyRequest.getReferee())) {
+                    throw new CommonException(MatchErrorCode.MATCH_REFEREE_NOT_FOUND, ImmutableMap.of(USER_ID, gameModifyRequest.getReferee()));
+                }
+                game.setReferee(gameModifyRequest.getReferee());
+            }
+            // unit0 与 unit1 的修改
+            if (gameModifyRequest.getUnit1() == null && gameModifyRequest.getUnit0() != null) {
+                ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+                        Criteria.where("roundId").is(roundId),
+                        Criteria.where("units").all(gameModifyRequest.getUnit0())
+                )), Round.class);
+                game.setUnit0(gameModifyRequest.getUnit0());
+            } else if (gameModifyRequest.getUnit0() == null && gameModifyRequest.getUnit1() != null) {
+                ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+                        Criteria.where("roundId").is(roundId),
+                        Criteria.where("units").all(gameModifyRequest.getUnit1())
+                )), Round.class);
+                game.setUnit0(gameModifyRequest.getUnit1());
+            } else if (gameModifyRequest.getUnit0() != null && gameModifyRequest.getUnit1() != null) {
+                ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
+                        Criteria.where("roundId").is(roundId),
+                        Criteria.where("units").all(gameModifyRequest.getUnit0(), gameModifyRequest.getUnit1())
+                )), Round.class);
+                game.setUnit0(game.getUnit0());
+                game.setUnit1(game.getUnit1());
+            } else {
+                ret = true;
+            }
+            if (!ret) {
+                throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
+                        ImmutableMap.of(
+                                UNIT0, gameModifyRequest.getUnit0(),
+                                UNIT1, gameModifyRequest.getUnit1()
+                        ));
+            }
+            // 保存 game
+            mongoTemplate.save(game);
         }
-        if (!ret) {
-            throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
-                    ImmutableMap.of(
-                            UNIT0, gameModifyRequest.getUnit0(),
-                            UNIT1, gameModifyRequest.getUnit1()
-                    ));
-        }
-        // 保存 game
-        mongoTemplate.save(game);
     }
 
     /**
      * 删除一个 round 中的 game
-     * @param userId 用户 Id
-     * @param matchId 赛事 ID
-     * @param roundId 轮次 ID
+     *
+     * @param userId            用户 Id
+     * @param matchId           赛事 ID
+     * @param roundId           轮次 ID
      * @param gameDeleteRequest 删除比赛的请求
      */
     @Transactional(rollbackFor = Exception.class)
@@ -229,6 +255,7 @@ public class GameService {
 
     /**
      * 找寻一个 Game
+     *
      * @param gameId game id
      * @return Game
      */
@@ -244,6 +271,7 @@ public class GameService {
 
     /**
      * 通过 gameId 的列表，找到所对应的所有 Game
+     *
      * @param gameIds gameId 的列表
      * @return Game 列表
      */

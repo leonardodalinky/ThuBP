@@ -17,6 +17,7 @@ public enum MatchErrorCode implements ErrorCode {
     MATCH_PUBLIC(2006, HttpStatus.BAD_REQUEST, "比赛为公开报名"),
     MATCH_UNIT_MIN_MAX_INVALID(2007, HttpStatus.BAD_REQUEST, "参赛单位最大最小人数无效"),
     MATCH_PARTICIPANT_NOT_FOUND(2008, HttpStatus.BAD_REQUEST, "赛事中未查询到指定参与者"),
+    MATCH_REFEREE_NOT_FOUND(2009, HttpStatus.BAD_REQUEST, "赛事中未查询到指定裁判"),
     UNIT_NOT_FOUND(2101, HttpStatus.BAD_REQUEST, "未找到指定参赛单位"),
     UNIT_TOKEN_EXPIRED_OR_INVALID(2102, HttpStatus.BAD_REQUEST, "参赛单位邀请码已过期或失效"),
     UNIT_ALREADY_PARTICIPATED(2103, HttpStatus.BAD_REQUEST, "已经是此参赛单位的成员"),
@@ -31,6 +32,7 @@ public enum MatchErrorCode implements ErrorCode {
     ROUND_STRATEGY_UNKNOWN(2204, HttpStatus.BAD_REQUEST, "未知的自动生成策略"),
     GAME_NOT_FOUND(2301, HttpStatus.BAD_REQUEST, "未找到指定比赛"),
     GAME_UNIT_INVALID(2302, HttpStatus.BAD_REQUEST, "比赛的参赛方有误"),
+    GAME_INACCESSIBLE(2303, HttpStatus.BAD_REQUEST, "没有权限修改指定比赛"),
     ;
 
     private final int code;

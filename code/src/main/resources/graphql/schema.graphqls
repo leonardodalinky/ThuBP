@@ -100,6 +100,7 @@ type Game {
     result: GameResult
     startTime: Date,
     location: String,
+    referee: User,
     comments(page: Int = 0, pageSize: Int = 10): [Comment!]!
 }
 

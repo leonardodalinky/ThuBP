@@ -44,4 +44,6 @@ public class GameModifyRequest implements ModifiableSource {
     @org.jetbrains.annotations.Nullable
     @AutoModify
     private String location;
+    @org.jetbrains.annotations.Nullable
+    private String referee;
 }

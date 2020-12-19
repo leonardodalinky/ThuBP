@@ -17,6 +17,10 @@ public class InternalGameTypes extends PluginBase {
     @Override
     public void onLoad() {
         getRegistry().registerMatchType("basketball", "篮球");
-        getRegistry().registerMatchType("tennis", "羽毛球");
+        getRegistry().registerMatchType("tennis", "网球");
+        getRegistry().registerMatchType("badminton", "羽毛球");
+        getRegistry().registerMatchType("baseball", "棒球");
+        getRegistry().registerMatchType("volleyball", "排球");
+        getRegistry().registerMatchType("table_tennis", "乒乓球");
     }
 }

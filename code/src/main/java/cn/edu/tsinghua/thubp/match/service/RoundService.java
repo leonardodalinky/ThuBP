@@ -1,8 +1,8 @@
 package cn.edu.tsinghua.thubp.match.service;
 
-import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
+import cn.edu.tsinghua.thubp.common.util.CriteriaUtil;
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.entity.Match;
 import cn.edu.tsinghua.thubp.match.entity.Round;
@@ -13,7 +13,6 @@ import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.match.misc.GameArrangement;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.plugin.api.game.CustomRoundGameStrategyType;
-import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.web.request.GameCreateRequest;
 import cn.edu.tsinghua.thubp.web.request.GameGenerateRequest;
 import cn.edu.tsinghua.thubp.web.request.RoundCreateRequest;
@@ -22,8 +21,6 @@ import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -34,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -49,6 +45,7 @@ public class RoundService {
     public static final String UNITS = "units";
     public static final String UNIT0 = "unit0";
     public static final String UNIT1 = "unit1";
+    public static final String REFEREES = "referees";
     public static final String STRATEGY_TYPE = "strategyType";
     public static final int TOKEN_LENGTH = 6;
     public static final int EXPIRATION_DAYS = 7;
@@ -68,6 +65,7 @@ public class RoundService {
     public String createRound(String userId, String matchId, RoundCreateRequest roundCreateRequest) {
         // 先检验 request 的 units
         List<String> units = roundCreateRequest.getUnits();
+        List<String> referees = new ArrayList<>();
         if (roundCreateRequest.getGames() != null) {
             for (GameCreateRequest req : roundCreateRequest.getGames()) {
                 if (req.getUnit0() != null && !units.contains(req.getUnit0())) {
@@ -78,6 +76,9 @@ public class RoundService {
                     throw new CommonException(MatchErrorCode.GAME_UNIT_INVALID,
                             ImmutableMap.of(MATCH_ID, matchId, UNITS, ImmutableList.of(req.getUnit1())));
                 }
+                if (req.getReferee() != null) {
+                    referees.add(req.getReferee());
+                }
             }
         }
         boolean ret = mongoTemplate.exists(Query.query(
@@ -85,12 +86,13 @@ public class RoundService {
                         Criteria.where("organizerUserId").is(userId),
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("active").is(true),
-                        Criteria.where("units").all(units)
+                        CriteriaUtil.whereContainsAll("units", units),
+                        CriteriaUtil.whereContainsAll("referees", referees)
                 )
         ), Match.class);
         if (!ret) {
             throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
-                    ImmutableMap.of(MATCH_ID, matchId, UNITS, units));
+                    ImmutableMap.of(MATCH_ID, matchId, UNITS, units, REFEREES, referees));
         }
         // 生成新轮次
         String roundId = sequenceGeneratorService.generateSequence(Round.SEQUENCE_NAME);
@@ -110,6 +112,7 @@ public class RoundService {
                         .status(GameStatus.NOT_START)
                         .unit0(gameArrangement.getUnit0())
                         .unit1(gameArrangement.getUnit1())
+                        .referee(gameArrangement.getReferee())
                         .startTime(gameArrangement.getStartTime())
                         .location(gameArrangement.getLocation())
                         .build();
@@ -155,7 +158,7 @@ public class RoundService {
                         Criteria.where("organizerUserId").is(userId),
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("active").is(true),
-                        Criteria.where("units").all(units)
+                        CriteriaUtil.whereContainsAll("units", units)
                 )
         ), Match.class)) {
             throw new CommonException(MatchErrorCode.ROUND_UNIT_INVALID,
@@ -235,7 +238,7 @@ public class RoundService {
         // 检验 round 是否同一赛事并且 user 是否 round 的创建者
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
-                        Criteria.where("matchId"),
+                        Criteria.where("matchId").is(matchId),
                         Criteria.where("active").is(true),
                         Criteria.where("rounds").all(roundId),
                         Criteria.where("organizerUserId").is(userId)

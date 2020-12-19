@@ -47,26 +47,26 @@ public class ThubpApplication implements CommandLineRunner {
             for (String name: mongoTemplate.getCollectionNames()) {
                 mongoTemplate.dropCollection(name);
             }
-            // 初始化一个 admin 用户
+        }
+        // 初始化一个 admin 用户
+        if (!userRepository.existsByThuId("2018000000")) {
             log.info("创建 root 用户");
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-            if (!userRepository.existsByThuId("2018000000")) {
-                User user = User.builder()
-                        .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
-                        .gender(Gender.UNKNOWN)
-                        .enabled(true)
-                        .username("root")
-                        .realName("根")
-                        .thuIdentityType(ThuIdentityType.EXTERNAL)
-                        .password(bCryptPasswordEncoder.encode("root"))
-                        .role(RoleType.ROOT)
-                        .mobile("10000000000")
-                        .email("thubp@tsinghua.edu.cn")
-                        .thuId("2018000000")
-                        .unreadNotificationCount(0)
-                        .build();
-                userRepository.save(user);
-            }
+            User user = User.builder()
+                    .userId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                    .gender(Gender.UNKNOWN)
+                    .enabled(true)
+                    .username("root")
+                    .realName("根")
+                    .thuIdentityType(ThuIdentityType.EXTERNAL)
+                    .password(bCryptPasswordEncoder.encode("root"))
+                    .role(RoleType.ROOT)
+                    .mobile("10000000000")
+                    .email("thubp@tsinghua.edu.cn")
+                    .thuId("2018000000")
+                    .unreadNotificationCount(0)
+                    .build();
+            userRepository.save(user);
         }
     }
 }

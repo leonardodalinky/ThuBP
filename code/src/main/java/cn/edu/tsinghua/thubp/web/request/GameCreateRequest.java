@@ -24,4 +24,6 @@ public class GameCreateRequest {
     private Instant startTime;
     @ApiModelProperty(value = "地点", required = false)
     private String location;
+    @ApiModelProperty(value = "裁判的用户 ID", required = false)
+    private String referee;
 }

@@ -74,5 +74,10 @@ public class Game extends AuditBase implements ModifiableTarget, Commentable {
      */
     @Builder.Default
     private List<String> comments = new ArrayList<>();
+    /**
+     * 裁判的 ID
+     */
+    @org.jetbrains.annotations.Nullable
+    private String referee;
     // TODO: 单场比赛中的其他信息
 }

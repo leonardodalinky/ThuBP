@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
+import cn.edu.tsinghua.thubp.bulletin.service.BulletinService;
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
 import cn.edu.tsinghua.thubp.match.misc.GameArrangement;
@@ -15,6 +16,7 @@ import cn.edu.tsinghua.thubp.web.response.*;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,12 +27,15 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping(WebConstant.URL_PREFIX_API_V1)
 public class MatchController {
+    @Value("${spring.profiles.active}")
+    private String profile;
 
     private final CurrentUserService currentUserService;
     private final MatchService matchService;
     private final RoundService roundService;
     private final GameService gameService;
     private final UnitService unitService;
+    private final BulletinService bulletinService;
 
     @ApiOperation(value = "创建赛事", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ResponseBody
@@ -38,6 +43,9 @@ public class MatchController {
     public MatchCreateResponse createMatch(@RequestBody @Valid MatchCreateRequest matchCreateRequest) throws MalformedURLException {
         User user = currentUserService.getUser();
         String matchId = matchService.createMatch(user, matchCreateRequest);
+        if (profile.equals("dev")) {
+            bulletinService.update();
+        }
         return new MatchCreateResponse(matchId);
     }
 

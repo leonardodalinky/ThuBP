@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.thubp.common.config;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,10 +9,19 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
+
 @Getter
 @Component
 @PropertySource(value = "classpath:config/config.properties")
 public class GlobalConfig {
+    public static final URL DEFAULT_IMAGE_URL = getDefaultImageUrl();
+
+    @SneakyThrows
+    private static URL getDefaultImageUrl() {
+        return new URL("http://thubp-static.iterator-traits.com/default.png");
+    }
+
     @Autowired
     private Environment env;
 

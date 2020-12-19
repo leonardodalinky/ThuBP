@@ -221,7 +221,7 @@ public class UnitService {
         // for now, ignore the return value
         mongoTemplate.updateMulti(Query.query(
                 Criteria.where("userId").in(unit.getMembers())
-        ), new Update().pull("participatedMatches", matchId).pull("participatedUnits", unitId), Unit.class);
+        ), new Update().pull("participatedMatches", matchId).pull("participatedUnits", unitId), User.class);
         mongoTemplate.save(match);
         mongoTemplate.remove(unit);
     }

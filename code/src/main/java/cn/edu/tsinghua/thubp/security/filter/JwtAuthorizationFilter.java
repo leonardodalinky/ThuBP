@@ -8,6 +8,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,7 +63,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
      * 获取用户认证信息 Authentication
      */
     private UsernamePasswordAuthenticationToken getAuthentication(String authorization) {
-        log.info("get authentication");
+//        log.info("get authentication");
         String token = authorization.replace(SecurityConstant.TOKEN_PREFIX, "");
         try {
             String userId = JwtTokenUtils.getUserIdByToken(token);
@@ -75,7 +76,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 return userDetails.isEnabled() ? usernamePasswordAuthenticationToken : null;
             }
         } catch (UsernameNotFoundException | SignatureException | ExpiredJwtException | MalformedJwtException | IllegalArgumentException exception) {
-            logger.warning("Request to parse JWT with invalid signature. Detail : " + exception.getMessage());
+//            logger.warning("Request to parse JWT with invalid signature. Detail : " + exception.getMessage());
         }
         return null;
     }

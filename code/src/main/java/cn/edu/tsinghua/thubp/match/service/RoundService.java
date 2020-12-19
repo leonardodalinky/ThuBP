@@ -235,7 +235,7 @@ public class RoundService {
         // 检验 round 是否同一赛事并且 user 是否 round 的创建者
         boolean ret = mongoTemplate.exists(Query.query(
                 new Criteria().andOperator(
-                        Criteria.where("matchId"),
+                        Criteria.where("matchId").is(matchId),
                         Criteria.where("active").is(true),
                         Criteria.where("rounds").all(roundId),
                         Criteria.where("organizerUserId").is(userId)

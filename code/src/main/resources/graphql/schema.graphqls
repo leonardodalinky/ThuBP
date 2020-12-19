@@ -116,8 +116,8 @@ enum GameStatus {
 }
 
 type GameResult {
-    rounds: [GameRoundResult!]!
-    result: GameFinalResult!
+    rounds: [GameRoundResult]
+    result: GameFinalResult
     extra: String
 }
 

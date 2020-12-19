@@ -25,6 +25,9 @@ public class UserRegisterRequest {
     @ApiModelProperty(value = "邮箱")
     @javax.validation.constraints.Email
     private String email;
+    @ApiModelProperty(value = "个人描述")
+    @javax.validation.constraints.Size(max = 1000)
+    private String description;
     /**
      * 清华服务授权码
      */

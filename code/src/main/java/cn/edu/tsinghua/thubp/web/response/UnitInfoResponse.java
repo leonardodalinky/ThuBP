@@ -21,6 +21,9 @@ public class UnitInfoResponse extends SimpleResponse {
     private String unitId;
     @ApiModelProperty(value = "参赛单位名称", required = true)
     private String name;
+    @ApiModelProperty(value = "个人描述")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
     @ApiModelProperty(value = "参赛单位创建者 ID", required = true)
     private String creatorId;
     @ApiModelProperty(value = "相关联的赛事 ID", required = true)

@@ -59,6 +59,7 @@ public class UserService {
                 .thuId(thuId)
                 .userId(userId)
                 .username(userRegisterRequest.getUsername())
+                .description(userRegisterRequest.getDescription())
                 .realName(userRegisterRequest.getUsername())
                 .thuIdentityType(ThuIdentityType.STUDENT)
                 .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
@@ -85,12 +86,14 @@ public class UserService {
                 .thuId(thuId)
                 .userId(userId)
                 .username(userRegisterRequest.getUsername())
+                .description(userRegisterRequest.getDescription())
                 .password(bCryptPasswordEncoder.encode(userRegisterRequest.getPassword()))
                 .role(RoleType.USER)
                 .enabled(true)
                 .mobile(userRegisterRequest.getMobile())
                 .email(userRegisterRequest.getEmail())
                 .gender(Gender.UNKNOWN)
+                .unreadNotificationCount(0)
                 .build();
         userRepository.save(user);
         return userId;
@@ -133,20 +136,13 @@ public class UserService {
                 );
             }
             // TODO: 沒有新密码的复杂度验证
-            update.set("password", bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
+            user.setPassword(bCryptPasswordEncoder.encode(userUpdateRequest.getNewPassword()));
         }
         if (Objects.nonNull(userUpdateRequest.getAvatar())) {
             user.setAvatar(new URL("http", globalConfig.getQiNiuHost(), "/" + userUpdateRequest.getAvatar()));
-            update.set("avatar", user.getAvatar());
         }
         // 保存
-        User u = mongoTemplate.findAndModify(
-                Query.query(Criteria.where("userId").is(user.getUserId())),
-                update,
-                User.class);
-        if (!Objects.nonNull(u)) {
-            throw new UserIdNotFoundException(ImmutableMap.of(USERID, user.getUserId()));
-        }
+        mongoTemplate.save(user);
     }
 
     public void delete(String userId) {

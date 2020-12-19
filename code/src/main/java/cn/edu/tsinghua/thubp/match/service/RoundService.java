@@ -256,7 +256,7 @@ public class RoundService {
         }
         // 删除 Match 中的 round
         mongoTemplate.updateFirst(Query.query(
-                Criteria.where("matchId")
+                Criteria.where("matchId").is(matchId)
         ), new Update().pull("rounds", roundId), Match.class);
         // 删除 round 实体
         mongoTemplate.remove(round);

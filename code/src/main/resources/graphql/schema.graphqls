@@ -36,6 +36,7 @@ scalar URL
 type User {
     userId: String!
     username: String!
+    description: String
     avatar: URL
     gender: Gender!
     mobile: String
@@ -88,6 +89,7 @@ type Match {
 type Unit {
     unitId: String!
     name: String
+    description: String
     creator: User!
     members: [User!]!
     match: Match!

@@ -35,7 +35,11 @@ public class Unit extends AuditBase implements ModifiableTarget {
      */
     @lombok.NonNull
     private String name;
-
+    /**
+     * 小队描述
+     */
+    @org.jetbrains.annotations.Nullable
+    private String description;
     /**
      * 创建者的 userId
      */

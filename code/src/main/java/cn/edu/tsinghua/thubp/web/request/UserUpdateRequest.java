@@ -44,4 +44,8 @@ public class UserUpdateRequest implements ModifiableSource {
     @Email
     @AutoModify
     private String email;
+    @ApiModelProperty(value = "个人描述")
+    @AutoModify
+    @javax.validation.constraints.Size(max = 1000)
+    private String description;
 }

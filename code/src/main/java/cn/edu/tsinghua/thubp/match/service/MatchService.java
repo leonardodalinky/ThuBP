@@ -341,7 +341,7 @@ public class MatchService {
         if (match.getRefereeToken() == null
                 || match.getRefereeToken().getExpirationTime().toEpochMilli() < Instant.now().toEpochMilli()) {
             // 邀请码失效，重新生成一个
-            assignRefereeToken(sender.getUserId(), matchId);
+            match.setRefereeToken(assignRefereeToken(sender.getUserId(), matchId));
         }
         // 更新邀请码有效期
         match.getRefereeToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));

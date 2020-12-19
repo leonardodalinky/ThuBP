@@ -155,7 +155,11 @@ public class GameService {
                 // 如果只是裁判，只允许修改 result 和 status
                 if (gameModifyRequest.getResult() != null || gameModifyRequest.getStatus() != null) {
                     if (gameModifyRequest.getResult() != null) {
-                        game.setResult(gameModifyRequest.getResult());
+                        if (game.getResult() != null) {
+                            AutoModifyUtil.autoModify(gameModifyRequest.getResult(), game.getResult());
+                        } else {
+                            game.setResult(gameModifyRequest.getResult());
+                        }
                     }
                     if (gameModifyRequest.getStatus() != null) {
                         game.setStatus(gameModifyRequest.getStatus());
@@ -168,6 +172,12 @@ public class GameService {
         } else {
             // 自动修改
             AutoModifyUtil.autoModify(gameModifyRequest, game);
+            // result 的修改
+            if (gameModifyRequest.getResult() != null && game.getResult() != null) {
+                AutoModifyUtil.autoModify(gameModifyRequest.getResult(), game.getResult());
+            } else {
+                game.setResult(gameModifyRequest.getResult());
+            }
             // 裁判的修改
             if (gameModifyRequest.getReferee() != null) {
                 if (!match.getReferees().contains(gameModifyRequest.getReferee())) {

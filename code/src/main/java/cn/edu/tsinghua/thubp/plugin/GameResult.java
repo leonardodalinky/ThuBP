@@ -1,5 +1,8 @@
 package cn.edu.tsinghua.thubp.plugin;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
+import cn.edu.tsinghua.thubp.common.intf.ModifiableTarget;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +17,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GameResult {
+public class GameResult implements ModifiableSource, ModifiableTarget {
 
     @Data
     @AllArgsConstructor
@@ -39,13 +42,16 @@ public class GameResult {
     }
 
     @JsonProperty("rounds")
+    @AutoModify
     public List<GameRoundResult> rounds;
 
     @JsonProperty("result")
+    @AutoModify
     public GameFinalResult result;
 
     @JsonProperty(value = "extra")
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @AutoModify
     public Map<String, Object> extra;
 
 }

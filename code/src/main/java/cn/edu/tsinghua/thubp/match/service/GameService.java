@@ -73,7 +73,7 @@ public class GameService {
                     ImmutableMap.of(MATCH_ID, matchId, USER_ID, userId, ROUND_ID, roundId));
         }
         // 检验 gameCreateRequest 的合法性
-        boolean ret = true;
+        boolean ret;
         if (gameCreateRequest.getUnit1() == null) {
             ret = mongoTemplate.exists(Query.query(new Criteria().andOperator(
                     Criteria.where("roundId").is(roundId),
@@ -152,9 +152,14 @@ public class GameService {
         }
         if (!match.getOrganizerUserId().equals(userId)) {
             if (Objects.equals(game.getReferee(), userId)) {
-                // 如果只是裁判，只允许修改 result
-                if (gameModifyRequest.getResult() != null) {
-                    game.setResult(gameModifyRequest.getResult());
+                // 如果只是裁判，只允许修改 result 和 status
+                if (gameModifyRequest.getResult() != null || gameModifyRequest.getStatus() != null) {
+                    if (gameModifyRequest.getResult() != null) {
+                        game.setResult(gameModifyRequest.getResult());
+                    }
+                    if (gameModifyRequest.getStatus() != null) {
+                        game.setStatus(gameModifyRequest.getStatus());
+                    }
                     mongoTemplate.save(game);
                 }
             } else {

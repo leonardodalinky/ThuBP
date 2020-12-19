@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.request;
 
+import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,4 +18,7 @@ public class MatchRegisterRequest {
     @ApiModelProperty(value = "参赛单位名字", required = true)
     @NotNull
     String unitName;
+    @ApiModelProperty(value = "个人描述")
+    @javax.validation.constraints.Size(max = 1000)
+    private String description;
 }

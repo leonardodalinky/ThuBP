@@ -365,6 +365,7 @@ public class UnitService {
         Unit unit = Unit.builder()
                 .unitId(sequenceGeneratorService.generateSequence(Unit.SEQUENCE_NAME))
                 .name(matchRegisterRequest.getUnitName())
+                .description(matchRegisterRequest.getDescription())
                 .matchId(matchId)
                 .creatorId(user.getUserId())
                 .members(new ArrayList<>())

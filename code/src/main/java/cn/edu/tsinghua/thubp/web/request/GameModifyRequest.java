@@ -34,7 +34,6 @@ public class GameModifyRequest implements ModifiableSource {
     private String unit1;
     @ApiModelProperty(value = "比赛记分结果", required = false)
     @org.jetbrains.annotations.Nullable
-    @AutoModify
     private GameResult result;
     @ApiModelProperty(value = "开始时间", required = false)
     @org.jetbrains.annotations.Nullable

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
 import java.util.List;
 
 @Component
@@ -18,10 +19,6 @@ import java.util.List;
 public class UserResolver implements GraphQLResolver<User> {
     private final MatchRepository matchRepository;
     private final MatchService matchService;
-
-    public String avatar(User user) {
-        return (user.getAvatar() == null)? null : user.getAvatar().toString();
-    }
 
     public List<Match> organizedMatches(User user, Integer page, Integer pageSize) {
         return matchService.findMatchesByMatchIds(user.getOrganizedMatches(), PageRequest.of(page, pageSize), false, null);

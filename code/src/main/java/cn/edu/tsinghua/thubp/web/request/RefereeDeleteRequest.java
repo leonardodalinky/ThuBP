@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationDeleteRequest {
-    @ApiModelProperty(value = "需要被删除的通知的 ID", required = true)
+public class RefereeDeleteRequest {
+    @ApiModelProperty(value = "需要被删除的裁判的 ID", required = true)
     @NotEmpty
-    private List<String> notifications;
+    private List<String> referees;
 }

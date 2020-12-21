@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thubp.web.request;
 
 import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
+import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
 import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import cn.edu.tsinghua.thubp.web.enums.UploadType;
 import io.swagger.annotations.ApiModelProperty;
@@ -28,6 +29,8 @@ public class MatchModifyRequest implements ModifiableSource {
     @ApiModelProperty(value = "面向人群", required = false)
     @AutoModify
     private String targetGroup;
+    @ApiModelProperty(value = "赛事的状态", required = false)
+    private MatchStatus status;
     @ApiModelProperty(value = "开始时间", required = false)
     @AutoModify
     private Instant startTime;

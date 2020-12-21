@@ -228,6 +228,18 @@ public class MatchController {
         return new SimpleResponse(SimpleResponse.OK);
     }
 
+    @ApiOperation(value = "删除裁判", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/match/{matchId}/referee", method = RequestMethod.DELETE)
+    public SimpleResponse deleteReferee(@PathVariable String matchId,
+                                        @RequestBody @Valid RefereeDeleteRequest refereeDeleteRequest) {
+        matchService.dropReferees(currentUserService.getUserId(), matchId, refereeDeleteRequest);
+        return new SimpleResponse(SimpleResponse.OK);
+    }
+
     @ApiOperation(value = "创建轮次", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)

@@ -22,8 +22,8 @@ public class MatchQueryResolver implements GraphQLQueryResolver {
     private final PluginRegistryService pluginRegistryService;
     private final CurrentUserService currentUserService;
 
-    public Match findMatchById(String matchId) {
-        return matchService.findByMatchId(matchId, true, currentUserService.getUserId());
+    public Match findMatchById(String matchId, String matchToken) {
+        return matchService.findByMatchId(matchId, true, currentUserService.getUserId(), matchToken);
     }
 
     public List<Match> findMatchesByType(@org.jetbrains.annotations.Nullable List<String> typeIds, int page, int pageSize) {

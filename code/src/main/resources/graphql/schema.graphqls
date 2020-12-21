@@ -7,7 +7,7 @@ type Query {
     getBulletin: [Match!]!
 
     # 赛事相关
-    findMatchById(matchId: String!): Match
+    findMatchById(matchId: String!, matchToken: String): Match
     findMatches(matchIds: [String!]!): [Match!]!
     findMatchesByType(typeIds: [String!], page: Int = 0, pageSize: Int = 10): [Match!]!
 

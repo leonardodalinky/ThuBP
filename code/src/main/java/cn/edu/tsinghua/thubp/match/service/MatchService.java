@@ -207,9 +207,10 @@ public class MatchService {
      * @param matchId 赛事 ID
      * @param needPublicShow 需要赛事是可公开查看的，否则只有关系者能看
      * @param userId 查询者 ID，可为空
+     * @param matchToken 查询者提供的 match token
      * @return 对应的赛事
      */
-    public Match findByMatchId(String matchId, boolean needPublicShow, @Nullable String userId) {
+    public Match findByMatchId(String matchId, boolean needPublicShow, @Nullable String userId, @Nullable String matchToken) {
         Match match;
         if (!needPublicShow) {
             match = mongoTemplate.findOne(Query.query(
@@ -225,7 +226,8 @@ public class MatchService {
                                     Criteria.where("publicShowUp").is(true),
                                     Criteria.where("organizerUserId").is(userId),
                                     Criteria.where("participants").all(userId),
-                                    Criteria.where("referees").all(userId)
+                                    Criteria.where("referees").all(userId),
+                                    Criteria.where("matchToken.token").is(matchToken)
                             )
                     )
             ), Match.class);

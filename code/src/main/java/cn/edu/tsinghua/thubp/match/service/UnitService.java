@@ -131,7 +131,7 @@ public class UnitService {
                     ImmutableMap.of(UNIT_ID, unitId, USER_ID, user.getUserId()));
         }
         // 排除已达到最大人数的问题
-        Match match = matchService.findByMatchId(unit.getMatchId(), false, null);
+        Match match = matchService.findByMatchId(unit.getMatchId(), false, null, null);
         if (unit.getMembers().size() >= match.getMaxUnitMember()) {
             throw new CommonException(MatchErrorCode.UNIT_MAX_MEMBER,
                     ImmutableMap.of("maxUnitMember", match.getMaxUnitMember()));
@@ -196,7 +196,7 @@ public class UnitService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteUnit(String userId, String matchId, String unitId, boolean checkStatus) {
-        Match match = matchService.findByMatchId(matchId, false, null);
+        Match match = matchService.findByMatchId(matchId, false, null, null);
         // check status of match
         if (checkStatus && match.getStatus() != MatchStatus.PREPARE) {
             throw new CommonException(MatchErrorCode.UNIT_DELETE_MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
@@ -274,7 +274,7 @@ public class UnitService {
         }
         // 更新有效期
         unit.getUnitToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));
-        Match match = matchService.findByMatchId(unit.getMatchId(), false, null);
+        Match match = matchService.findByMatchId(unit.getMatchId(), false, null, null);
         notificationService.sendNotificationToMultipleUsers(
                 Arrays.asList(invitedUserIds),
                 user.getUserId(),

@@ -5,6 +5,7 @@ import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.common.util.TimeUtil;
 import cn.edu.tsinghua.thubp.match.entity.*;
+import cn.edu.tsinghua.thubp.match.enums.MatchStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
 import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
 import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
@@ -48,6 +49,8 @@ public class MatchService {
     public static final String UNITS = "units";
     public static final String UNIT0 = "unit0";
     public static final String UNIT1 = "unit1";
+    public static final String REFEREES = "referees";
+    public static final String STATUS = "status";
     public static final int TOKEN_LENGTH = 6;
     public static final int EXPIRATION_DAYS = 7;
 
@@ -171,6 +174,13 @@ public class MatchService {
         // 自动修改部分属性
         AutoModifyUtil.autoModify(matchModifyRequest, match);
         // 修改属性
+        if (matchModifyRequest.getStatus() != null) {
+            if (matchModifyRequest.getStatus().getOrder() < match.getStatus().getOrder()) {
+                throw new CommonException(MatchErrorCode.MATCH_STATUS_ORDER,
+                        ImmutableMap.of(MATCH_ID, matchId, STATUS, match.getStatus()));
+            }
+            match.setStatus(matchModifyRequest.getStatus());
+        }
         if (matchModifyRequest.getPreview() != null) {
             match.setPreview(
                     new URL(globalConfig.getQiNiuProtocol(), globalConfig.getQiNiuHost(), "/" + matchModifyRequest.getPreview())
@@ -411,11 +421,55 @@ public class MatchService {
         long matchUpdateCount = mongoTemplate.updateFirst(
                 Query.query(new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
-                        Criteria.where("referees").ne(userId)
+                        Criteria.where("referees").not().all(userId),
+                        Criteria.where("participants").not().all(userId)
                 )),
                 new Update().push("referees", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {
-            throw new CommonException(MatchErrorCode.MATCH_ALREADY_REFEREE, ImmutableMap.of(MATCH_ID, matchId));
+            throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, matchId));
+        }
+    }
+
+    /**
+     * 删除裁判.
+     * @param userId 用户 ID
+     * @param matchId 赛事 ID
+     * @param refereeDeleteRequest 删除裁判的请求
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void dropReferees(String userId, String matchId, RefereeDeleteRequest refereeDeleteRequest) {
+        Match match = findByMatchId(matchId, false, null);
+        // check status of match
+        if (match.getStatus() != MatchStatus.PREPARE) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        if (!match.getOrganizerUserId().equals(userId)) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, USER_ID, userId));
+        }
+        long matchUpdateCount = mongoTemplate.updateFirst(
+                Query.query(new Criteria().andOperator(
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("organizerUserId").is(userId),
+                        Criteria.where("referees").all(refereeDeleteRequest.getReferees())
+                )),
+                new Update().pullAll("referees", refereeDeleteRequest.getReferees().toArray()),
+                Match.class).getModifiedCount();
+        if (matchUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_REFEREE_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, REFEREES, refereeDeleteRequest.getReferees())
+            );
+        }
+        // 删除裁判参加的比赛
+        long userUpdateCount = mongoTemplate.updateMulti(
+                Query.query(new Criteria().andOperator(
+                        Criteria.where("userId").in(refereeDeleteRequest.getReferees()),
+                        Criteria.where("participatedMatches").all(matchId)
+                )),
+                new Update().pull("participatedMatches", matchId), User.class).getModifiedCount();
+        if (userUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_PARTICIPANT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, USERS, refereeDeleteRequest.getReferees()));
         }
     }
 

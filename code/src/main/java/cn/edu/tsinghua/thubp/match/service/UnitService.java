@@ -17,10 +17,8 @@ import cn.edu.tsinghua.thubp.web.request.UnitModifyRequest;
 import cn.edu.tsinghua.thubp.web.request.UnitParticipateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,7 +31,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -48,6 +45,7 @@ public class UnitService {
     public static final String UNITS = "units";
     public static final String UNIT0 = "unit0";
     public static final String UNIT1 = "unit1";
+    public static final String STATUS = "status";
     public static final int TOKEN_LENGTH = 6;
     public static final int EXPIRATION_DAYS = 7;
 
@@ -69,6 +67,7 @@ public class UnitService {
     public String registerIn(User user, String matchId, MatchRegisterRequest matchRegisterRequest) {
         // 排除 match 不存在的情况
         // 若赛事非公开报名且邀请码错误，同时也排除
+        // 只允许在 PREPARE 阶段
         Match match = mongoTemplate.findOne(Query.query(
                 new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
@@ -77,6 +76,10 @@ public class UnitService {
         ), Match.class);
         if (match == null) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        if (match.getStatus() != MatchStatus.PREPARE) {
+            throw new CommonException(MatchErrorCode.MATCH_STATUS_ORDER,
+                    ImmutableMap.of(MATCH_ID, matchId, STATUS, match.getStatus()));
         }
         if (!match.getPublicSignUp()) {
             if (match.getMatchToken() == null) {
@@ -199,7 +202,7 @@ public class UnitService {
         Match match = matchService.findByMatchId(matchId, false, null, null);
         // check status of match
         if (checkStatus && match.getStatus() != MatchStatus.PREPARE) {
-            throw new CommonException(MatchErrorCode.UNIT_DELETE_MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
+            throw new CommonException(MatchErrorCode.MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
         }
         // delete unit
         Unit unit = findByUnitId(unitId);

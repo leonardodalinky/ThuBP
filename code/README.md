@@ -1,4 +1,5 @@
 # 清球汇后端说明
+[![Build Status](https://www.travis-ci.com/leonardodalinky/ThuBP-backend.svg?branch=dev)](https://www.travis-ci.com/leonardodalinky/ThuBP-backend) [![Coverage Status](https://coveralls.io/repos/github/leonardodalinky/ThuBP-backend/badge.svg)](https://coveralls.io/github/leonardodalinky/ThuBP-backend)
 
 ## 部署环境
 

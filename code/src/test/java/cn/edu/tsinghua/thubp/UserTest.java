@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class UserTestSuite {
+class UserTest {
 
     @Autowired
     private TestRestTemplate restTemplate;

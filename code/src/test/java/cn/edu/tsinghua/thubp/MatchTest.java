@@ -33,7 +33,7 @@ import java.util.Date;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class MatchTestSuite {
+class MatchTest {
 
     @Autowired
     private TestRestTemplate restTemplate;

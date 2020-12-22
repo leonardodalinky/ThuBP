@@ -35,7 +35,7 @@ public class UploadController {
     public UploadResponse upload(@RequestBody @Valid UploadRequest uploadRequest) {
         // 如果图床服务未开启，则返回空 token
         if (!globalConfig.isQiNiuEnable()) {
-            return new UploadResponse("Unable", "Unable_" + new Date().getTime() + ".bug");
+            return new UploadResponse("Unable", "Unable_" + new Date().getTime() + uploadRequest.getSuffix() + ".bug");
         }
         UploadType uploadType = uploadRequest.getUploadType();
         // 此处可以限制一个人不能短时间传太多次？但现阶段不加入。

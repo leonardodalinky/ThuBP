@@ -2,11 +2,9 @@ package cn.edu.tsinghua.thubp;
 
 import cn.edu.tsinghua.thubp.security.constant.SecurityConstant;
 import cn.edu.tsinghua.thubp.security.dto.LoginRequest;
-import cn.edu.tsinghua.thubp.user.enums.Gender;
 import cn.edu.tsinghua.thubp.web.controller.AdminController;
-import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
-import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import cn.edu.tsinghua.thubp.web.request.MatchCreateRequest;
+import cn.edu.tsinghua.thubp.web.response.MatchCreateResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -23,15 +21,18 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.Instant;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class UserTest {
-
+public class BulletinTest {
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private TestUtil testUtil;
     @Autowired
     private AdminController adminController;
 
@@ -62,24 +63,44 @@ class UserTest {
 
     @Test
     @Order(2)
-    void 重置数据库_copy() {
-        assertThat(this.restTemplate.getForObject("/api/v1/admin/reset", String.class)
-                .contains("ok")).isTrue();
+    void 创建赛事_公开1() {
+        /*
+          {
+            "name": "测试赛事1",
+            "description": "测试赛事描述1",
+            "matchTypeId": "tennis",
+            "targetGroup": "软院1",
+            "startTime": "2020-11-26T14:24:39.840Z",
+            "preview": "MATCH_PREVIEW_1_123.jpg",
+            "minUnitMember": 1,
+            "maxUnitMember": 6,
+            "publicSignUp": true,
+            "publicShowUp": true
+          }
+         */
+        MatchCreateRequest request = MatchCreateRequest.builder()
+                .name("测试赛事1")
+                .description("测试赛事描述1")
+                .matchTypeId("tennis")
+                .targetGroup("软院1")
+                .startTime(Instant.parse("2020-11-26T14:24:39.840Z"))
+                .preview("MATCH_PREVIEW_1_123.jpg")
+                .minUnitMember(1)
+                .maxUnitMember(6)
+                .publicSignUp(true)
+                .publicShowUp(true)
+                .build();
+        assertThat(testUtil.saveResponse("创建赛事_公开1",
+                this.restTemplate.postForObject("/api/v1/match", request, MatchCreateResponse.class)
+        ).getMessage().equals("ok")).isTrue();
     }
 
     @Test
     @Order(3)
-    void 个人信息() {
-        UserInfoResponse response = restTemplate.getForObject("/api/v1/user/info", UserInfoResponse.class);
-        assertThat(response.getMessage()).isEqualTo("ok");
-    }
-
-    @Test
-    @Order(4)
     @SneakyThrows
-    void 查找用户_root1() {
+    void 查询公告版() {
         ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/graphql?query={query}", String.class,
-                ImmutableMap.of("query", "query { findUserById(userIds: [\"1\"]) { gender mobile createdAt organizedMatches {matchId name} organizedMatchSize } }"));
+                ImmutableMap.of("query", "query {  getBulletin { preview previewLarge matchId } }"));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         final String res = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -87,49 +108,5 @@ class UserTest {
         JsonNode data = root.get("data");
         assertThat(data).isNotNull();
         assertThat(data.isNull()).isFalse();
-    }
-
-    @Test
-    @Order(5)
-    @SneakyThrows
-    void 查找用户_root2() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/graphql?query={query}", String.class,
-                ImmutableMap.of("query", "query {  findUserByFuzzy(username: \"oo\") {   gender  username mobile  } }"));
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        final String res = response.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree(res);
-        JsonNode data = root.get("data");
-        assertThat(data).isNotNull();
-        assertThat(data.isNull()).isFalse();
-    }
-
-    @Test
-    @Order(6)
-    @SneakyThrows
-    void 修改个人信息() {
-        UserUpdateRequest request = new UserUpdateRequest();
-        request.setGender(Gender.FEMALE);
-        request.setMobile("99999999999");
-        request.setDescription("tired");
-        ResponseEntity<String> response = restTemplate.postForEntity("/api/v1/user/info", request, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    @Order(7)
-    @SneakyThrows
-    void 修改个人信息_全空() {
-        UserUpdateRequest request = new UserUpdateRequest();
-        ResponseEntity<String> response = restTemplate.postForEntity("/api/v1/user/info", request, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    @Order(8)
-    @SneakyThrows
-    void 获得所有的用户_管理员() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/admin/users", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

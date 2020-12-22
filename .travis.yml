@@ -6,3 +6,5 @@ services:
 before_install: cd code
 before_script:
   - sleep 15
+after_success:
+  - mvn clean cobertura:cobertura coveralls:report

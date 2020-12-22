@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InviteRefereesResponse extends SimpleResponse {
+public class InviteResponse extends SimpleResponse {
     @ApiModelProperty(value = "成功发送的用户 ID", required = true)
     private List<String> userIds;
 }

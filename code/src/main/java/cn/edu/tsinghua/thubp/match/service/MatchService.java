@@ -372,6 +372,42 @@ public class MatchService {
     }
 
     /**
+     * 邀请用户成为裁判，给受邀请者发送私信.
+     * @param sender 发送者
+     * @param userIds 用户 ID 列表
+     * @param matchId 赛事 ID
+     * @return 成功发送出去的用户 ID 列表
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public List<String> sendMatchInvitations(User sender, List<String> userIds, String matchId) {
+        // 检验比赛存在
+        Match match = mongoTemplate.findOne(Query.query(Criteria.where("matchId").is(matchId)), Match.class);
+        if (match == null) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // 检查邀请码
+        if (match.getMatchToken() == null
+                || match.getMatchToken().getExpirationTime().toEpochMilli() < Instant.now().toEpochMilli()) {
+            // 邀请码失效，重新生成一个
+            match.setMatchToken(assignMatchToken(sender.getUserId(), matchId));
+        }
+        // 更新邀请码有效期
+        match.getMatchToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));
+        return notificationService.sendNotificationToMultipleUsers(userIds, SYSTEM_ID,
+                MatchMessageConstant.INVITE_MATCH_NOTIFICATION_TITLE
+                        .replace("{inviter}", sender.getUsername())
+                        .replace("{match}", match.getName()),
+                MatchMessageConstant.INVITE_MATCH_NOTIFICATION_CONTENT
+                        .replace("{inviter}", sender.getUsername())
+                        .replace("{match}", match.getName()),
+                NotificationTag.MATCH_INVITE,
+                ImmutableMap.of("token", match.getMatchToken().getToken(),
+                        "expirationTime", match.getMatchToken().getExpirationTime(),
+                        "matchId", matchId)
+        );
+    }
+
+    /**
      * 签发一个裁判邀请码. 这会导致之前的邀请码失效.
      * @param userId 用户 ID
      * @param matchId 赛事 ID.
@@ -422,7 +458,7 @@ public class MatchService {
                 Query.query(new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("referees").not().all(userId),
-                        Criteria.where("participants").not().all(userId)
+                        Criteria.where("participants").all(userId)
                 )),
                 new Update().push("referees", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {

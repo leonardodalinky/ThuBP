@@ -9,4 +9,8 @@ public class MatchMessageConstant {
             "{inviter} 邀请你参加 {match} 比赛 {unit} 小组";
     public static final String INVITE_UNIT_NOTIFICATION_CONTENT =
             "{inviter} 邀请你参加 {match} 比赛 {unit} 小组。";
+    public static final String INVITE_MATCH_NOTIFICATION_TITLE =
+            "{inviter} 邀请你参加 {match} 比赛";
+    public static final String INVITE_MATCH_NOTIFICATION_CONTENT =
+            "{inviter} 邀请你参加 {match} 比赛。";
 }

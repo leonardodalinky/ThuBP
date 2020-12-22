@@ -189,17 +189,30 @@ public class MatchController {
         return new SimpleResponse(SimpleResponse.OK);
     }
 
+    @ApiOperation(value = "邀请参加比赛", tags = SwaggerTagUtil.MATCH_MANAGE)
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/match/invite-match/{matchId}", method = RequestMethod.POST)
+    public InviteResponse inviteMatch(@PathVariable String matchId,
+                                      @RequestBody @Valid MatchInviteRequest matchInviteRequest) {
+        User user = currentUserService.getUser();
+        List<String> userIds = matchService.sendMatchInvitations(user, matchInviteRequest.getUserIds(), matchId);
+        return new InviteResponse(userIds);
+    }
+
     @ApiOperation(value = "邀请成为裁判", tags = SwaggerTagUtil.MATCH_MANAGE)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class)
     )
     @ResponseBody
     @RequestMapping(value = "/match/invite-referees/{matchId}", method = RequestMethod.POST)
-    public InviteRefereesResponse inviteReferees(@PathVariable String matchId,
-                                                 @RequestBody @Valid InviteRefereesRequest inviteRefereesRequest) {
+    public InviteResponse inviteReferees(@PathVariable String matchId,
+                                         @RequestBody @Valid InviteRefereesRequest inviteRefereesRequest) {
         User user = currentUserService.getUser();
         List<String> userIds = matchService.sendRefereeInvitations(user, inviteRefereesRequest.getUserIds(), matchId);
-        return new InviteRefereesResponse(userIds);
+        return new InviteResponse(userIds);
     }
 
     @ApiOperation(value = "签发裁判邀请码", tags = SwaggerTagUtil.MATCH_MANAGE)

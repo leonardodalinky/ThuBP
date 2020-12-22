@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnitInviteRequest {
+public class MatchInviteRequest {
     @ApiModelProperty(value = "邀请的人员 ID", required = true)
     @javax.validation.constraints.NotBlank
     private List<String> userIds;

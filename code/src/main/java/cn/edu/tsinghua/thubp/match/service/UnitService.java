@@ -265,7 +265,7 @@ public class UnitService {
      * @param unitId 参赛单位 ID
      * @param invitedUserIds 被邀请的用户 ID
      */
-    public void inviteMembers(User user, String unitId, String[] invitedUserIds) {
+    public void inviteMembers(User user, String unitId, List<String> invitedUserIds) {
         Unit unit = findByUnitId(unitId);
         // 检验参赛单位的操作权限
         if (!unit.getCreatorId().equals(user.getUserId())) {
@@ -280,7 +280,7 @@ public class UnitService {
         unit.getUnitToken().setExpirationTime(Instant.ofEpochMilli(TimeUtil.getFutureTimeMillisByDays(EXPIRATION_DAYS)));
         Match match = matchService.findByMatchId(unit.getMatchId(), false, null, null);
         notificationService.sendNotificationToMultipleUsers(
-                Arrays.asList(invitedUserIds),
+                invitedUserIds,
                 user.getUserId(),
                 MatchMessageConstant.INVITE_UNIT_NOTIFICATION_TITLE
                         .replace("{inviter}", user.getUsername())

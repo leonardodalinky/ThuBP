@@ -1,6 +1,6 @@
 # ThuBP-backend
 
-![Build Status](https://www.travis-ci.com/leonardodalinky/ThuBP-backend.svg?branch=dev) [![Coverage Status](https://coveralls.io/repos/github/leonardodalinky/ThuBP-backend/badge.svg)](https://coveralls.io/github/leonardodalinky/ThuBP-backend)
+![License](https://img.shields.io/github/license/leonardodalinky/ThuBP-backend?color=blue) ![Build Status](https://www.travis-ci.com/leonardodalinky/ThuBP-backend.svg?branch=dev) [![Coverage Status](https://coveralls.io/repos/github/leonardodalinky/ThuBP-backend/badge.svg)](https://coveralls.io/github/leonardodalinky/ThuBP-backend) ![Top Language](https://img.shields.io/github/languages/top/leonardodalinky/ThuBP-backend) ![Code Quality](https://img.shields.io/codacy/grade/8a8f274cab3d490799aa164133a3ba01) ![Total Line](https://img.shields.io/tokei/lines/github/leonardodalinky/ThuBP-backend)
 
 ## 部署环境
 

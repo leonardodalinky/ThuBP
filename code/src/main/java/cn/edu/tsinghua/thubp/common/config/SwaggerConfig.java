@@ -19,16 +19,20 @@ import java.util.ArrayList;
 
 import static springfox.documentation.builders.PathSelectors.regex;
 
-@Profile("dev")
+//@Profile("dev")
 @Configuration
 @EnableSwagger2
 @Slf4j
 public class SwaggerConfig {
     @Value("${server.port}")
     private Long port;
+    @Value("${springfox.documentation.enabled}")
+    private boolean enable;
 
     @Bean
     public Docket api() throws MalformedURLException {
+        if (!enable)
+            return new Docket(DocumentationType.SWAGGER_2);
         log.info("生成 Swagger2 文档");
         URL url = new URL("http", "0.0.0.0", port.intValue(), "/swagger-ui/");
         URL localUrl = new URL("http", "localhost", port.intValue(), "/swagger-ui/");

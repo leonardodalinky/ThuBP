@@ -29,6 +29,6 @@ public class UnitResolver implements GraphQLResolver<Unit> {
     }
 
     public Match match(Unit unit) {
-        return matchService.findByMatchId(unit.getMatchId(), true, currentUserService.getUserId());
+        return matchService.findByMatchId(unit.getMatchId(), true, currentUserService.getUserId(), null);
     }
 }

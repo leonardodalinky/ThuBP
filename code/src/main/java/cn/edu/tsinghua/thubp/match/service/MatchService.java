@@ -438,7 +438,7 @@ public class MatchService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void dropReferees(String userId, String matchId, RefereeDeleteRequest refereeDeleteRequest) {
-        Match match = findByMatchId(matchId, false, null);
+        Match match = findByMatchId(matchId, false, null, null);
         // check status of match
         if (match.getStatus() != MatchStatus.PREPARE) {
             throw new CommonException(MatchErrorCode.MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));

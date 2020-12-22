@@ -9,8 +9,8 @@ import java.net.URL;
 import java.time.Instant;
 
 @Component
-public class URLDate extends GraphQLScalarType {
-    public URLDate() {
+public class ScalarURL extends GraphQLScalarType {
+    public ScalarURL() {
         //noinspection rawtypes
         super("URL", "Scalar URL", new Coercing() {
             @Override

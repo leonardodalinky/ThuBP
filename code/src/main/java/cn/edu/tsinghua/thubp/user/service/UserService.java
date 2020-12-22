@@ -1,7 +1,5 @@
 package cn.edu.tsinghua.thubp.user.service;
 
-//import cn.edu.tsinghua.thubp.user.entity.Role;
-
 import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.user.entity.User;
@@ -16,14 +14,12 @@ import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,7 +106,7 @@ public class UserService {
                 .orElseThrow(() -> new UserThuIdNotFoundException(ImmutableMap.of(THUID, thuId)));
     }
 
-    public User findByUserId(String userId) {
+    public User findByUserId(@NotNull String userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(ImmutableMap.of(THUID, userId)));
     }
@@ -124,12 +120,11 @@ public class UserService {
      * @param userIds userId 的列表
      * @return User 的列表
      */
-    public List<User> findByUserIdIn(List<String> userIds) {
+    public List<User> findByUserIdIn(@NotNull List<String> userIds) {
         return userRepository.findByUserIdIn(userIds);
     }
 
     public void update(User user, UserUpdateRequest userUpdateRequest) throws MalformedURLException {
-        Update update = new Update();
         // 自动修改部份属性
         AutoModifyUtil.autoModify(userUpdateRequest, user);
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {

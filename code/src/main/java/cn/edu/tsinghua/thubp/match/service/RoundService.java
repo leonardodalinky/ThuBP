@@ -22,6 +22,7 @@ import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -267,7 +268,7 @@ public class RoundService {
      * @param roundId round id
      * @return Round
      */
-    public Round findByRoundId(String roundId) {
+    public Round findByRoundId(@NotNull String roundId) {
         Round ret = mongoTemplate.findOne(Query.query(
                 Criteria.where("roundId").is(roundId)
         ), Round.class);
@@ -282,7 +283,7 @@ public class RoundService {
      * @param roundIds roundId 的列表
      * @return Round 列表
      */
-    public List<Round> findByRoundIds(List<String> roundIds) {
+    public List<Round> findByRoundIds(@NotNull List<String> roundIds) {
         List<Round> ret = mongoTemplate.find(Query.query(
                 Criteria.where("roundId").in(roundIds)
         ), Round.class);

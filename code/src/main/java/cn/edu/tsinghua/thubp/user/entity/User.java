@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import javax.validation.constraints.NotNull;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,20 +95,24 @@ public class User extends AuditBase implements ModifiableTarget {
     @org.jetbrains.annotations.Nullable
     private String email;
 
-    @org.jetbrains.annotations.Nullable
-    private List<String> organizedMatches;
+    @NotNull
+    @Builder.Default
+    private List<String> organizedMatches = new ArrayList<>();
 
-    @org.jetbrains.annotations.Nullable
-    private List<String> participatedMatches;
+    @NotNull
+    @Builder.Default
+    private List<String> participatedMatches = new ArrayList<>();
 
-    @org.jetbrains.annotations.Nullable
-    private List<String> participatedUnits;
+    @NotNull
+    @Builder.Default
+    private List<String> participatedUnits = new ArrayList<>();
 
     @NonNull
     @Builder.Default
     private Integer unreadNotificationCount = 0;
-    @org.jetbrains.annotations.Nullable
-    private List<String> notifications;
+    @NotNull
+    @Builder.Default
+    private List<String> notifications = new ArrayList<>();
 
     public List<SimpleGrantedAuthority> getRoles() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

@@ -16,6 +16,7 @@ import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -274,7 +275,7 @@ public class GameService {
      * @param gameId game id
      * @return Game
      */
-    public Game findByGameId(String gameId) {
+    public Game findByGameId(@NotNull String gameId) {
         Game ret = mongoTemplate.findOne(Query.query(
                 Criteria.where("gameId").is(gameId)
         ), Game.class);
@@ -290,7 +291,7 @@ public class GameService {
      * @param gameIds gameId 的列表
      * @return Game 列表
      */
-    public List<Game> findByGameIds(List<String> gameIds) {
+    public List<Game> findByGameIds(@NotNull List<String> gameIds) {
         List<Game> ret = mongoTemplate.find(Query.query(
                 Criteria.where("gameId").in(gameIds)
         ), Game.class);

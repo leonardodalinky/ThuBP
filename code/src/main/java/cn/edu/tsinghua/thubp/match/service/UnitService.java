@@ -19,6 +19,7 @@ import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -332,7 +333,7 @@ public class UnitService {
      * @param unitId unit id
      * @return Unit
      */
-    public Unit findByUnitId(String unitId) {
+    public Unit findByUnitId(@NotNull String unitId) {
         Unit ret = mongoTemplate.findOne(Query.query(
                 Criteria.where("unitId").is(unitId)
         ), Unit.class);
@@ -347,7 +348,7 @@ public class UnitService {
      * @param unitIds unitId 的列表
      * @return Unit 列表
      */
-    public List<Unit> findByUnitIds(List<String> unitIds) {
+    public List<Unit> findByUnitIds(@NotNull List<String> unitIds) {
         List<Unit> ret = mongoTemplate.find(Query.query(
                 Criteria.where("unitId").in(unitIds)
         ), Unit.class);

@@ -18,6 +18,7 @@ import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -220,7 +221,7 @@ public class MatchService {
      * @param matchToken 查询者提供的 match token
      * @return 对应的赛事
      */
-    public Match findByMatchId(String matchId, boolean needPublicShow, @Nullable String userId, @Nullable String matchToken) {
+    public Match findByMatchId(@NotNull String matchId, boolean needPublicShow, @Nullable String userId, @Nullable String matchToken) {
         Match match;
         if (!needPublicShow) {
             match = mongoTemplate.findOne(Query.query(
@@ -257,9 +258,8 @@ public class MatchService {
      * @param userId 查询者 ID，可为空，配合 {@code needPublicShow} 使用
      * @return 对应的赛事列表
      */
-    public List<Match> findMatchesByMatchIds(List<String> matchIds, @Nullable Pageable pageable,
+    public List<Match> findMatchesByMatchIds(@NotNull List<String> matchIds, @Nullable Pageable pageable,
                                              boolean needPublicShow, @Nullable String userId) {
-        Match match;
         if (!needPublicShow) {
             if (pageable != null) {
                 return mongoTemplate.find(Query.query(

@@ -21,10 +21,12 @@ public class UserResolver implements GraphQLResolver<User> {
     private final MatchService matchService;
 
     public List<Match> organizedMatches(User user, Integer page, Integer pageSize) {
+        if (user.getOrganizedMatches() == null) return null;
         return matchService.findMatchesByMatchIds(user.getOrganizedMatches(), PageRequest.of(page, pageSize), false, null);
     }
 
     public List<Match> participatedMatches(User user, Integer page, Integer pageSize) {
+        if (user.getParticipatedMatches() == null) return null;
         return matchService.findMatchesByMatchIds(user.getParticipatedMatches(), PageRequest.of(page, pageSize), false, null);
     }
 

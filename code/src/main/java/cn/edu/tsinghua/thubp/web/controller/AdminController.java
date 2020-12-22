@@ -81,6 +81,30 @@ public class AdminController {
     @RequestMapping(value = "/admin/reset", method = RequestMethod.GET)
     @PreAuthorize("hasAnyRole('ROOT')")
     public SimpleResponse reset() {
+        _resetDatabase();
+        return new SimpleResponse(SimpleResponse.OK);
+    }
+
+    @ApiOperation(value = "发送系统通知", tags = {SwaggerTagUtil.ROOT})
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "userId", value = "用户 ID", required = true, dataTypeClass = String.class)
+    )
+    @ResponseBody
+    @RequestMapping(value = "/admin/{userId}/notification", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyRole('ROOT')")
+    public SendNotificationResponse sendNotification(@PathVariable String userId,
+                                           @RequestBody @Valid SendNotificationRequest sendNotificationRequest) {
+        String notificationId = notificationService.sendNotificationFromSystem(
+                userId,
+                sendNotificationRequest.getTitle(),
+                sendNotificationRequest.getContent(),
+                sendNotificationRequest.getTag(),
+                sendNotificationRequest.getExtra()
+        );
+        return new SendNotificationResponse(notificationId);
+    }
+
+    public void _resetDatabase() {
         // 重置数据库
         log.info("清空数据库");
         for (String name: mongoTemplate.getCollectionNames()) {
@@ -106,25 +130,5 @@ public class AdminController {
                     .build();
             userRepository.save(user);
         }
-        return new SimpleResponse(SimpleResponse.OK);
-    }
-
-    @ApiOperation(value = "发送系统通知", tags = {SwaggerTagUtil.ROOT})
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "userId", value = "用户 ID", required = true, dataTypeClass = String.class)
-    )
-    @ResponseBody
-    @RequestMapping(value = "/admin/{userId}/notification", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyRole('ROOT')")
-    public SendNotificationResponse sendNotification(@PathVariable String userId,
-                                           @RequestBody @Valid SendNotificationRequest sendNotificationRequest) {
-        String notificationId = notificationService.sendNotificationFromSystem(
-                userId,
-                sendNotificationRequest.getTitle(),
-                sendNotificationRequest.getContent(),
-                sendNotificationRequest.getTag(),
-                sendNotificationRequest.getExtra()
-        );
-        return new SendNotificationResponse(notificationId);
     }
 }

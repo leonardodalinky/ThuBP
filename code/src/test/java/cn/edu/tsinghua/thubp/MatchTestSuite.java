@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import cn.edu.tsinghua.thubp.security.constant.SecurityConstant;
 import cn.edu.tsinghua.thubp.security.dto.LoginRequest;
+import cn.edu.tsinghua.thubp.web.controller.AdminController;
 import cn.edu.tsinghua.thubp.web.request.MatchCreateRequest;
 import cn.edu.tsinghua.thubp.web.request.MatchModifyRequest;
 import cn.edu.tsinghua.thubp.web.request.MatchRegisterRequest;
@@ -38,9 +39,17 @@ class MatchTestSuite {
     private TestRestTemplate restTemplate;
     @Autowired
     private TestUtil testUtil;
+    @Autowired
+    private AdminController adminController;
 
     @Test
     @Order(0)
+    void resetDatabase() {
+        adminController._resetDatabase();
+    }
+
+    @Test
+    @Order(1)
     void 登录() {
         LoginRequest loginRequest = new LoginRequest(
                 "2018000000",
@@ -56,12 +65,6 @@ class MatchTestSuite {
                     return execution.execute(request, body);
                 }));
         assertThat(auth).isNotNull();
-    }
-
-    @Test
-    @Order(1)
-    void 重置数据库_copy() {
-        assertThat(this.restTemplate.getForObject("/api/v1/admin/reset", SimpleResponse.class).getMessage().equals("ok")).isTrue();
     }
 
     @Test

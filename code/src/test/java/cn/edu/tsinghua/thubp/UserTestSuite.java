@@ -3,9 +3,8 @@ package cn.edu.tsinghua.thubp;
 import cn.edu.tsinghua.thubp.security.constant.SecurityConstant;
 import cn.edu.tsinghua.thubp.security.dto.LoginRequest;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
+import cn.edu.tsinghua.thubp.web.controller.AdminController;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
-import cn.edu.tsinghua.thubp.web.response.LoginResponse;
-import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,9 +31,17 @@ class UserTestSuite {
 
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private AdminController adminController;
 
     @Test
     @Order(0)
+    void resetDatabase() {
+        adminController._resetDatabase();
+    }
+
+    @Test
+    @Order(1)
     void 登录() {
         LoginRequest loginRequest = new LoginRequest(
                 "2018000000",

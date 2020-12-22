@@ -2,12 +2,13 @@ package cn.edu.tsinghua.thubp.web.graphql.query;
 
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.service.UserService;
+import cn.edu.tsinghua.thubp.web.graphql.misc.PagedMatchList;
+import cn.edu.tsinghua.thubp.web.graphql.misc.PagedUserList;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,12 +19,17 @@ public class UserQueryResolver implements GraphQLQueryResolver {
 
     private final UserService userService;
 
-    public List<User> findUserByFuzzy(String username, Integer page, Integer pageSize) {
+    public PagedUserList findUserByFuzzy(String username, Integer page, Integer pageSize) {
         Page<User> userPage = userService.findAllByUsernameRegex(
                 ".*" + username + ".*",
                 PageRequest.of(page, pageSize)
         );
-        return userPage.getContent();
+        return PagedUserList.builder()
+                .page(userPage.getNumber())
+                .pageSize(userPage.getNumberOfElements())
+                .totalSize((int)userPage.getTotalElements())
+                .list(userPage.getContent())
+                .build();
     }
 
     public List<User> findUserById(List<String> userIds) {

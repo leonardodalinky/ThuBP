@@ -13,6 +13,7 @@ import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.plugin.PluginRegistryService;
 import cn.edu.tsinghua.thubp.plugin.exception.PluginErrorCode;
 import cn.edu.tsinghua.thubp.user.entity.User;
+import cn.edu.tsinghua.thubp.web.graphql.misc.PagedMatchList;
 import cn.edu.tsinghua.thubp.web.request.*;
 import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import cn.edu.tsinghua.thubp.web.service.TokenGeneratorService;
@@ -312,27 +313,34 @@ public class MatchService {
      * @param userId 查询者 ID，可为空，配合 {@code needPublicShow} 使用
      * @return 查询到的比赛
      */
-    public List<Match> findAllByMatchTypeIdIn(List<String> matchTypeIds, Pageable pageable,
-                                              boolean needPublicShow, @Nullable String userId) {
+    public PagedMatchList findAllByMatchTypeIdIn(List<String> matchTypeIds, Pageable pageable,
+                                                        boolean needPublicShow, @Nullable String userId) {
+        Criteria criteria;
         if (!needPublicShow) {
-            return mongoTemplate.find(Query.query(
-                    new Criteria().andOperator(
-                            Criteria.where("matchTypeId").in(matchTypeIds)
-                    )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
-                    Match.class);
+            criteria = new Criteria().andOperator(
+                    Criteria.where("matchTypeId").in(matchTypeIds)
+            );
+
         } else {
-            return mongoTemplate.find(Query.query(
-                    new Criteria().andOperator(
-                            Criteria.where("matchTypeId").in(matchTypeIds),
-                            new Criteria().orOperator(
-                                    Criteria.where("publicShowUp").is(true),
-                                    Criteria.where("organizerUserId").is(userId),
-                                    Criteria.where("participants").all(userId),
-                                    Criteria.where("referees").all(userId)
-                            )
-                    )).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize()),
-                    Match.class);
+            criteria = new Criteria().andOperator(
+                    Criteria.where("matchTypeId").in(matchTypeIds),
+                    new Criteria().orOperator(
+                            Criteria.where("publicShowUp").is(true),
+                            Criteria.where("organizerUserId").is(userId),
+                            Criteria.where("participants").all(userId),
+                            Criteria.where("referees").all(userId)
+                    )
+            );
         }
+        Query query = Query.query(criteria).skip(pageable.getPageNumber() * pageable.getPageSize()).limit(pageable.getPageSize());
+        int totalSize = (int) mongoTemplate.count(query, Match.class);
+        List<Match> result = mongoTemplate.find(query, Match.class);
+        return PagedMatchList.builder()
+                .page(pageable.getPageNumber())
+                .pageSize(result.size())
+                .totalSize(totalSize)
+                .list(result)
+                .build();
     }
 
     /**

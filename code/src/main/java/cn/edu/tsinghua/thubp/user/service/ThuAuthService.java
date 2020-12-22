@@ -49,7 +49,7 @@ public class ThuAuthService {
             throw new CommonException(UserErrorCode.THUAUTH_RESPONSE_NOT_VALID, ImmutableMap.of(TICKET, ticket));
         }
         String[] values = result.split(":");
-        var builder = ThuAuthResult.builder();
+        ThuAuthResult.ThuAuthResultBuilder builder = ThuAuthResult.builder();
         for (String value : values) {
             String[] kv = value.split("=", 2);
             if (kv.length != 2) {

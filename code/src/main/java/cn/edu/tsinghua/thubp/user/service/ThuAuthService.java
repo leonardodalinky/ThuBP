@@ -17,7 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Objects;
 
 @Service
-@PropertySource(value = "classpath:config/config.properties")
+@PropertySource(value = {"classpath:config/config-template.properties", "classpath:config/config.properties"},
+        ignoreResourceNotFound = true)
 public class ThuAuthService {
     private static final long MAX_LENGTH = 1024;
     public static final String TICKET = "ticket";

@@ -33,6 +33,10 @@ public class UploadController {
     @ResponseBody
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public UploadResponse upload(@RequestBody @Valid UploadRequest uploadRequest) {
+        // 如果图床服务未开启，则返回空 token
+        if (!globalConfig.isQiNiuEnable()) {
+            return new UploadResponse("Unable", "Unable_" + new Date().getTime() + ".bug");
+        }
         UploadType uploadType = uploadRequest.getUploadType();
         // 此处可以限制一个人不能短时间传太多次？但现阶段不加入。
         // 生成文件名

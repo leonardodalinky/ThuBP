@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.web.controller;
 
+import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
 import cn.edu.tsinghua.thubp.common.util.SwaggerTagUtil;
 import cn.edu.tsinghua.thubp.security.service.CurrentUserService;
 import cn.edu.tsinghua.thubp.user.entity.User;
@@ -36,6 +37,7 @@ public class UserController {
     private final CurrentUserService currentUserService;
     @Value("${spring.profiles.active}")
     private String profile;
+    private final GlobalConfig globalConfig;
 
     /*
     * Login 的方法在 Security 里面的 Filter 中被实现，地址为 /api/v1/auth/login，方法为 POST
@@ -53,7 +55,8 @@ public class UserController {
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
     public UserRegisterResponse register(HttpServletRequest request, @RequestBody @Valid UserRegisterRequest userRegisterRequest) {
         String userId;
-        if (Objects.equals(profile, "dev")) {
+        // dev 模式或者未开启清华验证时，使用遗留模式
+        if (Objects.equals(profile, "dev") || !globalConfig.isThuAuthEnable()) {
             userId = userService.saveLegacy(userRegisterRequest);
         } else {
             userId = userService.save(requestService.getClientIP(request).replace(".", "_"), userRegisterRequest);

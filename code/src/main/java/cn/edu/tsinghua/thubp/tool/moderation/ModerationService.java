@@ -26,6 +26,8 @@ import java.util.Collections;
 public class ModerationService {
     @Autowired
     private ModerationClient moderationClient;
+    @Autowired
+    private GlobalConfig globalConfig;
 
     /**
      * 对 {@code text} 进行文本审核
@@ -33,6 +35,11 @@ public class ModerationService {
      * @return {@link cn.edu.tsinghua.thubp.tool.moderation.Result}
      */
     public Result moderate(String text) {
+        // 服务未启用，必定成功
+        if (!globalConfig.isHuaweiEnable()) {
+            return new Result(ResultType.PASS, new Result.ResultInner());
+        }
+        // 初始化请求
         RunTextModerationRequest request = new RunTextModerationRequest().withBody(
                 new TextDetectionReq()
                         .withCategories(Arrays.asList("porn","politics", "ad", "abuse", "contraband", "flood"))

@@ -13,7 +13,8 @@ import java.net.URL;
 
 @Getter
 @Component
-@PropertySource(value = "classpath:config/config.properties")
+@PropertySource(value = {"classpath:config/config-template.properties", "classpath:config/config.properties"},
+        ignoreResourceNotFound = true)
 public class GlobalConfig {
     public static final URL DEFAULT_IMAGE_URL = getDefaultImageUrl();
 
@@ -25,6 +26,8 @@ public class GlobalConfig {
     @Autowired
     private Environment env;
 
+    @Value("${qiniu.enable}")
+    private boolean QiNiuEnable;
     @Value("${qiniu.accesskey}")
     private String QiNiuAccessKey;
     @Value("${qiniu.privatekey}")
@@ -35,6 +38,8 @@ public class GlobalConfig {
     private String QiNiuHost;
     @Value("${qiniu.protocol}")
     private String QiNiuProtocol;
+    @Value("${huawei.enable}")
+    private boolean HuaweiEnable;
     @Value("${huawei.accesskey}")
     private String HuaweiAccessKey;
     @Value("${huawei.privatekey}")
@@ -43,6 +48,9 @@ public class GlobalConfig {
     private String HuaweiProjectId;
     @Value("${huawei.endpoint}")
     private String HuaweiEndPoint;
+
+    @Value("${thuauth.enable}")
+    private boolean ThuAuthEnable;
 
     @Nullable
     public String getEnv(String k) {

@@ -1,5 +1,6 @@
+dist: trusty
 language: java
-jdk: openjdk11
+jdk: oraclejdk8
 services:
   - mongodb
 before_install: cd code

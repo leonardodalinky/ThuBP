@@ -36,3 +36,6 @@ build/
 
 # log
 log/
+
+# config.properties
+config.properties

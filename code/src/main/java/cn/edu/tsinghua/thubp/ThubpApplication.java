@@ -15,6 +15,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.File;
+import java.util.ServiceConfigurationError;
+
 /**
  * SpringBoot 应用启动入口
  * CommandLineRunner 用于生成一个 root 用户
@@ -40,6 +43,11 @@ public class ThubpApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // 检查 properties 文件
+//        if (ThubpApplication.class.getClassLoader().getResource("config/config-template.properties") == null &&
+//                ThubpApplication.class.getClassLoader().getResource("config/config.properties") == null) {
+//            throw new ServiceConfigurationError("运行配置未找到！");
+//        }
         // dev 环境下运行命令
         if (profile.equals("dev")) {
             // 清空数据库

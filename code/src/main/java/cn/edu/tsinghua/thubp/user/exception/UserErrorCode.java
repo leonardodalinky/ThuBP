@@ -15,8 +15,9 @@ public enum UserErrorCode implements ErrorCode {
     OLD_PASSWORD_NOT_PROVIDED(1004, HttpStatus.BAD_REQUEST, "旧密码缺失"),
     OLD_PASSWORD_NOT_VALID(1005, HttpStatus.BAD_REQUEST, "旧密码错误"),
     THUID_ALREADY_EXIST(1006, HttpStatus.BAD_REQUEST, "证件号已经存在"),
-    THUAUTH_RESPONSE_NOT_VALID(1101, HttpStatus.BAD_REQUEST, "清华统一身份验证失败"),
+    THUAUTH_RESPONSE_NOT_VALID(1101, HttpStatus.BAD_REQUEST, "清华身份验证服务器返回异常"),
     THUAUTH_USER_IDENTITY_NOT_VALID(1102, HttpStatus.BAD_REQUEST, "无法识别的清华身份类别"),
+    THUAUTH_NETWORK_ERROR(1103, HttpStatus.BAD_REQUEST, "清华身份验证服务器网络异常"),
     ;
 
 

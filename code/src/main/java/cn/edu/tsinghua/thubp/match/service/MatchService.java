@@ -466,7 +466,7 @@ public class MatchService {
                 Query.query(new Criteria().andOperator(
                         Criteria.where("matchId").is(matchId),
                         Criteria.where("referees").not().all(userId),
-                        Criteria.where("participants").all(userId)
+                        Criteria.where("participants").not().all(userId)
                 )),
                 new Update().push("referees", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {

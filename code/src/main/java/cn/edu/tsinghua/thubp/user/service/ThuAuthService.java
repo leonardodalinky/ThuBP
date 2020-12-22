@@ -91,7 +91,7 @@ public class ThuAuthService {
         try {
             return builder.build();
         } catch (Exception exception) {
-            throw new CommonException(UserErrorCode.THUAUTH_RESPONSE_NOT_VALID, ImmutableMap.of(TICKET, ticket));
+            throw new CommonException(UserErrorCode.THUAUTH_NETWORK_ERROR, ImmutableMap.of(TICKET, ticket));
         }
     }
 }

@@ -61,7 +61,7 @@ public class UploadTest {
         request.setUploadType(UploadType.AVATAR);
         UploadResponse response = restTemplate.postForObject("/api/v1/upload", request, UploadResponse.class);
         assertThat(response).isNotNull();
-        assertThat(response.getKey()).contains(UploadType.AVATAR.getName());
+        assertThat(response.getKey()).isNotEmpty();
         assertThat(response.getUploadToken()).isNotEmpty();
     }
 
@@ -73,7 +73,7 @@ public class UploadTest {
         request.setSuffix("png");
         UploadResponse response = restTemplate.postForObject("/api/v1/upload", request, UploadResponse.class);
         assertThat(response).isNotNull();
-        assertThat(response.getKey()).contains(UploadType.AVATAR.getName()).contains("png");
+        assertThat(response.getKey()).contains("png");
         assertThat(response.getUploadToken()).isNotEmpty();
     }
 }

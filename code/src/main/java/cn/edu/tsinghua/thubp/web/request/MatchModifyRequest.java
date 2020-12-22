@@ -7,6 +7,7 @@ import cn.edu.tsinghua.thubp.web.enums.IUploadType;
 import cn.edu.tsinghua.thubp.web.enums.UploadType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,6 +18,7 @@ import java.time.Instant;
  * 修改赛事的请求
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MatchModifyRequest implements ModifiableSource {

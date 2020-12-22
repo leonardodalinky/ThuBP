@@ -3,12 +3,14 @@ package cn.edu.tsinghua.thubp.web.request;
 import cn.edu.tsinghua.thubp.common.annotation.AutoModify;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchRegisterRequest {

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchRegisterResponse extends SimpleResponse {
-    @ApiModelProperty(value = "参赛单位 Id", required = true)
-    private String unitId;
+public class UserIdResponse extends SimpleResponse {
+    @ApiModelProperty(value = "用户 ID", required = false)
+    private String userId;
 }

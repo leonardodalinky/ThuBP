@@ -2,10 +2,8 @@ package cn.edu.tsinghua.thubp.web.request;
 
 import cn.edu.tsinghua.thubp.common.request.TokenRequestBase;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 成为裁判请求.
@@ -13,5 +11,6 @@ import lombok.NoArgsConstructor;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@SuperBuilder
 @NoArgsConstructor
 public class BecomeRefereeRequest extends TokenRequestBase {}

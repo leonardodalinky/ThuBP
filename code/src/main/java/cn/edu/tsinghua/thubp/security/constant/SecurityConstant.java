@@ -20,6 +20,10 @@ public class SecurityConstant {
      */
     public static final String AUTH_REGISTER_URL = URL_PREFIX_API_V1 + "/auth/register";
     /**
+     * 检查用户名存在性的地址
+     */
+    public static final String AUTH_CHECK_USERNAME_URL = URL_PREFIX_API_V1 + "/user/check";
+    /**
      * 角色的key
      **/
     public static final String ROLE_CLAIMS = "rol";

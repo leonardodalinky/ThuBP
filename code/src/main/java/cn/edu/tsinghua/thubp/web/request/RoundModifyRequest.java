@@ -5,6 +5,7 @@ import cn.edu.tsinghua.thubp.common.intf.ModifiableSource;
 import cn.edu.tsinghua.thubp.match.enums.RoundStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
  * 修改轮次基本信息的请求.
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoundModifyRequest implements ModifiableSource {

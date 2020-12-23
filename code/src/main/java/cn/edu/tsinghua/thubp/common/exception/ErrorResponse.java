@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thubp.common.exception;
 
+import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -12,10 +13,9 @@ import java.util.Map;
 @Getter
 @ToString
 @NoArgsConstructor
-public class ErrorResponse {
+public class ErrorResponse extends SimpleResponse {
     private int code;
     private int status;
-    private String message;
     private String path;
     private Instant timestamp;
     private final HashMap<String, Object> errorDetail = new HashMap<>();
@@ -33,9 +33,9 @@ public class ErrorResponse {
     }
 
     private ErrorResponse(int code, int status, String message, String path, Map<String, Object> errorDetail) {
+        super(message);
         this.code = code;
         this.status = status;
-        this.message = message;
         this.path = path;
         this.timestamp = Instant.now();
         if (!ObjectUtils.isEmpty(errorDetail)) {

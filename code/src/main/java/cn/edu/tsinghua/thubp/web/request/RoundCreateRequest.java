@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thubp.web.request;
 import cn.edu.tsinghua.thubp.match.enums.RoundGameStrategy;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * 创建轮次的请求
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoundCreateRequest {

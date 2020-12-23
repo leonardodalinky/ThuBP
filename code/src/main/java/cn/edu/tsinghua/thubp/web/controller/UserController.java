@@ -8,10 +8,7 @@ import cn.edu.tsinghua.thubp.user.service.UserService;
 import cn.edu.tsinghua.thubp.web.constant.WebConstant;
 import cn.edu.tsinghua.thubp.web.request.UserRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UserUpdateRequest;
-import cn.edu.tsinghua.thubp.web.response.LoginResponse;
-import cn.edu.tsinghua.thubp.web.response.UserInfoResponse;
-import cn.edu.tsinghua.thubp.web.response.SimpleResponse;
-import cn.edu.tsinghua.thubp.web.response.UserRegisterResponse;
+import cn.edu.tsinghua.thubp.web.response.*;
 import cn.edu.tsinghua.thubp.web.service.RequestService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -79,5 +76,16 @@ public class UserController {
         User user = currentUserService.getUser();
         userService.update(user, userUpdateRequest);
         return new SimpleResponse(SimpleResponse.OK);
+    }
+
+    @ApiOperation(value = "按用户名检查用户存在性", tags = SwaggerTagUtil.USERINFO)
+    @ResponseBody
+    @RequestMapping(value = "/user/check", method = RequestMethod.GET)
+    public UserIdResponse findUserByUsername(@RequestParam String username) {
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            return new UserIdResponse(null);
+        }
+        return new UserIdResponse(user.getUserId());
     }
 }

@@ -10,12 +10,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.net.URL;
 import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class MatchInfoResponse extends SimpleResponse {
     @ApiModelProperty(value = "赛事 ID", required = true)

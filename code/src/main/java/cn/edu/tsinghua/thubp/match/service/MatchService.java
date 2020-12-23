@@ -468,7 +468,8 @@ public class MatchService {
                         Criteria.where("referees").not().all(userId),
                         Criteria.where("participants").not().all(userId)
                 )),
-                new Update().push("referees", userId), Match.class).getModifiedCount();
+                new Update().push("referees", userId)
+                            .push("participants", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {
             throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, matchId));
         }

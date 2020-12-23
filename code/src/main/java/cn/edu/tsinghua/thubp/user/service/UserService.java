@@ -139,8 +139,10 @@ public class UserService {
     }
 
     public void update(User user, UserUpdateRequest userUpdateRequest) throws MalformedURLException {
-        // 重名检测
-        checkUsername(userUpdateRequest.getUsername());
+        // 重名检测，除非是原来的名字
+        if (!user.getUsername().equals(userUpdateRequest.getUsername())) {
+            checkUsername(userUpdateRequest.getUsername());
+        }
         // 自动修改部份属性
         AutoModifyUtil.autoModify(userUpdateRequest, user);
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {

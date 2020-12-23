@@ -447,6 +447,7 @@ public class MatchService {
      * @param matchId 赛事 ID.
      * @param userId 用户 ID.
      */
+    @Transactional
     public void becomeRefereeByToken(String userId, String matchId, String token) {
         // 检验比赛存在
         if (!mongoTemplate.exists(Query.query(Criteria.where("matchId").is(matchId)), Match.class)) {
@@ -472,6 +473,17 @@ public class MatchService {
                             .push("participants", userId), Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {
             throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // 更新用户信息
+        long userUpdateCount = mongoTemplate.updateFirst(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("userId").is(userId),
+                        Criteria.where("participatedMatches").not().all(matchId)
+                )
+        ), new Update().push("participatedMatches", matchId), User.class).getModifiedCount();
+        if (userUpdateCount == 0) {
+            throw new CommonException(MatchErrorCode.MATCH_ALREADY_PARTICIPATED,
+                    ImmutableMap.of(MATCH_ID, matchId, USER_ID, userId));
         }
     }
 

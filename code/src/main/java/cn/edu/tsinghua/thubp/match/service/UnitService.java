@@ -12,6 +12,7 @@ import cn.edu.tsinghua.thubp.match.misc.MatchMessageConstant;
 import cn.edu.tsinghua.thubp.notification.enums.NotificationTag;
 import cn.edu.tsinghua.thubp.notification.service.NotificationService;
 import cn.edu.tsinghua.thubp.user.entity.User;
+import cn.edu.tsinghua.thubp.user.exception.UserErrorCode;
 import cn.edu.tsinghua.thubp.web.request.MatchRegisterRequest;
 import cn.edu.tsinghua.thubp.web.request.UnitModifyRequest;
 import cn.edu.tsinghua.thubp.web.request.UnitParticipateRequest;
@@ -192,6 +193,65 @@ public class UnitService {
     }
 
     /**
+     * 删除小队成员，不能包括自身.
+     * @param userId 用户 ID.
+     * @param matchId 赛事 ID.
+     * @param unitId 参赛单位 ID.
+     * @param members 待删除的成员.
+     * @param checkStatus 删除时是否检查赛事状态.
+     */
+    @Transactional
+    public void deleteUnitMembers(String userId, String matchId, String unitId, List<String> members, boolean checkStatus) {
+        // 不可删除自身.
+        if (members.contains(userId)) {
+            // could not delete itself
+            throw new CommonException(MatchErrorCode.UNIT_DELETE_SELF, ImmutableMap.of(USER_ID, userId));
+        }
+        // 校验
+        Unit unit = mongoTemplate.findOne(Query.query(
+                new Criteria().andOperator(
+                        Criteria.where("unitId").is(unitId),
+                        Criteria.where("matchId").is(matchId),
+                        Criteria.where("creatorId").is(userId)
+                )
+        ), Unit.class);
+        if (unit == null) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
+        }
+        // 不可删除多余的人
+        if (!unit.getMembers().containsAll(members)) {
+            throw new CommonException(MatchErrorCode.UNIT_DELETE_NOT_FOUND, ImmutableMap.of(USERS, members));
+        }
+        // 获得比赛
+        Match match = matchService.findByMatchId(matchId, false, null, null);
+        // check status of match
+        if (checkStatus && match.getStatus() != MatchStatus.PREPARE) {
+            throw new CommonException(MatchErrorCode.MATCH_NOT_PREPARE, ImmutableMap.of(MATCH_ID, matchId));
+        }
+        // check permission
+        if (!unit.getCreatorId().equals(userId) && !match.getOrganizerUserId().equals(userId)) {
+            throw new CommonException(MatchErrorCode.UNIT_PERMISSION_DENIED,
+                    ImmutableMap.of(UNIT_ID, unitId, USER_ID, userId));
+        }
+        // 删除 match 中的 unit 成员
+        if (!match.getParticipants().removeAll(members)) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId, USERS, members));
+        }
+        // for now, ignore the return value
+        // 清除每个成员的信息
+        mongoTemplate.updateMulti(Query.query(
+                Criteria.where("userId").in(members)
+        ), new Update().pull("participatedMatches", matchId).pull("participatedUnits", unitId), User.class);
+        // 清除 unit 中的成员
+        if (!unit.getMembers().removeAll(members)) {
+            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
+                    ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId, USERS, members));
+        }
+        mongoTemplate.save(unit);
+    }
+
+    /**
      * 解散参赛单位，仅组长可用，且须在赛事开始前.
      * @param userId 用户 ID.
      * @param matchId 赛事 ID.
@@ -296,36 +356,6 @@ public class UnitService {
                         "matchId", unit.getMatchId(),
                         "unitId", unitId)
         );
-    }
-
-    /**
-     * 删除成员，不包括自身.
-     * @param userId 用户 ID.
-     * @param matchId 赛事 ID.
-     * @param unitId 参赛单位 ID.
-     * @param members 待删除成员 ID，须在小组中且不包括自身。
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteMember(String userId, String matchId, String unitId, List<String> members) {
-        if (members.contains(userId)) {
-            // could not delete itself
-            throw new CommonException(MatchErrorCode.UNIT_DELETE_SELF, ImmutableMap.of(USER_ID, userId));
-        }
-        // 校验
-        Unit unit = mongoTemplate.findOne(Query.query(
-                new Criteria().andOperator(
-                        Criteria.where("unitId").is(unitId),
-                        Criteria.where("matchId").is(matchId),
-                        Criteria.where("creatorId").is(userId)
-                )
-        ), Unit.class);
-        if (unit == null) {
-            throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND, ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId));
-        }
-        if (!unit.getMembers().containsAll(members)) {
-            throw new CommonException(MatchErrorCode.UNIT_DELETE_NOT_FOUND, ImmutableMap.of(USERS, members));
-        }
-        matchService.dropParticipant(matchId, members);
     }
 
     /**

@@ -146,8 +146,8 @@ public class MatchController {
     public SimpleResponse deleteUnitMember(@PathVariable String matchId,
                                            @PathVariable String unitId,
                                            @RequestBody @Valid UnitDeleteMemberRequest unitDeleteMemberRequest) {
-        unitService.deleteMember(currentUserService.getUserId(), matchId, unitId,
-                unitDeleteMemberRequest.getMembers());
+        unitService.deleteUnitMembers(currentUserService.getUserId(), matchId, unitId,
+                unitDeleteMemberRequest.getMembers(), true);
         return new SimpleResponse();
     }
 

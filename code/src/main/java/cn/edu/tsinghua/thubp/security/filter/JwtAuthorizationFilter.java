@@ -67,7 +67,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         String token = authorization.replace(SecurityConstant.TOKEN_PREFIX, "");
         try {
             String userId = JwtTokenUtils.getUserIdByToken(token);
-            logger.info("checking thuId: " + userId);
+//            logger.info("checking userId: " + userId);
             if (!StringUtils.isEmpty(userId)) {
                 // 从数据库重新拿了一遍,避免用户的角色信息有变
                 UserDetails userDetails = userDetailsService.loadUserByUserId(userId);

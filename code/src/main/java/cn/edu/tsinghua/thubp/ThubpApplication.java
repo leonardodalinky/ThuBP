@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.File;
 import java.util.ServiceConfigurationError;
@@ -25,6 +26,7 @@ import java.util.ServiceConfigurationError;
  */
 @Slf4j
 @SpringBootApplication
+//@EnableTransactionManagement
 public class ThubpApplication implements CommandLineRunner {
 
     @Autowired

@@ -7,8 +7,10 @@ import cn.edu.tsinghua.thubp.common.exception.CommonExceptionHandler;
 import cn.edu.tsinghua.thubp.common.exception.ErrorResponse;
 import cn.edu.tsinghua.thubp.match.entity.Game;
 import cn.edu.tsinghua.thubp.match.entity.Unit;
+import cn.edu.tsinghua.thubp.match.enums.GameStatus;
 import cn.edu.tsinghua.thubp.match.enums.RoundStatus;
 import cn.edu.tsinghua.thubp.match.exception.MatchErrorCode;
+import cn.edu.tsinghua.thubp.plugin.GameResult;
 import cn.edu.tsinghua.thubp.security.constant.SecurityConstant;
 import cn.edu.tsinghua.thubp.security.dto.LoginRequest;
 import cn.edu.tsinghua.thubp.user.service.UserService;
@@ -54,7 +56,7 @@ class MatchTest {
     private TestUtil testUtil;
     @Autowired
     private AdminController adminController;
-    
+
     private Map<String, String> emptyMap = new HashMap<String, String>();
 
     @Test
@@ -565,44 +567,129 @@ class MatchTest {
 
     @Test
     @Order(30)
-    void 修改比赛信息() {
-
+    void modifyGame() {
+        // 修改比赛信息
+        String unit0 = testUtil.<MatchRegisterResponse>getResponse("报名赛事_公开").getUnitId();
+        GameModifyRequest request = GameModifyRequest.builder()
+                .status(GameStatus.DRAW)
+                .unit0(unit0)
+                .result(GameResult.builder()
+                        .rounds(ImmutableList.of(
+                                new GameResult.GameRoundResult(15, 40),
+                                new GameResult.GameRoundResult(40, 0)
+                        ))
+                        .result(new GameResult.GameFinalResult(2, 1, 1))
+                        .build())
+                .build();
+        SimpleResponse response = this.restTemplate.postForObject("/api/v1/match/{matchId}/round/{roundId}/game/{gameId}",
+                request, SimpleResponse.class,
+                testUtil.<MatchCreateResponse>getResponse("创建赛事_公开1").getMatchId(),
+                testUtil.<RoundCreateResponse>getResponse("创建轮次_公开_自定义").getRoundId(),
+                testUtil.<GameCreateResponse>getResponse("轮次中增加比赛_公开2").getGameId()
+        );
+        assertThat(response.getMessage().equals("ok")).isTrue();
     }
 
     @Test
     @Order(31)
-    void 获取轮次信息() {
-
+    void fetchRoundInfo() throws JsonProcessingException {
+        // 获取轮次信息
+        ResponseEntity<String> response = this.restTemplate.getForEntity("/api/v1/graphql?query={query}", String.class,
+                ImmutableMap.of("query", "query { findRoundById(roundId: \"" +
+                        testUtil.<RoundCreateResponse>getResponse("创建轮次_公开_自定义").getRoundId() +
+                        "\") {roundId tag name description status units { unitId } games { gameId startTime location " +
+                        "referee { userId } } createdAt } }"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final String res = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(res);
+        JsonNode data = root.get("data");
+        assertThat(data).isNotNull();
+        assertThat(data.isNull()).isFalse();
     }
 
     @Test
     @Order(32)
     void 修改比赛信息_2() {
-
+        // 修改比赛信息_2
+        String unit0 = testUtil.<MatchRegisterResponse>getResponse("报名赛事_公开").getUnitId();
+        GameModifyRequest request = GameModifyRequest.builder()
+                .status(GameStatus.DRAW)
+                .unit0(unit0)
+                .result(GameResult.builder()
+                        .rounds(ImmutableList.of(
+                                new GameResult.GameRoundResult(30, 40),
+                                new GameResult.GameRoundResult(40, 0)
+                        ))
+                        .result(new GameResult.GameFinalResult(0, 1, 1))
+                        .extra(ImmutableMap.of("violations", ImmutableList.of(
+                                ImmutableMap.of("time", "some day in the future"),
+                                ImmutableMap.of("foo", "bar")
+                        )))
+                        .build())
+                .build();
+        SimpleResponse response = this.restTemplate.postForObject("/api/v1/match/{matchId}/round/{roundId}/game/{gameId}",
+                request, SimpleResponse.class,
+                testUtil.<MatchCreateResponse>getResponse("创建赛事_公开1").getMatchId(),
+                testUtil.<RoundCreateResponse>getResponse("创建轮次_公开_自定义").getRoundId(),
+                testUtil.<GameCreateResponse>getResponse("轮次中增加比赛_公开2").getGameId()
+        );
+        assertThat(response.getMessage().equals("ok")).isTrue();
     }
 
     @Test
     @Order(33)
-    void 修改比赛信息_失败() {
-
+    void modifyMatchInfo_failed() {
+        // 修改比赛信息_失败
+        GameModifyRequest request = GameModifyRequest.builder()
+                .status(GameStatus.DRAW)
+                .unit0("-1")
+                .build();
+        SimpleResponse response = this.restTemplate.postForObject("/api/v1/match/{matchId}/round/{roundId}/game/{gameId}",
+                request, SimpleResponse.class,
+                testUtil.<MatchCreateResponse>getResponse("创建赛事_公开1").getMatchId(),
+                testUtil.<RoundCreateResponse>getResponse("创建轮次_公开_自定义").getRoundId(),
+                testUtil.<GameCreateResponse>getResponse("轮次中增加比赛_公开2").getGameId()
+        );
+        assertThat(response.getMessage().equals("ok")).isFalse();
     }
 
     @Test
     @Order(34)
-    void 获取比赛信息() {
-
+    void fetchMatchInfo() throws JsonProcessingException {
+        // 获取比赛信息
+        ResponseEntity<String> response = this.restTemplate.getForEntity("/api/v1/graphql?query={query}", String.class,
+                ImmutableMap.of("query", "query {  findGameById(gameId: \"" +
+                        testUtil.<GameCreateResponse>getResponse("轮次中增加比赛_公开2").getGameId() +
+                        "\") {  gameId status unit0 { unitId } unit1 { unitId } createdAt referee { userId } result " +
+                        "{ rounds { score0 score1 } result { winner output0 output1 } extra } } }"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final String res = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(res);
+        JsonNode data = root.get("data");
+        assertThat(data).isNotNull();
+        assertThat(data.isNull()).isFalse();
     }
 
     @Test
     @Order(35)
-    void 删除轮次() {
-
+    void deleteRound() {
+        // 删除轮次
+        this.restTemplate.delete("/api/v1/match/{matchId}/round/{roundId}",
+                testUtil.<MatchCreateResponse>getResponse("创建赛事_公开1").getMatchId(),
+                testUtil.<RoundCreateResponse>getResponse("创建轮次_公开_自定义").getRoundId()
+        );
     }
 
     @Test
     @Order(36)
     void 解散参赛单位() {
-
+        // 删除轮次
+        this.restTemplate.delete("/api/v1/match/{matchId}/unit/{unitId}",
+                testUtil.<MatchCreateResponse>getResponse("创建赛事_公开1").getMatchId(),
+                testUtil.<MatchRegisterResponse>getResponse("报名赛事_公开").getUnitId()
+        );
     }
 
 }

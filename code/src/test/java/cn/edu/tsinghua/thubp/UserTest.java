@@ -41,9 +41,12 @@ class UserTest {
         adminController._resetDatabase();
     }
 
+    /**
+     * 登录
+     */
     @Test
     @Order(1)
-    void 登录() {
+    void login() {
         LoginRequest loginRequest = new LoginRequest(
                 "2018000000",
                 "root",

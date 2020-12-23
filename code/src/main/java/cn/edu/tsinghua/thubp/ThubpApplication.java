@@ -26,7 +26,6 @@ import java.util.ServiceConfigurationError;
  */
 @Slf4j
 @SpringBootApplication
-//@EnableTransactionManagement
 public class ThubpApplication implements CommandLineRunner {
 
     @Autowired

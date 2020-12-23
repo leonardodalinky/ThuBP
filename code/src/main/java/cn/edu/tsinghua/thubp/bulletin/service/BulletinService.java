@@ -17,10 +17,19 @@ public class BulletinService {
 
     private final MongoTemplate mongoTemplate;
 
-    @Transactional(rollbackFor = Exception.class)
+
     public void update() {
         // 清空 bulletin
         mongoTemplate.dropCollection(BulletinEntry.class);
+        _update();
+    }
+
+    public List<BulletinEntry> getAll() {
+        return mongoTemplate.findAll(BulletinEntry.class);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void _update() {
         List<Match> matches = mongoTemplate.findAll(Match.class);
         PriorityQueue<BulletinEntry> queue = new PriorityQueue<>(
                 Comparator.comparing(BulletinEntry::getHotValue)
@@ -46,10 +55,6 @@ public class BulletinService {
         for (BulletinEntry e : maxHeap) {
             mongoTemplate.save(e);
         }
-    }
-
-    public List<BulletinEntry> getAll() {
-        return mongoTemplate.findAll(BulletinEntry.class);
     }
 
     private static BulletinEntry fromMatch(Match match) {

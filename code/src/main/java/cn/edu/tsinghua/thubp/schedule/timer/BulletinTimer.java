@@ -15,7 +15,6 @@ public class BulletinTimer {
     private final BulletinService bulletinService;
 
     @Scheduled(cron = "0 0/10 * * * ?")
-    @Transactional(rollbackFor = Exception.class)
     public void autoUpdate() {
         log.info("定期更新走马灯。");
         bulletinService.update();

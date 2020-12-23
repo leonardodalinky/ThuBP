@@ -497,7 +497,8 @@ public class MatchService {
                         Criteria.where("organizerUserId").is(userId),
                         Criteria.where("referees").all(refereeDeleteRequest.getReferees())
                 )),
-                new Update().pullAll("referees", refereeDeleteRequest.getReferees().toArray()),
+                new Update().pullAll("referees", refereeDeleteRequest.getReferees().toArray())
+                        .pullAll("participants", refereeDeleteRequest.getReferees().toArray()),
                 Match.class).getModifiedCount();
         if (matchUpdateCount == 0) {
             throw new CommonException(MatchErrorCode.MATCH_REFEREE_NOT_FOUND,

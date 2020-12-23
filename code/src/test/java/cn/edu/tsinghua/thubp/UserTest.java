@@ -94,7 +94,7 @@ class UserTest {
     @SneakyThrows
     void 查找用户_root2() {
         ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/graphql?query={query}", String.class,
-                ImmutableMap.of("query", "query {  findUserByFuzzy(username: \"oo\") {   gender  username mobile  } }"));
+                ImmutableMap.of("query", "query {  findUserByFuzzy(username: \"oo\", pageSize: 2) { page pageSize totalSize list {  gender  username mobile  } } }"));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         final String res = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();

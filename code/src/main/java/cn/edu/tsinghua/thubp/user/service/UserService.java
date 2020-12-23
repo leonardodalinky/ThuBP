@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thubp.user.service;
 
 import cn.edu.tsinghua.thubp.common.config.GlobalConfig;
+import cn.edu.tsinghua.thubp.common.exception.CommonException;
 import cn.edu.tsinghua.thubp.common.util.AutoModifyUtil;
 import cn.edu.tsinghua.thubp.user.entity.User;
 import cn.edu.tsinghua.thubp.user.enums.Gender;
@@ -15,11 +16,14 @@ import cn.edu.tsinghua.thubp.web.service.SequenceGeneratorService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,7 @@ public class UserService {
 
     public static final String USERID = "userId";
     public static final String THUID = "thuId";
+    public static final String USERNAME = "username";
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
     private final ThuAuthService thuAuthService;
@@ -44,6 +49,8 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public String saveLegacy(UserRegisterRequest userRegisterRequest) {
+        // 重名检测
+        checkUsername(userRegisterRequest.getUsername());
         // TODO: 此处先认为 ticket 为学号，以供实验
         String thuId = userRegisterRequest.getTicket();
         userRepository.findByThuId(thuId).ifPresent(__ -> {
@@ -72,6 +79,9 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public String save(String userIp, UserRegisterRequest userRegisterRequest) {
+        // 重名检测
+        checkUsername(userRegisterRequest.getUsername());
+        // 服务器交互
         ThuAuthResult identity = thuAuthService.getThuIdentity(userIp, userRegisterRequest.getTicket());
         String thuId = identity.getThuId();
         userRepository.findByThuId(thuId).ifPresent(__ -> {
@@ -125,6 +135,8 @@ public class UserService {
     }
 
     public void update(User user, UserUpdateRequest userUpdateRequest) throws MalformedURLException {
+        // 重名检测
+        checkUsername(userUpdateRequest.getUsername());
         // 自动修改部份属性
         AutoModifyUtil.autoModify(userUpdateRequest, user);
         if (Objects.nonNull(userUpdateRequest.getNewPassword())) {
@@ -169,5 +181,22 @@ public class UserService {
      */
     public List<User> getAll() {
         return userRepository.findAll();
+    }
+
+    /**
+     * 重名检测
+     * @param username 待检测的用户名
+     */
+    private void checkUsername(@Nullable String username) {
+        // 重名检测
+        if (username != null) {
+            User u = mongoTemplate.findOne(Query.query(
+                    Criteria.where("username").is(username)
+            ), User.class);
+            if (u != null) {
+                throw new CommonException(UserErrorCode.USER_NAME_ALREADY_EXIST,
+                        ImmutableMap.of(USERNAME, username));
+            }
+        }
     }
 }

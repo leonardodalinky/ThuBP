@@ -60,6 +60,7 @@ public class User extends AuditBase implements ModifiableTarget {
      * 用户昵称
      */
     @NonNull
+    @Indexed(unique = true)
     private String username;
     /**
      * 个人描述

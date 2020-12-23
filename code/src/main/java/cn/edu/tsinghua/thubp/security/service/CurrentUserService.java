@@ -36,6 +36,9 @@ public class CurrentUserService {
      * @return 当前用户 ID
      */
     public String getUserId() {
+        if (authenticationFacade.getAuthentication() == null || authenticationFacade.getAuthentication().getPrincipal() == null) {
+            return "-1";
+        }
         return ((JwtUser)authenticationFacade.getAuthentication().getPrincipal()).getUserId();
     }
 }

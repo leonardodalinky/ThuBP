@@ -151,7 +151,7 @@ public class MatchController {
         return new SimpleResponse();
     }
 
-    @ApiOperation(value = "解散参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长限定，须在比赛开始前")
+    @ApiOperation(value = "解散参赛单位", tags = SwaggerTagUtil.MATCH_MANAGE, notes = "小组队长和组织者限定，须在比赛开始前")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "matchId", value = "赛事 ID", required = true, dataTypeClass = String.class),
             @ApiImplicitParam(name = "unitId", value = "参赛单位 ID", required = true, dataTypeClass = String.class)

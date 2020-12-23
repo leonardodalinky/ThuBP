@@ -208,7 +208,7 @@ public class UnitService {
         // delete unit
         Unit unit = findByUnitId(unitId);
         // check permission
-        if (!unit.getCreatorId().equals(userId)) {
+        if (!unit.getCreatorId().equals(userId) && !match.getOrganizerUserId().equals(userId)) {
             throw new CommonException(MatchErrorCode.UNIT_PERMISSION_DENIED,
                     ImmutableMap.of(UNIT_ID, unitId, USER_ID, userId));
         }

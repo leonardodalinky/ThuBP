@@ -17,10 +17,16 @@ import java.net.URL;
         ignoreResourceNotFound = true)
 public class GlobalConfig {
     public static final URL DEFAULT_IMAGE_URL = getDefaultImageUrl();
+    public static final URL DEFAULT_MATCH_LARGE_IMAGE_URL = getDefaultMatchLargeImageUrl();
 
     @SneakyThrows
     private static URL getDefaultImageUrl() {
         return new URL("http://thubp-static.iterator-traits.com/default.png");
+    }
+
+    @SneakyThrows
+    private static URL getDefaultMatchLargeImageUrl() {
+        return new URL("http://thubp-static.iterator-traits.com/match_default_large.png");
     }
 
     @Autowired

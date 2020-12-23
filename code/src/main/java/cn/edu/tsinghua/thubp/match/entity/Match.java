@@ -86,7 +86,7 @@ public class Match extends AuditBase implements ModifiableTarget, Commentable {
      */
     @NonNull
     @Builder.Default
-    private URL previewLarge = GlobalConfig.DEFAULT_IMAGE_URL;
+    private URL previewLarge = GlobalConfig.DEFAULT_MATCH_LARGE_IMAGE_URL;
     @lombok.NonNull
     private String matchTypeId;
     /**

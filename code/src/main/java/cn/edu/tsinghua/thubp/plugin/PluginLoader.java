@@ -28,22 +28,6 @@ public class PluginLoader {
 
     @PostConstruct
     public void loadAllPluginsFromDirectory() {
-        File pluginDirFile = new File(pluginDirectory);
-        if (!pluginDirFile.exists()) {
-            boolean ignore = pluginDirFile.mkdirs();
-        }
-        File[] files = pluginDirFile.listFiles();
-        assert files != null;
-        for (File file : files) {
-            if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
-                try {
-                    URL url = file.toURI().toURL();
-                    pluginManager.registerPluginFromUrl(url);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         loadInternalPlugins();
         pluginManager.loadAllPlugins();
     }

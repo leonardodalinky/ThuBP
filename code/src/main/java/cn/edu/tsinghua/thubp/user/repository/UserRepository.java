@@ -22,6 +22,7 @@ public interface UserRepository extends MongoRepository<User, Integer> {
     @Query("{ 'username':{$regex:?0,$options:'i'} }")
     Page<User> findAllByUsernameRegex(String regex, Pageable pageable);
     List<User> findByUserIdIn(List<String> userIds);
+    User findByUsername(String username);
 
     @Transactional(rollbackFor = Exception.class)
     void deleteByThuId(String thuId);

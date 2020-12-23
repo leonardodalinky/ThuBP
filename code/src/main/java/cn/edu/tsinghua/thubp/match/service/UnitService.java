@@ -238,6 +238,7 @@ public class UnitService {
             throw new CommonException(MatchErrorCode.UNIT_NOT_FOUND,
                     ImmutableMap.of(MATCH_ID, matchId, UNIT_ID, unitId, USERS, members));
         }
+        mongoTemplate.save(match);
         // for now, ignore the return value
         // 清除每个成员的信息
         mongoTemplate.updateMulti(Query.query(

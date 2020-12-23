@@ -125,6 +125,10 @@ public class UserService {
         return userRepository.findAllByUsernameRegex(regex, pageable);
     }
 
+    public User findByUsername(@NotNull String username) {
+        return userRepository.findByUsername(username);
+    }
+
     /**
      * 根据 userId 的列表，寻找对应的所有 User
      * @param userIds userId 的列表

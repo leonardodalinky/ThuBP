@@ -35,4 +35,8 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     public List<User> findUserById(List<String> userIds) {
         return userService.findByUserIdIn(userIds);
     }
+
+    public User findUserByUsername(String username) {
+        return userService.findByUsername(username);
+    }
 }

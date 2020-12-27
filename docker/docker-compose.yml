@@ -1,0 +1,49 @@
+version: '3'
+services:
+  master:
+    image: mongo
+    container_name: mongo_thubp1
+    volumes:
+      - ../data/mongo/thubp1/db/:/data/db/
+      - ../data/mongo/thubp1/configdb/:/data/configdb/
+      - ../data/mongo/thubp1/tmp/:/thubp/tmp/
+    restart: always
+    command: >
+        sh -c 'mongod --port 27117 --replSet rs_thubp &&
+            sleep 5 &&
+            s=$$(echo "rs.conf()" | mongo 127.0.0.1:27117 | sed -n "/27118/p") &&
+            if [ -z "$${s}" ]; then echo "rs.initiate()" | mongo 127.0.0.1:27117 && echo "rs.add(127.0.0.1:27118)" | mongo 127.0.0.1:27117; fi
+            ' 
+    network_mode: "host"
+    
+  slave:
+    image: mongo
+    container_name: mongo_thubp2
+    volumes:
+      - ../data/mongo/thubp2/db/:/data/db/
+      - ../data/mongo/thubp2/configdb/:/data/configdb/
+    restart: always
+    command: ["mongod", "--port", "27118", "--replSet", "rs_thubp"]
+    network_mode: "host"
+
+  thubp:
+    container_name: thubp
+    build: ./thubp
+    restart: always
+    volumes:
+      - ../data/thubp/:/root
+      - ../backend/code:/root/code
+    depends_on:
+      - master
+      - slave
+    network_mode: "host"
+    command: >
+        sh -c "sleep 5 && mvn clean spring-boot:run"
+
+#networks:
+#  mongo-network:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 172.24.0.0/16

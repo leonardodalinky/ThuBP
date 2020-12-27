@@ -1,0 +1,3056 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "清球汇",
+    "version": "last"
+  },
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "身份验证",
+      "description": "登录、注册等"
+    },
+    {
+      "name": "调试 API",
+      "description": null
+    },
+    {
+      "name": "赛事管理",
+      "description": null
+    },
+    {
+      "name": "用户信息",
+      "description": null
+    },
+    {
+      "name": "图片上传",
+      "description": null
+    },
+    {
+      "name": "评论功能",
+      "description": null
+    },
+    {
+      "name": "通知管理",
+      "description": null
+    },
+    {
+      "name": "GraphQL",
+      "description": null
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/admin/pwd": {
+      "post": {
+        "tags": [
+          "身份验证"
+        ],
+        "summary": "更改任何人密码（ROOT）",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "用户 ID"
+                },
+                "newPassword": {
+                  "type": "string",
+                  "description": "新密码"
+                }
+              },
+              "required": [
+                "userId",
+                "newPassword"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "身份验证"
+        ],
+        "summary": "登录",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "thuId": {
+                  "type": "string",
+                  "description": "清华证件号",
+                  "default": ""
+                },
+                "password": {
+                  "type": "string",
+                  "description": "密码"
+                },
+                "rememberMe": {
+                  "type": "boolean",
+                  "description": "是否七天内登陆有效"
+                }
+              },
+              "required": [
+                "thuId",
+                "password",
+                "rememberMe"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "成功的额外信息，若成功则为\"ok\"。"
+                },
+                "userId": {
+                  "type": "string",
+                  "description": "用户 ID"
+                }
+              },
+              "required": [
+                "message",
+                "userId"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "身份验证"
+        ],
+        "summary": "注册账户",
+        "description": "目前还不清楚能否通过清华的授权码，向清华方面请求用户的学号等数据。因此，此处默认学号等隐私信息的获取由服务端完成，故注册方面只上传其他必须信息。\n**当前测试阶段，\"code\"字段即为学号**！",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "description": "用户昵称"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "密码"
+                },
+                "ticket": {
+                  "type": "string",
+                  "description": "授权码"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "可选邮箱"
+                },
+                "mobile": {
+                  "type": "string",
+                  "description": "可选11位手机号"
+                }
+              },
+              "required": [
+                "username",
+                "password",
+                "ticket"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "身份验证"
+        ],
+        "summary": "登出账户",
+        "description": "JWT 不需要 loggout，后端无逻辑",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        }
+      }
+    },
+    "/admin/reset": {
+      "get": {
+        "tags": [
+          "调试 API"
+        ],
+        "summary": "重置数据库",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        }
+      }
+    },
+    "/match": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "创建赛事",
+        "description": "若为非公开报名，则在创建后，会自动产生一个赛事邀请码，可用来创建参赛单位。",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "名称"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "描述"
+                },
+                "targetGroup": {
+                  "type": "string",
+                  "description": "目标人群"
+                },
+                "startTime": {
+                  "type": "string",
+                  "description": "开始时间"
+                },
+                "maxUnitMember": {
+                  "type": "integer",
+                  "description": "参赛单位最大人数",
+                  "minimum": 1
+                },
+                "minUnitMember": {
+                  "type": "integer",
+                  "description": "参赛单位有效最小人数",
+                  "minimum": 1
+                },
+                "matchTypeId": {
+                  "type": "string",
+                  "description": "类型",
+                  "enum": [
+                    "tennis",
+                    "basketball"
+                  ]
+                },
+                "preview": {
+                  "type": "string",
+                  "description": "赛事预览图的文件名(key)"
+                },
+                "previewLarge": {
+                  "type": "string",
+                  "description": "赛事预览大图的文件名(key)"
+                },
+                "publicSignUp": {
+                  "type": "boolean",
+                  "description": "是否公开报名"
+                },
+                "publicShowUp": {
+                  "type": "boolean",
+                  "description": "是否公开查询"
+                }
+              },
+              "required": [
+                "name",
+                "description",
+                "matchTypeId",
+                "publicSignUp",
+                "publicShowUp",
+                "maxUnitMember",
+                "minUnitMember"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "matchId": {
+                  "type": "string",
+                  "description": "赛事 ID"
+                }
+              },
+              "required": [
+                "message",
+                "matchId"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/round/{roundId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "修改轮次基本信息",
+        "description": "轮次的状态\n\n```\npublic enum RoundStatus {\n    NOT_START(\"NOT_START\", \"未开始\"),\n    RUNNING(\"RUNNING\", \"进行中\"),\n    FINISHED(\"FINISHED\", \"已完成\"),\n    TERMINATED(\"TERMINATED\", \"已中止\");\n\n    private final String name;\n    private final String description;\n}\n```",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "description": "轮次 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "轮次的名称"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "轮次的描述"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "轮次的标签"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "轮次的状态 (RoundStatus)",
+                  "enum": [
+                    "NOT_START",
+                    "RUNNING",
+                    "FINISHED",
+                    "TERMINATED"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "删除轮次",
+        "description": "仅有赛事创建者可删除。",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "description": "轮次 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/generate-games": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "按策略生成赛事安排",
+        "description": "可用的生成策略包括:\n\n* SINGLE_ROUND (单循环赛)\n* SINGLE\\_ROUND\\_HH \\(单循环赛\\, 区分主客场\\)\n* KNOCKOUT (淘汰)\n* CUSTOM (不生成)\n* ORDERED_KNOCKOUT (不打乱列表淘汰)",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "strategy": {
+                  "type": "string",
+                  "description": "生成策略"
+                },
+                "units": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "参赛 ID 列表"
+                }
+              },
+              "required": [
+                "strategy",
+                "units"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "arrangement": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "unit0": {
+                        "type": "string",
+                        "description": "参赛单位 0"
+                      },
+                      "unit1": {
+                        "type": "string",
+                        "description": "参赛单位 1"
+                      }
+                    },
+                    "required": [
+                      "unit0",
+                      "unit1"
+                    ]
+                  },
+                  "description": "赛事安排"
+                }
+              },
+              "required": [
+                "arrangement"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}": {
+      "get": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "获取赛事所有信息",
+        "description": "仅有创建者才可使用。",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "description",
+                "matchId",
+                "matchTypeId",
+                "message",
+                "name",
+                "organizerUserId",
+                "publicSignUp",
+                "createdAt",
+                "publicShowUp",
+                "active",
+                "maxUnitMember",
+                "minUnitMember"
+              ],
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "description": "赛事描述"
+                },
+                "targetGroup": {
+                  "type": "string",
+                  "description": "目标人群"
+                },
+                "startTime": {
+                  "type": "string",
+                  "description": "开始时间",
+                  "format": "date-time"
+                },
+                "matchId": {
+                  "type": "string",
+                  "description": "赛事 ID"
+                },
+                "active": {
+                  "type": "boolean",
+                  "description": "赛事是否活跃中"
+                },
+                "matchToken": {
+                  "type": "object",
+                  "properties": {
+                    "expirationTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MatchToken",
+                  "$$ref": "#/definitions/MatchToken"
+                },
+                "matchTypeId": {
+                  "type": "string",
+                  "description": "赛事类型 ID"
+                },
+                "maxUnitMember": {
+                  "type": "integer",
+                  "description": "参赛单位最大人数",
+                  "minimum": 1
+                },
+                "minUnitMember": {
+                  "type": "integer",
+                  "description": "参赛单位有效最小人数",
+                  "minimum": 1
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "赛事名字"
+                },
+                "organizerUserId": {
+                  "type": "string",
+                  "description": "组织者 ID"
+                },
+                "preview": {
+                  "type": "string",
+                  "format": "url",
+                  "description": "赛事预览图"
+                },
+                "previewLarge": {
+                  "type": "string",
+                  "format": "url",
+                  "description": "赛事预览大图"
+                },
+                "publicSignUp": {
+                  "type": "boolean",
+                  "description": "公开报名"
+                },
+                "publicShowUp": {
+                  "type": "boolean",
+                  "description": "公开查询"
+                },
+                "refereeToken": {
+                  "type": "object",
+                  "properties": {
+                    "expirationTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "RefereeToken",
+                  "$$ref": "#/definitions/RefereeToken"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "description": "创建时间",
+                  "format": "date-time"
+                }
+              },
+              "title": "MatchInfoResponse",
+              "$$ref": "#/definitions/MatchInfoResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "修改赛事信息",
+        "description": "赛事状态的修改只能从 PREPARE -> RUNNING -> FINISHED，不能逆序（后端会检查）",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "description": "赛事描述"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "赛事名字"
+                },
+                "targetGroup": {
+                  "type": "string",
+                  "description": "目标人群"
+                },
+                "startTime": {
+                  "type": "string",
+                  "description": "开始时间",
+                  "format": "date-time"
+                },
+                "preview": {
+                  "type": "string",
+                  "description": "赛事预览图的文件名(key)",
+                  "pattern": "^[a-zA-Z0-9.]+$"
+                },
+                "previewLarge": {
+                  "type": "string",
+                  "description": "赛事预览大图的文件名(key)",
+                  "pattern": "^[a-zA-Z0-9.]+$"
+                },
+                "publicSignUp": {
+                  "type": "boolean",
+                  "description": "是否开放报名创建参赛单位"
+                },
+                "publicShowUp": {
+                  "type": "boolean",
+                  "description": "是否公开查询"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "赛事状态",
+                  "enum": [
+                    "PREPARE",
+                    "RUNNING",
+                    "FINISHED"
+                  ],
+                  "enumDesc": "只可以 PREPARE -> RUNNING -> FINISHED 这样更改"
+                }
+              },
+              "title": "MatchModifyRequest",
+              "$$ref": "#/definitions/MatchModifyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/assign-match-token/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "签发赛事邀请码",
+        "description": "<span class=\"colour\" style=\"color: rgb(85, 85, 85);\">expirationTime遵循ISO 8601，可使用 \\`dateJS\\` 或者 'momentJS\\` 库解析</span>",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "expirationTime",
+                "message",
+                "token"
+              ],
+              "properties": {
+                "expirationTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "邀请码过期时间"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "邀请码"
+                }
+              },
+              "title": "AssignMatchTokenResponse",
+              "$$ref": "#/definitions/AssignMatchTokenResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/assign-referee-token/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "签发裁判邀请码",
+        "description": "<span class=\"colour\" style=\"color: rgb(85, 85, 85);\">expirationTime遵循ISO 8601，可使用 \\`dateJS\\` 或者 'momentJS\\` 库解析</span>",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "expirationTime",
+                "message",
+                "token"
+              ],
+              "properties": {
+                "expirationTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "邀请码过期时间"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "邀请码"
+                }
+              },
+              "title": "AssignRefereeTokenResponse",
+              "$$ref": "#/definitions/AssignRefereeTokenResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/become-referee/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "使用裁判邀请码成为裁判",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "token"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "邀请码"
+                }
+              },
+              "title": "BecomeRefereeRequest",
+              "$$ref": "#/definitions/BecomeRefereeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/invite-match/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "邀请用户加入赛事并发送通知",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "用户 ID"
+                  },
+                  "description": "要邀请的用户 ID 列表"
+                }
+              },
+              "required": [
+                "userIds"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "用户 ID"
+                  },
+                  "description": "成功发送邀请的用户 ID 列表"
+                },
+                "extra": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "expirationTime": {
+                      "type": "string"
+                    },
+                    "matchId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "matchId",
+                    "expirationTime"
+                  ]
+                }
+              },
+              "required": [
+                "userIds",
+                "extra"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/invite-referees/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "邀请用户成为裁判并发送通知",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "用户 ID"
+                  },
+                  "description": "要邀请的用户 ID 列表"
+                }
+              },
+              "required": [
+                "userIds"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "用户 ID"
+                  },
+                  "description": "成功发送邀请的用户 ID 列表"
+                },
+                "extra": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "expirationTime": {
+                      "type": "string"
+                    },
+                    "matchId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "matchId",
+                    "expirationTime"
+                  ]
+                }
+              },
+              "required": [
+                "userIds",
+                "extra"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/referee": {
+      "delete": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "删除裁判",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "referees": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "需要被删除的裁判的 ID"
+                }
+              },
+              "required": [
+                "referees"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/register/{matchId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "报名赛事（创建参赛单位）",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "报名赛事需要的邀请码"
+                },
+                "unitName": {
+                  "type": "string",
+                  "description": "参赛单位名字"
+                }
+              },
+              "required": [
+                "unitName"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message",
+                "unitId"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "unitId": {
+                  "type": "string",
+                  "description": "参赛单位 Id"
+                }
+              },
+              "title": "MatchRegisterResponse",
+              "$$ref": "#/definitions/MatchRegisterResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/participate/{unitId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "加入参赛单位",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "邀请码"
+                }
+              },
+              "title": "UnitParticipateRequest",
+              "$$ref": "#/definitions/UnitParticipateRequest",
+              "required": [
+                "token"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/unit/{unitId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "修改参赛单位",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "参赛单位名字"
+                }
+              },
+              "title": "UnitModifyRequest",
+              "$$ref": "#/definitions/UnitModifyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "解散参赛单位",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "获取参赛单位所有信息",
+        "description": "仅有创建者才可使用。",
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "creatorId",
+                "matchId",
+                "message",
+                "name",
+                "createdAt"
+              ],
+              "properties": {
+                "creatorId": {
+                  "type": "string",
+                  "description": "参赛单位创建者 ID"
+                },
+                "matchId": {
+                  "type": "string",
+                  "description": "相关联的赛事 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "参赛单位名称"
+                },
+                "unitToken": {
+                  "type": "object",
+                  "properties": {
+                    "expirationTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "UnitToken",
+                  "$$ref": "#/definitions/UnitToken"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "description": "创建时间",
+                  "format": "date-time"
+                }
+              },
+              "title": "UnitInfoResponse",
+              "$$ref": "#/definitions/UnitInfoResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/unit/{unitId}/member": {
+      "delete": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "删除参赛单位中成员",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "members": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "需要被删除的成员 ID，不包括自身"
+                  }
+                }
+              },
+              "required": [
+                "members"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/assign-unit-token/{unitId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "签发参赛单位邀请码",
+        "description": "expirationTime遵循ISO 8601，可使用 \\`dateJS\\` 或者 'momentJS\\` 库解析",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "expirationTime",
+                "message",
+                "token"
+              ],
+              "properties": {
+                "expirationTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "邀请码过期时间"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "邀请码"
+                }
+              },
+              "title": "AssignUnitTokenResponse",
+              "$$ref": "#/definitions/AssignUnitTokenResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "邀请人员加入参赛单位",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "description": "参赛单位 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "userIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "description": "邀请的人员 ID"
+                  }
+                }
+              },
+              "required": [
+                "userIds"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/round": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "创建轮次",
+        "description": "轮次的标签可以用于给小组赛的各个小组创建一个虚拟的大轮次等场景",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "units"
+              ],
+              "properties": {
+                "autoStrategy": {
+                  "type": "string",
+                  "description": "(弃用) 参赛单位预生成策略",
+                  "enum": [
+                    "CUSTOM",
+                    "KNOCKOUT",
+                    "SINGLE_ROUND",
+                    "SINGLE_ROUND_HH"
+                  ]
+                },
+                "description": {
+                  "type": "string",
+                  "description": "轮次的描述"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "轮次的名字"
+                },
+                "units": {
+                  "type": "array",
+                  "description": "参赛单位的 ID 列表",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "games": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "unit0": {
+                        "type": "string",
+                        "description": "参赛单位 0"
+                      },
+                      "unit1": {
+                        "type": "string",
+                        "description": "参赛单位 1"
+                      },
+                      "startTime": {
+                        "type": "string",
+                        "description": "开始时间"
+                      },
+                      "location": {
+                        "type": "string",
+                        "description": "地点"
+                      },
+                      "referee": {
+                        "type": "string",
+                        "description": "裁判用户 ID"
+                      }
+                    },
+                    "required": [
+                      "unit0"
+                    ]
+                  },
+                  "description": "预置比赛列表"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "轮次的标签"
+                }
+              },
+              "title": "RoundCreateRequest",
+              "$$ref": "#/definitions/RoundCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message",
+                "roundId"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "roundId": {
+                  "type": "string",
+                  "description": "轮次 ID"
+                }
+              },
+              "title": "RoundCreateResponse",
+              "$$ref": "#/definitions/RoundCreateResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/round/{roundId}/game": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "轮次中增加比赛",
+        "description": "referee 必须是赛事中注册了的裁判",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "description": "轮次 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "unit0"
+              ],
+              "properties": {
+                "unit0": {
+                  "type": "string",
+                  "description": "参赛单位 0 的 ID"
+                },
+                "unit1": {
+                  "type": "string",
+                  "description": "参赛单位 1 的 ID"
+                },
+                "startTime": {
+                  "type": "string",
+                  "description": "开始时间"
+                },
+                "location": {
+                  "type": "string",
+                  "description": "地点"
+                },
+                "referee": {
+                  "type": "string",
+                  "description": "裁判"
+                }
+              },
+              "title": "GameCreateRequest",
+              "$$ref": "#/definitions/GameCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "gameId",
+                "message"
+              ],
+              "properties": {
+                "gameId": {
+                  "type": "string",
+                  "description": "比赛 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "GameCreateResponse",
+              "$$ref": "#/definitions/GameCreateResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "轮次中删除比赛",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "description": "轮次 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "games"
+              ],
+              "properties": {
+                "games": {
+                  "type": "array",
+                  "description": "需要被删除的比赛 ID",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "title": "GameDeleteRequest",
+              "$$ref": "#/definitions/GameDeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/match/{matchId}/round/{roundId}/game/{gameId}": {
+      "post": {
+        "tags": [
+          "赛事管理"
+        ],
+        "summary": "修改比赛信息",
+        "description": "result.extra 中可以放置任意的 json 数据，通过 GraphQL 获取时， extra 会被序列化，以一个 json string 的方式返回\nreferee 中指定的裁判只有修改 result 和 status 的权限，但组织者可以修改任何的字段",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "description": "轮次 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gameId",
+            "in": "path",
+            "description": "比赛 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "description": "比赛的状态",
+                  "enum": [
+                    "DRAW",
+                    "NOT_START",
+                    "RUNNING",
+                    "WIN_FIRST",
+                    "WIN_SECOND"
+                  ]
+                },
+                "unit0": {
+                  "type": "string",
+                  "description": "参赛单位 0 的 ID"
+                },
+                "unit1": {
+                  "type": "string",
+                  "description": "参赛单位 1 的 ID"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "rounds": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "score0": {
+                            "type": "number",
+                            "description": "单位0的得分"
+                          },
+                          "score1": {
+                            "type": "number",
+                            "description": "单位1的得分"
+                          }
+                        },
+                        "required": [
+                          "score0",
+                          "score1"
+                        ]
+                      },
+                      "description": "每轮记分"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "winner": {
+                          "type": "number",
+                          "description": "胜利方 (0, 1, 2(平))"
+                        },
+                        "output0": {
+                          "type": "number",
+                          "description": "单位0的积分"
+                        },
+                        "output1": {
+                          "type": "number",
+                          "description": "单位1的积分"
+                        }
+                      },
+                      "description": "比赛得分结果",
+                      "required": [
+                        "winner",
+                        "output0",
+                        "output1"
+                      ]
+                    },
+                    "extra": {
+                      "type": "object",
+                      "properties": {},
+                      "description": "额外记录"
+                    }
+                  },
+                  "description": "比赛结果"
+                },
+                "startTime": {
+                  "type": "string",
+                  "description": "开始时间 (ISO)"
+                },
+                "location": {
+                  "type": "string",
+                  "description": "地址"
+                },
+                "referee": {
+                  "type": "string",
+                  "description": "裁判用户 ID"
+                }
+              },
+              "title": "GameModifyRequest",
+              "$$ref": "#/definitions/GameModifyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/user/info": {
+      "get": {
+        "tags": [
+          "用户信息"
+        ],
+        "summary": "个人信息",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "gender",
+                "message",
+                "role",
+                "thuId",
+                "userId",
+                "username",
+                "createdAt"
+              ],
+              "properties": {
+                "avatar": {
+                  "type": "string",
+                  "format": "url",
+                  "description": "用户头像"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "邮箱"
+                },
+                "gender": {
+                  "type": "string",
+                  "description": "性别",
+                  "enum": [
+                    "FEMALE",
+                    "MALE",
+                    "OTHER",
+                    "UNKNOWN"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "mobile": {
+                  "type": "string",
+                  "description": "手机"
+                },
+                "role": {
+                  "type": "string",
+                  "description": "用户权限",
+                  "enum": [
+                    "ADMIN",
+                    "ROOT",
+                    "USER"
+                  ]
+                },
+                "thuId": {
+                  "type": "string",
+                  "description": "清华证件 ID"
+                },
+                "userId": {
+                  "type": "string",
+                  "description": "用户 ID"
+                },
+                "username": {
+                  "type": "string",
+                  "description": "用户名"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "description": "创建时间",
+                  "format": "date-time"
+                }
+              },
+              "title": "UserInfoResponse",
+              "$$ref": "#/definitions/UserInfoResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "用户信息"
+        ],
+        "summary": "修改个人信息",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "avatar": {
+                  "type": "string",
+                  "description": "头像的文件名(key)",
+                  "pattern": "^AVATAR-[a-zA-Z0-9.-]+$"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "邮箱"
+                },
+                "gender": {
+                  "type": "string",
+                  "description": "性别",
+                  "enum": [
+                    "FEMALE",
+                    "MALE",
+                    "OTHER",
+                    "UNKNOWN"
+                  ]
+                },
+                "mobile": {
+                  "type": "string",
+                  "description": "手机",
+                  "pattern": "^\\d{11}$"
+                },
+                "newPassword": {
+                  "type": "string",
+                  "description": "新密码"
+                },
+                "oldPassword": {
+                  "type": "string",
+                  "description": "旧密码"
+                },
+                "username": {
+                  "type": "string",
+                  "description": "用户名"
+                }
+              },
+              "title": "UserUpdateRequest",
+              "$$ref": "#/definitions/UserUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/user/check": {
+      "get": {
+        "tags": [
+          "用户信息"
+        ],
+        "summary": "按用户名检查用户存在性",
+        "description": "如果找不到用户，返回的 userId 是 null",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "description": "用户名",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "ok"
+                },
+                "userId": {
+                  "type": "string",
+                  "description": "可能是 null"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "用户信息"
+        ],
+        "summary": "获得所有的用户（管理员）",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "thuId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "username",
+                  "thuId"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "tags": [
+          "图片上传"
+        ],
+        "summary": "请求上传凭证",
+        "description": "此处采用了 七牛云 的图像服务\n业务流程：\n[https://developer.qiniu.com/kodo/manual/1205/programming-model](https://developer.qiniu.com/kodo/manual/1205/programming-model)\n软件 SDK 地址：\n[https://developer.qiniu.com/sdk#official-sdk](https://developer.qiniu.com/sdk#official-sdk)\n其中包含 JS 的库\n\n<br>\nuploadType 的类型解释如下：\n\n* AVATAR: 用户头像\n* MATCH_PREVIEW: 赛事的主要图片\n\n我们的分区为华北区。\n最终上传成功的文件名的 URL 为 [http://thubp-static.iterator-traits.com/](http://thubp-static.iterator-traits.com/helloworld.png)\\<key>，其中 \\<key> 即为回复中的 key 值。",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "uploadType",
+            "in": "query",
+            "required": false,
+            "description": "上传图片的应用场景",
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "uploadType": {
+                  "type": "string",
+                  "description": "上传图片的适用类型",
+                  "enum": [
+                    "AVATAR",
+                    "MATCH_PREVIEW"
+                  ]
+                },
+                "suffix": {
+                  "type": "string",
+                  "description": "生成文件名的后缀"
+                }
+              },
+              "required": [
+                "uploadType"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "uploadToken": {
+                  "type": "string",
+                  "description": "上传凭证"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "待存储的资源名，客户端需要以这个为资源名字"
+                }
+              },
+              "required": [
+                "uploadToken",
+                "key"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/comment/match/{matchId}": {
+      "post": {
+        "tags": [
+          "评论功能"
+        ],
+        "summary": "评论赛事",
+        "description": "评论赛事如果含有敏感信息，返回的 json 格式大致如下：\n\n```\n\n{\n   \"code\": 3001,\n   \"status\": 400,\n   \"message\": \"文本审核失败\",\n   \"path\": \"/api/v1/comment/1\",\n   \"timestamp\": \"2020-11-19T08:45:00.930Z\",\n   \"errorDetail\": {\n      \"detail\": {\n         \"politics\": [\n            \"习近平\",\n            \"近平\"\n         ],\n         \"flood\": \"qwqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\"\n      }\n   }\n}\n```\n\n`detail` 为一个字典，其每个键值对中，Key的值为 \"politics\", \"porn\", \"flood\", \"abuse\", \"contraband\", \"ad\"；每个 Value 为一个敏感词数组或一个字符串。",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "matchId",
+            "in": "path",
+            "description": "赛事 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "content"
+              ],
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "description": "评论内容"
+                },
+                "replyId": {
+                  "type": "string",
+                  "description": "回复的评论 ID"
+                }
+              },
+              "title": "CommentRequest",
+              "$$ref": "#/definitions/CommentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "commentId",
+                "message"
+              ],
+              "properties": {
+                "commentId": {
+                  "type": "string",
+                  "description": "评论 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "CommentResponse",
+              "$$ref": "#/definitions/CommentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/comment/game/{gameId}": {
+      "post": {
+        "tags": [
+          "评论功能"
+        ],
+        "summary": "评论比赛",
+        "description": "评论赛事如果含有敏感信息，返回的 json 格式大致如下：\n\n```\n\n{\n   \"code\": 3001,\n   \"status\": 400,\n   \"message\": \"文本审核失败\",\n   \"path\": \"/api/v1/comment/1\",\n   \"timestamp\": \"2020-11-19T08:45:00.930Z\",\n   \"errorDetail\": {\n      \"detail\": {\n         \"politics\": [\n            \"习近平\",\n            \"近平\"\n         ]\n      }\n   }\n}\n```\n\n`detail` 为一个字典，其每个键值对中，Key的值为 \"politics\", \"porn\", \"flood\", \"abuse\", \"contraband\", \"ad\"；每个 Value 为一个敏感词数组。",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "description": "比赛 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "content"
+              ],
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "description": "评论内容"
+                },
+                "replyId": {
+                  "type": "string",
+                  "description": "回复的评论 ID"
+                }
+              },
+              "title": "CommentRequest",
+              "$$ref": "#/definitions/CommentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "commentId",
+                "message"
+              ],
+              "properties": {
+                "commentId": {
+                  "type": "string",
+                  "description": "评论 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "CommentResponse",
+              "$$ref": "#/definitions/CommentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/comment/{commentId}": {
+      "patch": {
+        "tags": [
+          "评论功能"
+        ],
+        "summary": "修改评论",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "评论 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "content"
+              ],
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "description": "评论内容"
+                }
+              },
+              "title": "CommentModifyRequest",
+              "$$ref": "#/definitions/CommentModifyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "commentId",
+                "message"
+              ],
+              "properties": {
+                "commentId": {
+                  "type": "string",
+                  "description": "评论 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "CommentResponse",
+              "$$ref": "#/definitions/CommentResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "评论功能"
+        ],
+        "summary": "删除评论",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "评论 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "commentId",
+                "message"
+              ],
+              "properties": {
+                "commentId": {
+                  "type": "string",
+                  "description": "评论 ID"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "CommentResponse",
+              "$$ref": "#/definitions/CommentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/notification/unread": {
+      "get": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "获得未读通知数量",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "unread": {
+                  "type": "string",
+                  "description": "未读通知数量"
+                }
+              },
+              "required": [
+                "message",
+                "unread"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/notification": {
+      "get": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "查看自身通知",
+        "description": "tag 的类型有：\n\n```\nNORMAL(\"NORMAL\", \"普通系统通知\"),\nMATCH_INVITE(\"MATCH_INVITE\", \"赛事邀请\"),\nREFEREE_INVITE(\"REFEREE_INVITE\", \"裁判邀请\"),\nUNIT_INVITE(\"UNIT_INVITE\", \"参赛单位邀请\"),\nMATCH_INVITE_EXPIRING(\"MATCH_INVITE_EXPIRING\", \"赛事邀请码即将过期\"),\nREFEREE_INVITE_EXPIRING(\"REFEREE_INVITE_EXPIRING\", \"裁判邀请码即将过期\"),\nUNIT_INVITE_EXPIRING(\"UNIT_INVITE_EXPIRING\", \"参赛单位邀请码即将过期\"),\n```\n\nextra 的字段内容依据 tag 类型而变化：\n**\\<sth>_INVITE:**\n\n``` json\n{\n    \"expirationTime\": ...,\n    \"token\": ...,\n    \"<sth1>_id\": ...,\n    \"<sth2>_id\": ...,\n    ...\n    \"<sthn>_id\": ...,\n}\n```\n\n其中，**\\<sthn>_id **表示某些与该邀请码相关的 ID，比如 matchId, unitId, gameId 等等。\n\n**\\<sth>_INVITE_EXPIRING:**\n\n``` json\n{\n    \"expirationTime\": ...,\n    \"token\": ...,\n    \"<sth1>_id\": ...,\n    \"<sth2>_id\": ...,\n    ...\n    \"<sthn>_id\": ...,\n}\n```\n\n与 **\\<sth>_INVITE** 内容一样。",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页面",
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "页面大小",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "notifications": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "content": {
+                        "type": "string",
+                        "description": "通知内容"
+                      },
+                      "tag": {
+                        "type": "string",
+                        "description": "通知类型",
+                        "enum": [
+                          "NORMAL",
+                          "MATCH_INVITE",
+                          "REFEREE_INVITE",
+                          "UNIT_INVITE",
+                          "MATCH_INVITE_EXPIRING",
+                          "REFEREE_INVITE_EXPIRING",
+                          "UNIT_INVITE_EXPIRING"
+                        ]
+                      },
+                      "fromUserId": {
+                        "type": "string",
+                        "description": "发送者 Id"
+                      },
+                      "isRead": {
+                        "type": "boolean",
+                        "description": "是否已读"
+                      },
+                      "notificationId": {
+                        "type": "string",
+                        "description": "通知 Id"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "通知标题"
+                      },
+                      "toUserId": {
+                        "type": "string",
+                        "description": "接收者 Id"
+                      },
+                      "extra": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "额外内容"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "description": "创建日期",
+                        "format": "date-time"
+                      }
+                    },
+                    "title": "Notification",
+                    "$$ref": "#/definitions/Notification",
+                    "required": [
+                      "createdAt",
+                      "title",
+                      "toUserId",
+                      "notificationId",
+                      "fromUserId",
+                      "isRead",
+                      "content",
+                      "tag"
+                    ]
+                  }
+                }
+              },
+              "title": "NotificationInfoResponse",
+              "$$ref": "#/definitions/NotificationInfoResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "全部通知标为已读",
+        "description": "",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "删除通知",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "notifications"
+              ],
+              "properties": {
+                "notifications": {
+                  "type": "array",
+                  "description": "需要被删除的通知的 ID",
+                  "items": {
+                    "type": "string",
+                    "description": "通知的 ID"
+                  }
+                }
+              },
+              "title": "NotificationDeleteRequest",
+              "$$ref": "#/definitions/NotificationDeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/notification/{notificationId}": {
+      "post": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "单个通知标为已读",
+        "description": "",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "description": "通知 ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                }
+              },
+              "title": "SimpleResponse",
+              "$$ref": "#/definitions/SimpleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/admin/{userId}/notification": {
+      "post": {
+        "tags": [
+          "通知管理"
+        ],
+        "summary": "发送系统通知（ROOT）",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户 ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "content",
+                "title",
+                "tag"
+              ],
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "description": "通知内容"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "通知标题"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "通知类型",
+                  "enum": [
+                    "MATCH_INVITE",
+                    "MATCH_INVITE_EXPIRING",
+                    "NORMAL",
+                    "REFEREE_INVITE",
+                    "REFEREE_INVITE_EXPIRING",
+                    "UNIT_INVITE",
+                    "UNIT_INVITE_EXPIRING"
+                  ]
+                },
+                "extra": {
+                  "type": "object",
+                  "properties": {}
+                }
+              },
+              "title": "SendNotificationRequest",
+              "$$ref": "#/definitions/SendNotificationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "required": [
+                "message",
+                "notificationId"
+              ],
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "简短成功讯息"
+                },
+                "notificationId": {
+                  "type": "string",
+                  "description": "通知 ID"
+                }
+              },
+              "title": "SendNotificationResponse",
+              "$$ref": "#/definitions/SendNotificationResponse"
+            }
+          }
+        }
+      }
+    },
+    "/graphql": {
+      "get": {
+        "tags": [
+          "GraphQL"
+        ],
+        "summary": "GraphQL",
+        "description": "```\ntype Query {\n    # 用户相关\n    findUserByFuzzy(username: String!, page: Int = 0, pageSize: Int = 10): PagedUserList!\n    findUserById(userIds: [String!]!): [User!]!\n    findUserByUsername(username: String!): User\n\n    # 走马灯（可能为 0 个，但不超过 4 个）\n    getBulletin: [Match!]!\n\n    # 赛事相关\n    findMatchById(matchId: String!, matchToken: String): Match\n    findMatches(matchIds: [String!]!): [Match!]!\n    findMatchesByType(typeIds: [String!], page: Int = 0, pageSize: Int = 10): PagedMatchList!\n\n    # 参赛单位相关\n    findUnitById(unitId: String!): Unit\n    findUnits(unitIds: [String!]!): [Unit!]!\n    # 比赛相关\n    findGameById(gameId: String!): Game\n    findGames(gameIds: [String!]!): [Game!]!\n    # 轮次相关\n    findRoundById(roundId: String!): Round\n    findRounds(roundIds: [String!]!): [Round!]!\n\n    # 全局相关\n    listMatchTypes: [MatchType!]!\n    listRoundGameStrategyTypes: [RoundGameStrategyType!]!\n}\n\n# Date 本质是符合 ISO 标准的 String\nscalar Date\n# URL 本质就是 String\nscalar URL\n\n# TODO: 告知 size\n\ntype PagedUserList {\n    page: Int!\n    pageSize: Int!\n    totalSize: Int!\n    list: [User!]!\n}\n\ntype PagedMatchList {\n    page: Int!\n    pageSize: Int!\n    totalSize: Int!\n    list: [Match!]!\n}\n\ntype User {\n    userId: String!\n    username: String!\n    description: String\n    avatar: URL\n    gender: Gender!\n    mobile: String\n    email: String\n    organizedMatches(page: Int = 0, pageSize: Int = 10): [Match!]!\n    organizedMatchSize: Int!\n    participatedMatches(page: Int = 0, pageSize: Int = 10): [Match!]!\n    participatedMatchSize: Int!\n    createdAt: Date!\n}\n\nenum Gender {\n    MALE\n    FEMALE\n    OTHER\n    UNKNOWN\n}\n\nenum MatchStatus {\n    PREPARE\n    RUNNING\n    FINISHED\n}\n\ntype Match {\n    matchId: String!\n    active: Boolean!\n    matchTypeId: String!\n    organizerUser: User!\n    status: MatchStatus\n    name: String!\n    description: String!\n    targetGroup: String\n    startTime: Date\n    preview: URL\n    previewLarge: URL\n    participants: [User!]!\n    referees: [User!]!\n    units: [Unit!]!\n    minUnitMember: Int!\n    maxUnitMember: Int!\n    publicSignUp: Boolean!\n    publicShowUp: Boolean!\n    rounds: [Round!]!\n    comments(page: Int = 0, pageSize: Int = 10): [Comment!]!\n    commentSize: Int!\n    createdAt: Date!\n}\n\ntype Unit {\n    unitId: String!\n    name: String\n    description: String\n    creator: User!\n    members: [User!]!\n    match: Match!\n    createdAt: Date!\n}\n\ntype Game {\n    gameId: String!\n    status: GameStatus!\n    unit0: Unit!\n    unit1: Unit\n    createdAt: Date!\n    result: GameResult\n    startTime: Date,\n    location: String,\n    referee: User,\n    comments(page: Int = 0, pageSize: Int = 10): [Comment!]!\n}\n\nenum GameStatus {\n    NOT_START\n    RUNNING\n    WIN_FIRST\n    WIN_SECOND\n    DRAW\n}\n\ntype GameResult {\n    rounds: [GameRoundResult]\n    result: GameFinalResult\n    extra: String\n}\n\ntype GameRoundResult {\n    score0: Int\n    score1: Int\n}\n\ntype GameFinalResult {\n    winner: Int\n    output0: Int\n    output1: Int\n}\n\ntype Round {\n    roundId: String!\n    name: String\n    tag: String\n    description: String\n    status: RoundStatus!\n    units: [Unit!]!\n    games: [Game!]!\n    createdAt: Date!\n}\n\nenum RoundStatus {\n    NOT_START\n    RUNNING\n    FINISHED\n    TERMINATED\n}\n\ntype MatchType {\n    matchTypeId: String!\n    matchTypeName: String!\n}\n\ntype RoundGameStrategyType {\n    strategyId: String!\n    strategyName: String!\n}\n\ntype Comment {\n    commentId: String!\n    issuer: User!\n    content: String!\n    reply: Comment\n    createdAt: Date!\n    updatedAt: Date!\n}\n```",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "description": "graphql 的 query 字符串",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "title": "empty object",
+              "properties": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

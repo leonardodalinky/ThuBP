@@ -3,7 +3,7 @@ language: java
 jdk: oraclejdk8
 services:
   - mongodb
-before_install: cd code
+before_install: cd backend/code
 before_script:
   - sleep 15
 after_success:
